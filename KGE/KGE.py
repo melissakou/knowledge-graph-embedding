@@ -1,18 +1,10 @@
-from operator import pos
 import os
-import csv
 import datetime
-import subprocess
 import logging
 import numpy as np
-from numpy.core.numeric import indices
-from numpy.lib.function_base import gradient
-import pandas as pd
 import tensorflow as tf
-from tensorflow._api.v2 import summary
-from tensorflow.python.eager.monitoring import Metric
-from tensorflow.python.ops.gen_math_ops import NotEqual
-from tensorflow.python.ops.linalg_ops import norm_v2
+import multiprocessing as mp
+
 from tqdm import tqdm, trange
 from tensorboard.plugins import projector
 from KGE.data_utils import calculate_data_size, set_tf_iterator
@@ -169,10 +161,16 @@ class KGE:
                 indices = [i for (i, ti) in enumerate(self.meta_data["ind2type"]) if ti == t]
                 self.meta_data["type2inds"][t] = np.array(indices)
         
+        # Create pool for multiprocessing negative sampling
+        if self.n_workers > 1:
+            self.pool = mp.Pool(self.n_workers)
+        else:
+            self.pool = None
+        
         return train_iter, val_iter
         
     def _init_embeddings(self, seed):
-        pass
+        raise NotImplementedError("subclass of KGE should implement _init_embeddings()")
     
     def _run_single_batch(self, batch_data, is_train):
         neg_triplet = self._negative_sampling(batch_data, strategy=self.ns_strategy)
@@ -207,7 +205,7 @@ class KGE:
 
     def _corrupt_h(self, X, sample_pool, negative_ratio, strategy):
         params = {"side": "h", "meta_data": self.meta_data, "n_workers": self.n_workers}
-        sample_entities = strategy(X, sample_pool, negative_ratio, params)
+        sample_entities = strategy(X, sample_pool, negative_ratio, self.pool, params)
         h = sample_entities
         r = tf.repeat(X[:, 1], negative_ratio)
         t = tf.repeat(X[:, 2], negative_ratio)
@@ -216,7 +214,7 @@ class KGE:
 
     def _corrupt_t(self, X, sample_pool, negative_ratio, strategy):
         params = {"side": "t", "meta_data": self.meta_data, "n_workers": self.n_workers}
-        sample_entities = strategy(X, sample_pool, negative_ratio, params)
+        sample_entities = strategy(X, sample_pool, negative_ratio, self.pool, params)
         h = tf.repeat(X[:, 0], negative_ratio)
         r = tf.repeat(X[:, 1], negative_ratio)
         t = sample_entities
@@ -225,7 +223,7 @@ class KGE:
 
 
     def translate(self, X):
-        pass
+        raise NotImplementedError("subclass of KGE should implement translate()")
     
     def _score_fn(self, triplets):
         trans, predicate = self.translate(X=triplets)

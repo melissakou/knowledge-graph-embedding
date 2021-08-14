@@ -31,14 +31,4 @@ class TransE(KGE):
 
     
     def get_embeddings(self, x, embedding_type):
-        if embedding_type == 'entity':
-            ent_id = self.entitiy_to_index(x)
-            return tf.nn.embedding_lookup(self.ent_emb, ent_id).numpy()
-        
-        if embedding_type == 'relation':
-            rel_id = self.rel_to_index(x)
-            return tf.nn.embedding_lookup(self.rel_emb, rel_id).numpy()
-            
-        if embedding_type not in ['entity', 'relation']:
-            logging.error("Invalid embedding_type, valid options: 'entity', 'relation'")
-            return
+        pass

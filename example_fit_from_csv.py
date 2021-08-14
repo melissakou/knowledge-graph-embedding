@@ -26,7 +26,7 @@ model = TransE(
     score_fn=dot,
     score_params=None, #{"p": 2},
     norm_emb = False,
-    ns_strategy=uniform_strategy,
+    ns_strategy=typed_strategy,
     n_workers=1
 )
 
