@@ -2,6 +2,7 @@ import os
 import datetime
 import logging
 import numpy as np
+from numpy.lib.function_base import gradient
 import tensorflow as tf
 import multiprocessing as mp
 
@@ -12,7 +13,7 @@ from KGE.ns_strategy import typed_strategy
 
 logging.getLogger().setLevel(logging.INFO)
 
-class KGE:
+class KGEModel:
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, loss_fn, loss_params,
                  score_fn, score_params, norm_emb = False, ns_strategy="uniform", n_workers=2):
@@ -184,7 +185,8 @@ class KGE:
         
         if is_train:
             gradients = g.gradient(batch_loss, list(self.model_weights.values()))
-            self.optimizer.apply_gradients(zip(gradients, list(self.model_weights.values())))
+            gradients = [tf.clip_by_norm(grad, clip_norm=2.0) for grad in gradients]
+            self.optimizer.apply_gradients(zip(gradients, list(self.model_weights.values())))               
         
         return batch_loss.numpy()
 
@@ -281,9 +283,13 @@ class KGE:
                     f.write("{}\n".format(x))
         
         write_metadata_file(path=os.path.join(log_path, "ent_metadata.tsv"), obj=self.meta_data["ind2ent"])
-        write_metadata_file(path=os.path.join(log_path, "rel_metadata.tsv"), obj=self.meta_data["ind2rel"])
 
-        ckpt = tf.train.Checkpoint(ent_emb=self.model_weights["ent_emb"], rel_emb=self.model_weights["rel_emb"])
+        if self.model_weights.get("rel_emb") is not None:
+            write_metadata_file(path=os.path.join(log_path, "rel_metadata.tsv"), obj=self.meta_data["ind2rel"])
+            ckpt = tf.train.Checkpoint(ent_emb=self.model_weights["ent_emb"], rel_emb=self.model_weights["rel_emb"])
+        else:
+            ckpt = tf.train.Checkpoint(ent_emb=self.model_weights["ent_emb"])
+
         ckpt.save(os.path.join(log_path, "embedding.ckpt"))
 
         config = projector.ProjectorConfig()
@@ -291,36 +297,12 @@ class KGE:
         ent_embedding.tensor_name = "ent_emb/.ATTRIBUTES/VARIABLE_VALUE"
         ent_embedding.metadata_path = "ent_metadata.tsv"
 
-        rel_embedding = config.embeddings.add()
-        rel_embedding.tensor_name = "rel_emb/.ATTRIBUTES/VARIABLE_VALUE"
-        rel_embedding.metadata_path = "rel_metadata.tsv"
+        if self.model_weights.get("rel_emb") is not None:
+            rel_embedding = config.embeddings.add()
+            rel_embedding.tensor_name = "rel_emb/.ATTRIBUTES/VARIABLE_VALUE"
+            rel_embedding.metadata_path = "rel_metadata.tsv"
 
         projector.visualize_embeddings(log_path, config)
-
-    def get_rank(self, X, filter):
-        X = self.convert_to_index(X)
-        filter = self.convert_to_index(filter)
-        filter_string = tf.strings.reduce_join(tf.strings.as_string(filter), axis = -1, separator = ',')
-        filter_hash_table = tf.lookup.StaticHashTable(tf.lookup.KeyValueTensorInitializer(filter_string, [1] * filter_string.shape[0]), 0)
-
-        score = self._score_fn(X)
-
-        ranks = []
-        for i in tqdm(range(len(X))):
-            neg_triplet = self._generate_corrupt_for_eval(X[i])
-            neg_score = self._score_fn(neg_triplet)
-            pos_score = score[i]
-            test_triplet = tf.boolean_mask(neg_triplet, tf.less(neg_score, pos_score))
-            if test_triplet.shape[0] == 0:
-                rank = 1
-            else:
-                test_string = tf.strings.reduce_join(tf.strings.as_string(test_triplet), axis = -1, separator = ',')
-                false_neg = tf.reduce_sum(filter_hash_table.lookup(test_string))
-                rank = test_triplet.shape[0] - false_neg.numpy() + 1
-
-            ranks.append(rank)
-
-        return ranks
     
     def _summarize_embeddings(self, step):
         tf.summary.histogram('Entitiy Embeddings', self.ent_emb, step = step)

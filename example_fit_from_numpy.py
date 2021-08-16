@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from KGE.data_utils import index_kg, convert_kg_to_index
-from KGE.TransE import TransE
+from KGE.models.TransE import TransE
 from KGE.score import p_norm, dot
 from KGE.loss import pairwise_loss, neg_log_likelihood
 from KGE.ns_strategy import uniform_strategy, typed_strategy

@@ -1,6 +1,12 @@
 import random
+import numpy as np
 from KGE.data_utils import index_kg, convert_kg_to_index
-from KGE.TransE import TransE
+from KGE.models.UM import UM
+from KGE.models.SE import SE
+from KGE.models.TransE import TransE
+from KGE.models.TransH import TransH
+from KGE.models.TransR import TransR
+
 from KGE.score import p_norm, dot
 from KGE.loss import pairwise_loss, neg_log_likelihood
 from KGE.ns_strategy import uniform_strategy, typed_strategy
@@ -15,21 +21,22 @@ meta_data["ind2type"] = random.choices(["A", "B", "C"], k=len(meta_data["ind2ent
 convert_kg_to_index(train, meta_data["ent2ind"], meta_data["rel2ind"])
 convert_kg_to_index(valid, meta_data["ent2ind"], meta_data["rel2ind"])
 train = train + "_indexed"
+
 valid = valid + "_indexed"
 
-model = TransE(
-    embedding_params={"embedding_size": 10},
+model = TransR(
+    embedding_params={"ent_embedding_size": 128, "rel_embedding_size": 64},
     negative_ratio=2,
     corrupt_side="h+t",
-    loss_fn=neg_log_likelihood,
-    loss_params=None, #{"margin": 0.5},
-    score_fn=dot,
-    score_params=None, #{"p": 2},
+    loss_fn=pairwise_loss,
+    loss_params={"margin": 0.5},
+    score_fn=p_norm,
+    score_params={"p": 2},
     norm_emb = False,
-    ns_strategy=typed_strategy,
+    ns_strategy=uniform_strategy,
     n_workers=1
 )
 
-model.fit(train_X=train, val_X=valid, meta_data=meta_data, epochs=100, batch_size=256,
-          early_stopping_rounds=1, restore_best_weight=True, opt="Adam", opt_params=None,
+model.fit(train_X=train, val_X=valid, meta_data=meta_data, epochs=100, batch_size=512,
+          early_stopping_rounds=10, restore_best_weight=True, opt="Adam", opt_params=None,
           seed=None, log_path="./tensorboard_logs", log_projector=True)
