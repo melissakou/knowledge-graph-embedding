@@ -5,10 +5,10 @@ from KGE.models.KGEModel import KGEModel
 
 logging.getLogger().setLevel(logging.INFO)
 
-class RotateE(KGEModel):
+class RotatE(KGEModel):
 
     def __init__(self, *args, **kwargs):
-        super(RotateE, self).__init__(*args, **kwargs)
+        super(RotatE, self).__init__(*args, **kwargs)
         self.score_params["complex"] = True
         
     def _init_embeddings(self, seed):
