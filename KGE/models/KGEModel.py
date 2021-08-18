@@ -32,6 +32,8 @@ class KGEModel:
         self.ns_strategy = ns_strategy
         self.n_workers = n_workers
 
+        self.score_params["complex"] = False
+
     def fit(self, train_X, val_X, meta_data, epochs, batch_size, early_stopping_rounds,
             restore_best_weight=True, opt="Adam", opt_params=None, seed=None,
             log_path=None, log_projector=False):
@@ -303,10 +305,6 @@ class KGEModel:
             rel_embedding.metadata_path = "rel_metadata.tsv"
 
         projector.visualize_embeddings(log_path, config)
-    
-    def _summarize_embeddings(self, step):
-        tf.summary.histogram('Entitiy Embeddings', self.ent_emb, step = step)
-        tf.summary.histogram('Relation Embeddings', self.rel_emb, step = step)
 
 
 def _normalized_embeddings(X, p):

@@ -7,4 +7,5 @@ This is an implementation of knowledge graph embedding models:
 * TransE
 * TransH
 * TransR
-
+* TransD
+* RotatE

@@ -6,6 +6,8 @@ from KGE.models.SE import SE
 from KGE.models.TransE import TransE
 from KGE.models.TransH import TransH
 from KGE.models.TransR import TransR
+from KGE.models.TransD import TransD
+from KGE.models.RotatE import RotatE
 
 from KGE.score import p_norm, dot
 from KGE.loss import pairwise_loss, neg_log_likelihood
@@ -24,14 +26,15 @@ train = train + "_indexed"
 
 valid = valid + "_indexed"
 
-model = TransR(
-    embedding_params={"ent_embedding_size": 128, "rel_embedding_size": 64},
+model = RotatE(
+    embedding_params={"embedding_size": 128},
     negative_ratio=2,
     corrupt_side="h+t",
     loss_fn=pairwise_loss,
     loss_params={"margin": 0.5},
     score_fn=p_norm,
     score_params={"p": 2},
+
     norm_emb = False,
     ns_strategy=uniform_strategy,
     n_workers=1
