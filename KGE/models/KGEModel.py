@@ -8,18 +8,22 @@ import multiprocessing as mp
 
 from tqdm import tqdm, trange
 from tensorboard.plugins import projector
-from KGE.data_utils import calculate_data_size, set_tf_iterator
+from KGE.data_utils import calculate_data_size, set_tf_iterator, array_diff
 from KGE.ns_strategy import typed_strategy
+from KGE.evaluation import hits_at_k
 
 logging.getLogger().setLevel(logging.INFO)
 
+def _normalized_embeddings(X, p):
+    return X / tf.norm(X, ord=p, axis=1, keepdims=True)
+
+
 class KGEModel:
 
-    def __init__(self, embedding_params, negative_ratio, corrupt_side, loss_fn, loss_params,
-                 score_fn, score_params, norm_emb = False, ns_strategy="uniform", n_workers=2):
-        if corrupt_side not in ['h+t', 'h', 't']:
-            logging.error("Invalid corrupt_side, valid options: 'h+t', 'h', 't'")
-            return
+    def __init__(self, embedding_params, negative_ratio, corrupt_side, 
+                 score_fn, score_params, loss_fn, loss_params,
+                 ns_strategy, norm_emb, n_workers):
+        assert corrupt_side in ['h+t', 'h', 't'], "Invalid corrupt_side, valid options: 'h+t', 'h', 't'"
         
         self.embedding_params = embedding_params
         self.negative_ratio = negative_ratio
@@ -306,6 +310,34 @@ class KGEModel:
 
         projector.visualize_embeddings(log_path, config)
 
+    def evaluate(self, eval_X, corrupt_side, metrics, k, filter_pos=False, positive_X=None, n_workers=1):
 
-def _normalized_embeddings(X, p):
-    return X / tf.norm(X, ord=p, axis=1, keepdims=True)
+        assert corrupt_side in ['h', 't'], "Invalid corrupt_side, valid options: 'h', 't'"
+        side_mapping = {"h": 0, "t": 2}
+        side = side_mapping[corrupt_side]
+
+        n_eval = calculate_data_size(eval_X)
+        ranks = []
+        sample_bar = trange(n_eval, desc="Sample", leave=False)
+        for i in sample_bar:
+            pos_triplet = eval_X[i, ]
+            ranks.append(self._rank_eval_sample(pos_triplet, side, filter_pos, positive_X))           
+
+        hits_at_k(ranks, 10)
+
+    def _rank_eval_sample(self, x, side, filter_pos, positive_X):
+        neg_triplet = np.tile(x, (len(self.meta_data["ind2ent"])-1, 1))
+        corrupt_entities = np.arange(len(self.meta_data["ind2ent"]))
+        corrupt_entities = np.delete(corrupt_entities, np.where(corrupt_entities == x[side]), axis=0)
+        neg_triplet[:, side] = corrupt_entities
+        if filter_pos:
+            neg_triplet = array_diff(neg_triplet, positive_X)
+        pos_score = self._score_fn(np.expand_dims(x, axis=0)).numpy()
+        neg_score = self._score_fn(neg_triplet).numpy()
+        return sum(neg_score > pos_score)
+
+
+        
+
+
+        

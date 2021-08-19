@@ -8,6 +8,18 @@ import tensorflow as tf
 from tqdm import tqdm
 from KGE.utils import check_path_exist_and_create
 
+
+class myIter:
+    def __init__(self, iter_obj):
+        self.iter_obj = iter_obj
+    
+    def __iter__(self):
+        self.iter_obj.__iter__
+    
+    def __next__(self):
+        return tf.stack(next(self.iter_obj), axis=1)
+
+
 def index_kg(kg_data):
     if type(kg_data) == np.ndarray:
         entities = list(np.unique(np.append(kg_data[:, 0], kg_data[:, 2])))
@@ -32,6 +44,7 @@ def index_kg(kg_data):
 
     return {"ent2ind": ent2ind, "ind2ent": ind2ent, "rel2ind": rel2ind, "ind2rel": ind2rel}
 
+
 def convert_kg_to_index(kg_data, ent2ind, rel2ind):
 
     if type(kg_data) == np.ndarray:
@@ -51,6 +64,7 @@ def convert_kg_to_index(kg_data, ent2ind, rel2ind):
             tmp.iloc[:, 2] = tmp.iloc[:, 2].map(ent2ind)
             tmp.to_csv(kg_data + "_indexed/" + f, index=False, header=False)
         logging.info("indexed_kg has been save to %s" % kg_data+"_indexed")
+
 
 def train_test_split_no_unseen(X, test_size, seed):
     
@@ -91,6 +105,7 @@ def train_test_split_no_unseen(X, test_size, seed):
     
     return X[train_id], X[test_id]
 
+
 def calculate_data_size(X):
     
     if type(X) == np.ndarray:
@@ -100,6 +115,7 @@ def calculate_data_size(X):
         filenames = [X + "/" + f for f in filenames]
         return sum([int(subprocess.getoutput("wc -l " + f).split()[0]) for f in filenames])
 
+
 def set_tf_iterator(data, batch_size, shuffle, buffer_size=None, seed=None):
     
     if type(data) == np.ndarray:
@@ -107,7 +123,7 @@ def set_tf_iterator(data, batch_size, shuffle, buffer_size=None, seed=None):
     else:
         filenames = os.listdir(data)
         filenames = [data + "/" + f for f in filenames]
-        tf_dataset = tf.data.Dataset.list_files(filenames).repeat() \
+        tf_dataset = tf.data.Dataset.list_files(filenames) \
             .interleave(lambda x: tf.data.experimental.CsvDataset(x, record_defaults=[tf.int32]*3),
                         cycle_length=tf.data.experimental.AUTOTUNE)
     
@@ -124,12 +140,7 @@ def set_tf_iterator(data, batch_size, shuffle, buffer_size=None, seed=None):
     return iterator
 
 
-class myIter:
-    def __init__(self, iter_obj):
-        self.iter_obj = iter_obj
-    
-    def __iter__(self):
-        self.iter_obj.__iter__
-    
-    def __next__(self):
-        return tf.stack(next(self.iter_obj), axis=1)
+def array_diff(a, b):
+    a_rows = a.view([('', a.dtype)] * a.shape[1])
+    b_rows = b.view([('', b.dtype)] * b.shape[1])
+    return np.setdiff1d(a_rows, b_rows, assume_unique=True).view(a.dtype).reshape(-1, a.shape[1])

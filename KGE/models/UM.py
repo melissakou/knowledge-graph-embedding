@@ -1,11 +1,28 @@
+"""
+UM
+"""
+
+
+from KGE.loss import pairwise_hinge_loss
 import logging
 import numpy as np
 import tensorflow as tf
 from KGE.models.KGEModel import KGEModel
+from KGE.score import p_norm
+from KGE.loss import pairwise_hinge_loss
+from KGE.ns_strategy import uniform_strategy
+
 
 logging.getLogger().setLevel(logging.INFO)
 
 class UM(KGEModel):
+
+    def __init__(self, embedding_params, negative_ratio, corrupt_side, 
+                 score_fn=p_norm, score_params={"p": 2}, loss_fn=pairwise_hinge_loss, loss_param={"margin": 1},
+                 ns_strategy=uniform_strategy, norm_emb=False, n_workers=1):
+        super(UM, self).__init__(embedding_params, negative_ratio, corrupt_side,
+                                 score_fn, score_params, loss_fn, loss_param,
+                                 ns_strategy, norm_emb, n_workers)
         
     def _init_embeddings(self, seed):
          
