@@ -1,7 +1,8 @@
-import random
 import logging
 import numpy as np
 from tqdm import tqdm
+from scipy.stats import hmean
+from scipy.stats.mstats import gmean
 
 def train_test_split_no_unseen(X, test_size, seed):
     
@@ -44,11 +45,23 @@ def train_test_split_no_unseen(X, test_size, seed):
     
     return X[train_id], X[test_id]
 
-def mrr_score(ranks):
+def mean_reciprocal_rank(ranks):
     return np.mean(1 / np.array(ranks))
 
-def mr_score(ranks):
+def mean_rank(ranks):
     return np.mean(ranks)
+
+def median_rank(ranks):
+    return np.median(ranks)
+
+def geometric_mean_rank(ranks):
+    return gmean(ranks)
+
+def harmonic_mean_rank(ranks):
+    return hmean(ranks)
+
+def std_rank(ranks):
+    return np.std(ranks)
 
 def hits_at_k(ranks, k):
     return np.mean(np.array(ranks) <= k)

@@ -1,4 +1,8 @@
 tensorboard_logs/
+output_TransE/
+pykeen_test.py
+eval_result_raw.json
+eval_result_filtered.json
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,jupyternotebooks,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode,jupyternotebooks,linux

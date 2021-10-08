@@ -6,7 +6,7 @@ import pandas as pd
 import tensorflow as tf
 
 from tqdm import tqdm
-from KGE.utils import check_path_exist_and_create
+from .utils import check_path_exist_and_create
 
 
 class myIter:
@@ -21,21 +21,21 @@ class myIter:
 
 
 def index_kg(kg_data):
-    if type(kg_data) == np.ndarray:
+    if isinstance(kg_data, np.ndarray):
         entities = list(np.unique(np.append(kg_data[:, 0], kg_data[:, 2])))
         relations = list(np.unique(kg_data[:, 1]))
     else:
-        entities = []
-        relations = []
+        entities = pd.Series([])
+        relations = pd.Series([])
         filenames = os.listdir(kg_data)
         filenames = [kg_data + "/" + f for f in filenames]
         for f in filenames:
             tmp = pd.read_csv(f, header = None, dtype = str)
-            entities.extend(list(tmp.iloc[:, 0]))
-            entities.extend(list(tmp.iloc[:, 2]))
-            relations.extend(list(tmp.iloc[:, 1]))
-        entities = list(set(entities))
-        relations = list(set(relations))            
+            entities = entities.append(tmp.iloc[:, 0])
+            entities = entities.append(tmp.iloc[:, 2])
+            relations = relations.append(tmp.iloc[:, 1])
+        entities = list(pd.unique(entities))
+        relations = list(pd.unique(relations))            
         
     ent2ind = {e: i for i, e in enumerate(entities)}
     ind2ent = [e for i, e in enumerate(entities)]
@@ -47,7 +47,7 @@ def index_kg(kg_data):
 
 def convert_kg_to_index(kg_data, ent2ind, rel2ind):
 
-    if type(kg_data) == np.ndarray:
+    if isinstance(kg_data, np.ndarray):
         kg_data[:, 0] = list(map(ent2ind.get, list(kg_data[:, 0])))
         kg_data[:, 1] = list(map(rel2ind.get, list(kg_data[:, 1])))
         kg_data[:, 2] = list(map(ent2ind.get, list(kg_data[:, 2])))
@@ -68,7 +68,7 @@ def convert_kg_to_index(kg_data, ent2ind, rel2ind):
 
 def train_test_split_no_unseen(X, test_size, seed):
     
-    if type(test_size) is float:
+    if isinstance(test_size, float):
         test_size = int(len(X) * test_size)
     
     e, e_cnt = np.unique(np.append(X[:, 0], X[:, 2]), return_counts = True)
@@ -108,39 +108,33 @@ def train_test_split_no_unseen(X, test_size, seed):
 
 def calculate_data_size(X):
     
-    if type(X) == np.ndarray:
-        return len(X)
-    else:
+    if isinstance(X, str):
         filenames = os.listdir(X)
         filenames = [X + "/" + f for f in filenames]
         return sum([int(subprocess.getoutput("wc -l " + f).split()[0]) for f in filenames])
+        return len(X)
+    else:
+        return len(X)
 
 
 def set_tf_iterator(data, batch_size, shuffle, buffer_size=None, seed=None):
     
-    if type(data) == np.ndarray:
-        tf_dataset = tf.data.Dataset.from_tensor_slices(data)
-    else:
+    if isinstance(data, str):
         filenames = os.listdir(data)
         filenames = [data + "/" + f for f in filenames]
         tf_dataset = tf.data.Dataset.list_files(filenames) \
             .interleave(lambda x: tf.data.experimental.CsvDataset(x, record_defaults=[tf.int32]*3),
                         cycle_length=tf.data.experimental.AUTOTUNE)
+    else:
+        tf_dataset = tf.data.Dataset.from_tensor_slices(data)
     
     if shuffle:
-        assert seed is not None, "seed must be given when suffle is True"
         assert buffer_size is not None, "buffer_size must be given when shuffle is True"
         tf_dataset = tf_dataset.shuffle(buffer_size=buffer_size, seed=seed, reshuffle_each_iteration=True)
     tf_dataset = tf_dataset.repeat().batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
     iterator = iter(tf_dataset)
 
-    if type(data) != np.ndarray:
+    if isinstance(data, str):
         iterator = myIter(iterator)
 
     return iterator
-
-
-def array_diff(a, b):
-    a_rows = a.view([('', a.dtype)] * a.shape[1])
-    b_rows = b.view([('', b.dtype)] * b.shape[1])
-    return np.setdiff1d(a_rows, b_rows, assume_unique=True).view(a.dtype).reshape(-1, a.shape[1])

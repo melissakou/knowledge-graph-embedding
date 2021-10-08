@@ -1,37 +1,42 @@
-import random
+import json
 import numpy as np
+import tensorflow as tf
 from KGE.data_utils import index_kg, convert_kg_to_index
-from KGE.models.UM import UM
-from KGE.models.SE import SE
-from KGE.models.TransE import TransE
-from KGE.models.TransH import TransH
-from KGE.models.TransR import TransR
-from KGE.models.TransD import TransD
-from KGE.models.RotatE import RotatE
+from KGE.models.translating_based.RotatE import RotatE
 
-from KGE.score import p_norm, dot
-from KGE.loss import pairwise_hinge_loss, binary_cross_entropy_loss
-from KGE.ns_strategy import uniform_strategy, typed_strategy
 
-train = np.loadtxt("./data/fb15k_237/train/train.csv", dtype=str, delimiter=',')
-valid = np.loadtxt("./data/fb15k_237/valid/valid.csv", dtype=str, delimiter=',')
-test = np.loadtxt("./data/fb15k_237/test/test.csv", dtype=str, delimiter=',')
+if __name__ == "__main__":
+    train = np.loadtxt("./data/fb15k/train/train.csv", dtype=str, delimiter=',')
+    valid = np.loadtxt("./data/fb15k/valid/valid.csv", dtype=str, delimiter=',')
+    test = np.loadtxt("./data/fb15k/test/test.csv", dtype=str, delimiter=',')
 
-meta_data = index_kg(train)
-train = convert_kg_to_index(train, meta_data["ent2ind"], meta_data["rel2ind"])
-valid = convert_kg_to_index(valid, meta_data["ent2ind"], meta_data["rel2ind"])
-test = convert_kg_to_index(test, meta_data["ent2ind"], meta_data["rel2ind"])
+    metadata = index_kg(train)
+    train = convert_kg_to_index(train, metadata["ent2ind"], metadata["rel2ind"])
+    valid = convert_kg_to_index(valid, metadata["ent2ind"], metadata["rel2ind"])
+    test = convert_kg_to_index(test, metadata["ent2ind"], metadata["rel2ind"])
 
-meta_data["ind2type"] = random.choices(["A", "B", "C"], k=len(meta_data["ind2ent"]))
+    # with open("./output_TransE/model_weights.pkl", "rb") as f:
+    #     model_weights = pickle.load(f)
 
-model = UM(
-    embedding_params={"embedding_size": 128},
-    negative_ratio=2,
-    corrupt_side="h+t")
+    model = RotatE(
+        embedding_params={"embedding_size": 1000},
+        negative_ratio=128,
+        corrupt_side="h+t",
+        score_params={"p": 2},
+        loss_param={"margin":24, "temperature": 1})
+    model.train(train_X=train, val_X=valid, metadata=metadata, epochs=1000, batch_size=512,
+                early_stopping_rounds=None, restore_best_weight=False,
+                optimizer=tf.optimizers.Adam(learning_rate=0.0001),
+                seed=12345, log_path="./tensorboard_logs", log_projector=True)
 
-model.fit(train_X=train, val_X=valid, meta_data=meta_data, epochs=2, batch_size=512,
-          early_stopping_rounds=None, restore_best_weight=True, opt="Adam", opt_params=None,
-          seed=None, log_path="./tensorboard_logs", log_projector=True)
+    # eval_result_raw = model.evaluate(eval_X=test, corrupt_side="h")
+    # print(eval_result_raw)
+    # with open("./eval_result_raw.json", "w") as f:
+    #     json.dump(eval_result_raw, f)
 
-model.evaluate(eval_X=test, corrupt_side="h", metrics=None, k=10,
-               filter_pos=True, positive_X=np.concatenate((train, valid, test), axis=0), n_workers=4)
+    eval_result_filtered = model.evaluate(eval_X=test, corrupt_side="h", positive_X=np.concatenate((train, valid, test), axis=0))
+    print(eval_result_filtered)
+    with open("./eval_result_filtered.json", "w") as f:
+        json.dump(eval_result_filtered, f)
+
+    print(123)

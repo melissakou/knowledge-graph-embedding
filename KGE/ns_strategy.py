@@ -3,14 +3,6 @@ import tensorflow as tf
 import multiprocessing as mp
 
 from itertools import repeat
-from functools import partial
-
-def ns_with_same_type(x, meta_data, negative_ratio):
-    sample_pool = meta_data["type2inds"][meta_data["ind2type"][x]]
-    sample_pool = np.delete(sample_pool, np.where(sample_pool == x), axis=0)
-    sample_entities = np.random.choice(sample_pool, size=negative_ratio)
-
-    return sample_entities
 
 def uniform_strategy(X, sample_pool, negative_ratio, pool, params):
     sample_index = tf.random.uniform(
@@ -21,7 +13,15 @@ def uniform_strategy(X, sample_pool, negative_ratio, pool, params):
 
     return sample_entities
 
+
 def typed_strategy(X, sample_pool, negative_ratio, pool, params):
+
+    def ns_with_same_type(x, meta_data, negative_ratio):
+        sample_pool = meta_data["type2inds"][meta_data["ind2type"][x]]
+        sample_pool = np.delete(sample_pool, np.where(sample_pool == x), axis=0)
+        sample_entities = np.random.choice(sample_pool, size=negative_ratio)
+
+        return sample_entities
 
     if params["side"] == "h":
         ref_type = X[:, 0].numpy()
@@ -42,8 +42,3 @@ def typed_strategy(X, sample_pool, negative_ratio, pool, params):
     sample_entities = tf.constant(np.concatenate(sample_entities), dtype=X.dtype)
 
     return sample_entities
-    
-
-    
-
-
