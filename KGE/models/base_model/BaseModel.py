@@ -17,8 +17,9 @@ from ...evaluation.metrics import mean_reciprocal_rank, mean_rank, hits_at_k, me
 
 logging.getLogger().setLevel(logging.INFO)
 
-gpu = tf.config.list_physical_devices("GPU")[0]
-tf.config.experimental.set_memory_growth(gpu, True)
+gpus = tf.config.list_physical_devices("GPU")
+if len(gpus) > 0:
+    tf.config.experimental.set_memory_growth(gpus[0], True)
 
 class KGEModel:
     """A base module for Knowledge Graph Embedding Model.
