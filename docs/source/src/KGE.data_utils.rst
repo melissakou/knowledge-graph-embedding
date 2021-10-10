@@ -5,3 +5,8 @@ KGE.data\_utils
    :inherited-members:
    :no-heading:
 
+.. automodule:: KGE.data_utils
+   :members:
+   :inherited-members:
+   :show-inheritance:
+

@@ -41,7 +41,7 @@ extensions = [
 ]
 
 autosummary_generate = True
-autoclass_content = "both"
+autoclass_content = "class"
 autodoc_class_signature = "separated"
 
 # Napoleon settings

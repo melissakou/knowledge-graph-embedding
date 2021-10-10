@@ -5,3 +5,8 @@ KGE.models.translating\_based.RotatE
    :inherited-members:
    :no-heading:
 
+.. automodule:: KGE.models.translating_based.RotatE
+   :members:
+   :inherited-members:
+   :show-inheritance:
+

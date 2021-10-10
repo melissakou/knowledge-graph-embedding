@@ -5,3 +5,8 @@ KGE.models.base\_model.SemanticModel
    :inherited-members:
    :no-heading:
 
+.. automodule:: KGE.models.base_model.SemanticModel
+   :members:
+   :inherited-members:
+   :show-inheritance:
+

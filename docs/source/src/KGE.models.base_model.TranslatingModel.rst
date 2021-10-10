@@ -5,3 +5,8 @@ KGE.models.base\_model.TranslatingModel
    :inherited-members:
    :no-heading:
 
+.. automodule:: KGE.models.base_model.TranslatingModel
+   :members:
+   :inherited-members:
+   :show-inheritance:
+

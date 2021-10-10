@@ -5,3 +5,8 @@ KGE.ns\_strategy
    :inherited-members:
    :no-heading:
 
+.. automodule:: KGE.ns_strategy
+   :members:
+   :inherited-members:
+   :show-inheritance:
+

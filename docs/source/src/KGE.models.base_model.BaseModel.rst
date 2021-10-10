@@ -5,3 +5,8 @@ KGE.models.base\_model.BaseModel
    :inherited-members:
    :no-heading:
 
+.. automodule:: KGE.models.base_model.BaseModel
+   :members:
+   :inherited-members:
+   :show-inheritance:
+

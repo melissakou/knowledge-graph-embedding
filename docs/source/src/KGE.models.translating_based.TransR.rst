@@ -5,3 +5,8 @@ KGE.models.translating\_based.TransR
    :inherited-members:
    :no-heading:
 
+.. automodule:: KGE.models.translating_based.TransR
+   :members:
+   :inherited-members:
+   :show-inheritance:
+
