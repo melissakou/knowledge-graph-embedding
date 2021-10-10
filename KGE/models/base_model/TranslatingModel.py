@@ -47,7 +47,7 @@ class TranslatingModel(KGEModel):
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
                  score_fn, score_params, loss_fn, loss_params,
-                 ns_strategy, constraint, n_workers):
+                 ns_strategy, n_workers):
         """Initialize TranslatingModel.
 
         Parameters
@@ -68,13 +68,11 @@ class TranslatingModel(KGEModel):
             loss paraneters for loss_fn
         ns_strategy : function
             negative sampling strategy
-        constraint : bool
-            conduct constraint or not
         n_workers : int
             number of workers for negative sampling
         """
         
         super(TranslatingModel, self).__init__(embedding_params, negative_ratio, corrupt_side, 
-                                               loss_fn, loss_params, ns_strategy, constraint, n_workers)
+                                               loss_fn, loss_params, ns_strategy, n_workers)
         self.score_fn = score_fn
         self.score_params = score_params

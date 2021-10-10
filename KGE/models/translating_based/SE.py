@@ -1,10 +1,11 @@
-"""SE"""
+"""An implementation of SE (Structured Embedding)
+"""
 
 import logging
 import numpy as np
 import tensorflow as tf
 from ..base_model.TranslatingModel import TranslatingModel
-from ...score import p_norm
+from ...score import Lp_distance
 from ...loss import pairwise_hinge_loss
 from ...ns_strategy import uniform_strategy
 from ...constraint import normalized_embeddings
@@ -12,17 +13,81 @@ from ...constraint import normalized_embeddings
 logging.getLogger().setLevel(logging.INFO)
 
 class SE(TranslatingModel):
+    """An implementation of SE (Structured Embedding) from `[brodes 2011] <https://www.aaai.org/ocs/index.php/AAAI/AAAI11/paper/viewFile/3659/3898>`_.
+
+    SE uses two matrices :math:`\\textbf{R}_r^{head}` and :math:`\\textbf{R}_r^{head}`
+    to project head and tail entities for given relation :math:`r`.
+
+    The score of :math:`(h,r,t)` is:
+
+    .. math::
+        f(h,r,t) = s(\\textbf{R}_r^{head} \\textbf{e}_h, \\textbf{R}_r^{tail} \\textbf{e}_t)
+
+    
+    where :math:`\\textbf{e}_i \in \mathbb{R}^k` are vector representations of the entities,
+    :math:`\\textbf{R}_i^{head} \in \mathbb{R}^{k \\times k}` and :math:`\\textbf{R}_i^{tail} \in \mathbb{R}^{k \\times k}`
+    are relation specific projection matrices for head and tail entities. \n
+    and :math:`s` is a scoring function (:py:mod:`KGE.score`) that scores the plausibility of matching between :math:`(translation, predicate)`. \n
+    By default, using :py:func:`KGE.score.Lp_distance`, negative L1-distance: 
+    
+    .. math::
+        s(\\textbf{R}_r^{head} \\textbf{e}_h, \\textbf{R}_r^{tail} \\textbf{e}_t) =
+            - \left\| \\textbf{R}_r^{head} \\textbf{e}_h - \\textbf{R}_r^{tail} \\textbf{e}_t \\right\|_1
+
+    You can change to L2-distance by giving :code:`score_params={"p": 2}` in :py:func:`__init__`,
+    or change any score function you like by specifying :code:`score_fn` in :py:func:`__init__`.
+
+    If :code:`constraint=True` given in :py:func:`__init__`,
+    renormalized :math:`\left\| \\textbf{e}_i \\right\|_2 = 1` to have unit length every iteration described in
+    `original SE paper <https://www.aaai.org/ocs/index.php/AAAI/AAAI11/paper/viewFile/3659/3898>`_.
+    """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 score_fn=p_norm, score_params={"p": 1}, loss_fn=pairwise_hinge_loss, loss_param={"margin": 1},
+                 score_fn=Lp_distance, score_params={"p": 1}, loss_fn=pairwise_hinge_loss, loss_param={"margin": 1},
                  ns_strategy=uniform_strategy, constraint=True, n_workers=1):
+        """Initialized SE
+
+        Parameters
+        ----------
+        embedding_params : dict
+            embedding dimension parameters, should have key :code:`'embedding_size'` for embedding dimension :math:`k`
+        negative_ratio : int
+            number of negative sample
+        corrupt_side : str
+            corrupt from which side while trainging, can be :code:`'h'`, :code:`'t'`, or :code:`'h+t'`
+        score_fn : function, optional
+            scoring function, by default :py:func:`KGE.score.Lp_distance`
+        score_params : dict, optional
+            score parameters for :code:`score_fn`, by default :code:`{"p": 1}`
+        loss_fn : function, optional
+            loss function, by default :py:func:`KGE.loss.pairwise_hinge_loss`
+        loss_param : dict, optional
+            loss parameters for :code:`loss_fn`, by default :code:`{"margin": 1}`
+        ns_strategy : function, optional
+            negative sampling strategy, by default :py:func:`KGE.ns_strategy.uniform_strategy`
+        constraint : bool, optional
+            conduct constraint or not, by default True
+        n_workers : int, optional
+            number of workers for negative sampling, by default 1
+        """
         super(SE, self).__init__(embedding_params, negative_ratio, corrupt_side,
                                  score_fn, score_params, loss_fn, loss_param,
                                  ns_strategy, constraint, n_workers)
+        self.constraint = constraint
         
     def _init_embeddings(self, seed):
+        """Initialized the SE embeddings.
 
-        if self.__model_weights_initial is None:
+        If :code:`model_weight_initial` not given in :py:func:`train`, initialized embeddings randomly,  
+        otherwise, initialized from :code:`model_weight_initial`. 
+
+        Parameters
+        ----------
+        seed : int
+            random seed
+        """
+
+        if self._model_weights_initial is None:
             assert self.embedding_params.get("embedding_size") is not None, "'embedding_size' should be given in embedding_params when using SE"
             
             limit = np.sqrt(6.0 / self.embedding_params["embedding_size"])
@@ -46,10 +111,18 @@ class SE(TranslatingModel):
 
             self.model_weights = {"ent_emb": ent_emb, "rel_proj_h": rel_proj_h, "rel_proj_t": rel_proj_t}
         else:
-            self._check_model_weights(self.__model_weights_initial)
-            self.model_weights = self.__model_weights_initial
+            self._check_model_weights(self._model_weights_initial)
+            self.model_weights = self._model_weights_initial
 
     def _check_model_weights(self, model_weights):
+        """Check the model_weights have necessary keys and dimensions
+
+        Parameters
+        ----------
+        model_weights : dict
+            model weights to check.
+        """
+
         assert model_weights.get("ent_emb") is not None, "entity embedding should be given in model_weights with key 'ent_emb'"
         assert model_weights.get("rel_proj_h") is not None, "relation projection matrix(head) should be given in model_weights with key 'rel_proj_h'"
         assert model_weights.get("rel_proj_t") is not None, "relation projection matrix(tail) should be given in model_weights with key 'rel_proj_t'"
@@ -61,6 +134,27 @@ class SE(TranslatingModel):
             "shape of 'rel_proj_t' should be (len(meta_data['ind2rel']), embedding_params['embedding_size'], embedding_params['embedding_size'])"
 
     def score_hrt(self, h, r, t):
+        """ Score the triplets :math:`(h,r,t)`.
+
+        If :code:`h` is :code:`None`, score all entities: :math:`(h_i, r, t)`. \n
+        If :code:`t` is :code:`None`, score all entities: :math:`(h, r, t_i)`. \n
+        :code:`h` and :code:`t` should not be :code:`None` simultaneously.
+
+        Parameters
+        ----------
+        h : tf.Tensor or np.ndarray or None
+            index of heads with shape :code:`(n,)`
+        r : tf.Tensor or np.ndarray
+            index of relations with shape :code:`(n,)`
+        t : tf.Tensor or np.ndarray or None
+            index of tails with shape :code:`(n,)`
+
+        Returns
+        -------
+        tf.Tensor
+            triplets scores with shape :code:`(n,)`
+        """
+
         if h is None:
             h = np.arange(len(self.meta_data["ind2ent"]))
         if t is None:
@@ -75,6 +169,19 @@ class SE(TranslatingModel):
         return self.score_fn(tf.squeeze(tf.matmul(rel_proj_h, h_emb)), tf.squeeze(tf.matmul(rel_proj_t, t_emb)), self.score_params)
 
     def _constraint_loss(self, X):
+        """Perform constraint if necessary.
+
+        Parameters
+        ----------
+        X : batch_data
+            batch data
+
+        Returns
+        -------
+        tf.Tensor
+            regularization term with shape (1,)
+        """
+
         if self.constraint:
             self.model_weights["ent_emb"].assign(normalized_embeddings(X=self.model_weights["ent_emb"], p=2, axis=1, value=1))
 

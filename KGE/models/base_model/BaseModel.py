@@ -28,7 +28,7 @@ class KGEModel:
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 loss_fn, loss_params, ns_strategy, constraint, n_workers):
+                 loss_fn, loss_params, ns_strategy, n_workers):
         """Initialize KGEModel.
 
         Parameters
@@ -45,8 +45,6 @@ class KGEModel:
             loss paraneters for :code:`loss_fn`
         ns_strategy : function
             negative sampling strategy
-        constraint : bool
-            conduct constraint or not
         n_workers : int
             number of workers for negative sampling
         """
@@ -58,7 +56,6 @@ class KGEModel:
         self.corrupt_side = corrupt_side
         self.loss_fn = loss_fn
         self.loss_params = loss_params
-        self.constraint = constraint
         self.ns_strategy = ns_strategy
         self.__n_workers = n_workers
 
@@ -71,23 +68,23 @@ class KGEModel:
         Parameters
         ----------
         train_X : np.ndarray or str
-            training triplets.  
-            If `np.ndarray`, shape should be :code:`(n,3)` for :math:`(h,r,t)` respectively.  
-            If `str`, training triplets should be save under this folder path
+            training triplets. \n
+            If :code:`np.ndarray`, shape should be :code:`(n,3)` for :math:`(h,r,t)` respectively. \n
+            If :code:`str`, training triplets should be save under this folder path
             with csv format, every csv files should have 3 columns without
             header for :math:`(h,r,t)` respectively.
         val_X : np.ndarray or str
-            validation triplets.  
-            If `np.ndarray`, shape should be :code:`(n,3)` for :math:`(h,r,t)` respectively.  
-            If `str`, training triplets should be save under this folder path
+            validation triplets. \n
+            If :code:`np.ndarray`, shape should be :code:`(n,3)` for :math:`(h,r,t)` respectively. \n
+            If :code:`str`, training triplets should be save under this folder path
             with csv format, every csv files should have 3 columns without
             header for :math:`(h,r,t)` respectively.
         metadata : dict
-            metadata for kg data. should have following keys:  
-            `ent2ind`: dict, dictionay that mapping entity to index.  
-            `ind2ent`: list, list that mapping index to entity.  
-            `rel2ind`: dict, dictionay that mapping relation to index.  
-            `ind2rel`: list, list that mapping index to relation.  
+            metadata for kg data. should have following keys: \n
+            :code:`'ent2ind'`: dict, dictionay that mapping entity to index. \n
+            :code:`'ind2ent'`: list, list that mapping index to entity. \n 
+            :code:`'rel2ind'`: dict, dictionay that mapping relation to index. \n
+            :code:`'ind2rel'`: list, list that mapping index to relation. \n
             can use KGE.data_utils.index_kg to index and get metadata.
         epochs : int
             number of epochs
@@ -111,13 +108,13 @@ class KGEModel:
         log_projector : bool, optional
             project the embbedings in the tensorboard projector tab, 
             setting this True will write the metadata and embedding tsv files
-            in `log_path` and project this data on tensorboard projector tab,
+            in :code:`log_path` and project this data on tensorboard projector tab,
             by default False
         """
 
         self.metadata = metadata
         self.batch_size = batch_size
-        self.__model_weights_initial = model_weights_initial
+        self._model_weights_initial = model_weights_initial
         self.__optimizer = optimizer
         self.seed = seed
         self.log_path = log_path
@@ -582,7 +579,7 @@ class KGEModel:
         corrupt_side : str
             corrupt triplets from which side, can be :code:`'h'` and :code:`'t'`
         positive_X : tf.Tensor or np.array, optional
-            positive triplets that should bt filtered while generating
+            positive triplets that should be filtered while generating
             corrupted triplets, by default None (no filter applied)
 
         Returns
@@ -616,7 +613,7 @@ class KGEModel:
             rank this triplet
         positive_X : tf.Tensor or np.array, optional
             positive triplets that should bt filtered while generating
-            corrupted triplets, if None no filter applied
+            corrupted triplets, if :code:`None`, no filter applied
         corrupt_side : str
             corrupt triplets from which side, can be :code:`'h'` and :code:`'t'`
 

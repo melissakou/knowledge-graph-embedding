@@ -25,14 +25,13 @@ class RESCAL(SemanticModel):
     the entities, and :math:`\\textbf{R}_i \in \mathbb{R}^{k \\times k}` is an
     asymmetric matrix associated with the relation.
 
-    If :code:`constraint` is :code:`True` given in
-    :py:func:`__init__`,
+    If :code:`constraint=True` given in :py:func:`__init__`,
     conduct L2-regularization described in
     `original RESCAL paper <https://icml.cc/2011/papers/438_icmlpaper.pdf>`_:
 
     .. math::
         regularization~term = \lambda \\times
-        \left( \sum_{i}  {\left\| \\textbf{e}_i \\right\|}_2^2 + \sum_{i}  {\left\| \\textbf{R}_i \\right\|}_F^2 \\right)
+        \left( \sum_{i}  {\left\| \\textbf{e}_i \\right\|}_2^2 + \sum_{i}  {\left\| \\textbf{R}_i \\right\|}_F^2 \\right).
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
@@ -52,7 +51,7 @@ class RESCAL(SemanticModel):
         loss_fn : function, optional
             loss function, by default :py:func:`KGE.loss.square_error_loss`
         loss_params : dict, optional
-            loss paraneters for :code:`loss_fn`, by default :code:`None`
+            loss parameters for :code:`loss_fn`, by default :code:`None`
         ns_strategy : function, optional
             negative sampling strategy, by default :py:func:`KGE.ns_strategy.uniform_strategy`
         constraint : bool, optional
@@ -66,13 +65,13 @@ class RESCAL(SemanticModel):
         super(RESCAL, self).__init__(embedding_params, negative_ratio,
                                      corrupt_side, loss_fn, loss_params,
                                      ns_strategy, constraint, n_workers)
+        self.constraint = constraint
         self.constraint_weight = constraint_weight
 
     def _init_embeddings(self, seed):
         """Initialized the RESCAL embeddings.
 
-        If :code:`model_weight_initial` not given in :py:func:`train`,
-        initialized the RESCAL embeddings randomly,
+        If :code:`model_weight_initial` not given in :py:func:`train`, initialized embeddings randomly,  
         otherwise, initialized from :code:`model_weight_initial`. 
 
         Parameters
@@ -80,7 +79,7 @@ class RESCAL(SemanticModel):
         seed : int
             random seed
         """
-        if self.__model_weights_initial is None:
+        if self._model_weights_initial is None:
             assert self.embedding_params.get("embedding_size") is not None, \
                 "'embedding_size' should be given in embedding_params when using RESCAL"
             
@@ -107,8 +106,8 @@ class RESCAL(SemanticModel):
 
             self.model_weights = {"ent_emb": ent_emb, "rel_inter": rel_inter}
         else:
-            self._check_model_weights(self.__model_weights_initial)
-            self.model_weights = self.__model_weights_initial
+            self._check_model_weights(self._model_weights_initial)
+            self.model_weights = self._model_weights_initial
         
         # Constraint model weights while initial to help optimization
         if self.constraint:
@@ -127,6 +126,7 @@ class RESCAL(SemanticModel):
         model_weights : dict
             model weights to check.
         """
+
         desired_ent_emb_shape = \
             [len(self.meta_data["ind2ent"]), self.embedding_params["embedding_size"]]
         desired_rel_inter_shape = \
@@ -142,11 +142,10 @@ class RESCAL(SemanticModel):
             "shape of 'rel_inter' should be (len(meta_data['ind2rel']), embedding_params['embedding_size'], embedding_params['embedding_size'])"
     
     def score_hrt(self, h, r, t):
-        """ Score the triplets
+        """ Score the triplets :math:`(h,r,t)`.
 
-        Score the triplets :math:`(h,r,t)`.  
-        If :code:`h` is :code:`None`, score all entities with given r, t :math:`(h_i, r, t)`.  
-        If :code:`t` is :code:`None`, score all entities with gicen h, r :math:`(h, r, t_i)`.  
+        If :code:`h` is :code:`None`, score all entities: :math:`(h_i, r, t)`. \n
+        If :code:`t` is :code:`None`, score all entities: :math:`(h, r, t_i)`. \n
         :code:`h` and :code:`t` should not be :code:`None` simultaneously.
 
         Parameters

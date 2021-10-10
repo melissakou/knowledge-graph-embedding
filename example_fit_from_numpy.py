@@ -15,14 +15,11 @@ if __name__ == "__main__":
     valid = convert_kg_to_index(valid, metadata["ent2ind"], metadata["rel2ind"])
     test = convert_kg_to_index(test, metadata["ent2ind"], metadata["rel2ind"])
 
-    # with open("./output_TransE/model_weights.pkl", "rb") as f:
-    #     model_weights = pickle.load(f)
-
     model = RotatE(
         embedding_params={"embedding_size": 1000},
         negative_ratio=128,
         corrupt_side="h+t",
-        score_params={"p": 2},
+        score_params={"p": 1},
         loss_param={"margin":24, "temperature": 1})
     model.train(train_X=train, val_X=valid, metadata=metadata, epochs=1000, batch_size=512,
                 early_stopping_rounds=None, restore_best_weight=False,
@@ -38,5 +35,3 @@ if __name__ == "__main__":
     print(eval_result_filtered)
     with open("./eval_result_filtered.json", "w") as f:
         json.dump(eval_result_filtered, f)
-
-    print(123)

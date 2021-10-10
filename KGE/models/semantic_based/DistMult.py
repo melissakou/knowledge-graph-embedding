@@ -25,9 +25,8 @@ class DistMult(SemanticModel):
     the entities, and :math:`\\textbf{R}_i \in \mathbb{R}^{k \\times k}` is a
     diagonal matrix associated with the relation.
 
-    If :code:`constraint` is :code:`True` given in
-    :py:func:`__init__`,
-    renormalized :math:`\left\| \\textbf{e}_h \\right\|_2 = 1` to have unit length each gradient step
+    If :code:`constraint=True` given in :py:func:`__init__`,
+    renormalized :math:`\left\| \\textbf{e}_i \\right\|_2 = 1` to have unit length every iteration
     and conduct L2-regularization on :math:`\\textbf{R}` described in
     `original DistMult paper <https://arxiv.org/abs/1412.6575>`_:
 
@@ -52,7 +51,7 @@ class DistMult(SemanticModel):
         loss_fn : function, optional
             loss function, by default :py:func:`KGE.loss.pairwise_hinge_loss`
         loss_params : dict, optional
-            loss paraneters for loss_fn, by default :code:`{"margin": 1}`
+            loss parameters for loss_fn, by default :code:`{"margin": 1}`
         ns_strategy : function, optional
             negative sampling strategy, by default :py:func:`KGE.ns_strategy.uniform_strategy`
         constraint : bool, optional
@@ -65,13 +64,13 @@ class DistMult(SemanticModel):
         
         super(DistMult, self).__init__(embedding_params, negative_ratio, corrupt_side, 
                                      loss_fn, loss_params, ns_strategy, constraint, n_workers)
+        self.constraint = constraint
         self.constraint_weight = constraint_weight
 
     def _init_embeddings(self, seed):
         """Initialized the DistMult embeddings.
 
-        If :code:`model_weight_initial` not given in :py:func:`train`,
-        initialized the RESCAL embeddings randomly,
+        If :code:`model_weight_initial` not given in :py:func:`train`, initialized embeddings randomly,  
         otherwise, initialized from :code:`model_weight_initial`. 
 
         Parameters
@@ -80,7 +79,7 @@ class DistMult(SemanticModel):
             random seed
         """
 
-        if self.__model_weights_initial is None:
+        if self._model_weights_initial is None:
             assert self.embedding_params.get("embedding_size") is not None, "'embedding_size' should be given in embedding_params when using RESCAL"
             
             limit = np.sqrt(6.0 / self.embedding_params["embedding_size"])
@@ -99,8 +98,8 @@ class DistMult(SemanticModel):
 
             self.model_weights = {"ent_emb": ent_emb, "rel_inter": rel_inter}
         else:
-            self._check_model_weights(self.__model_weights_initial)
-            self.model_weights = self.__model_weights_initial
+            self._check_model_weights(self._model_weights_initial)
+            self.model_weights = self._model_weights_initial
 
     def _check_model_weights(self, model_weights):
         """Check the model_weights have necessary keys and dimensions.
@@ -119,11 +118,10 @@ class DistMult(SemanticModel):
             "shape of 'rel_inter' should be (len(meta_data['ind2rel']), embedding_params['embedding_size'])"
     
     def score_hrt(self, h, r, t):
-        """ Score the triplets
+        """ Score the triplets :math:`(h,r,t)`.
 
-        Score the triplets :math:`(h,r,t)`.  
-        If :code:`h` is :code:`None`, score all entities with given r, t :math:`(h_i, r, t)`.  
-        If :code:`t` is :code:`None`, score all entities with gicen h, r :math:`(h, r, t_i)`.  
+        If :code:`h` is :code:`None`, score all entities: :math:`(h_i, r, t)`. \n
+        If :code:`t` is :code:`None`, score all entities: :math:`(h, r, t_i)`. \n
         :code:`h` and :code:`t` should not be :code:`None` simultaneously.
 
         Parameters

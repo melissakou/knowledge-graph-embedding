@@ -2,11 +2,7 @@ import random
 import numpy as np
 import tensorflow as tf
 from KGE.data_utils import index_kg, convert_kg_to_index
-from KGE.models.TransH import TransH
-
-from KGE.score import p_norm, dot
-from KGE.loss import pairwise_hinge_loss, binary_cross_entropy_loss
-from KGE.ns_strategy import uniform_strategy, typed_strategy
+from KGE.models.translating_based.RotatE import RotatE
 
 if __name__ == "__main__":
     train = "./data/fb15k_237/train"
@@ -19,17 +15,15 @@ if __name__ == "__main__":
     convert_kg_to_index(train, meta_data["ent2ind"], meta_data["rel2ind"])
     convert_kg_to_index(valid, meta_data["ent2ind"], meta_data["rel2ind"])
     train = train + "_indexed"
-
     valid = valid + "_indexed"
 
-    model = TransH(
-        embedding_params={"embedding_size": 50},
-        negative_ratio=20,
+    model = RotatE(
+        embedding_params={"embedding_size": 1000},
+        negative_ratio=128,
         corrupt_side="h+t",
-        loss_param={"margin": 0.5},
-        constraint_weight=0.015625)
-
-    model.train(train_X=train, val_X=valid, meta_data=meta_data, epochs=500, batch_size=1200,
-                early_stopping_rounds=None, restore_best_weight=True,
-                opt=tf.optimizers.SGD(learning_rate=0.005),
-                seed=12345, log_path="./tensorboard_logs_TransH", log_projector=True)
+        score_params={"p": 1},
+        loss_param={"margin":24, "temperature": 1})
+    model.train(train_X=train, val_X=valid, metadata=metadata, epochs=1000, batch_size=512,
+                early_stopping_rounds=None, restore_best_weight=False,
+                optimizer=tf.optimizers.Adam(learning_rate=0.0001),
+                seed=12345, log_path="./tensorboard_logs", log_projector=True)

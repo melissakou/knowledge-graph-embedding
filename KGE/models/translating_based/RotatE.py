@@ -1,28 +1,93 @@
-"""RotatE"""
+"""An implementation of RotatE
+"""
 
 import logging
 import numpy as np
 import tensorflow as tf
 from ..base_model.TranslatingModel import TranslatingModel
-from ...score import p_norm
+from ...score import Lp_distance
 from ...loss import self_adversarial_negative_sampling_loss
 from ...ns_strategy import uniform_strategy
 
 logging.getLogger().setLevel(logging.INFO)
 
 class RotatE(TranslatingModel):
+    """An implementation of RotatE from `[sun 2019] <https://arxiv.org/abs/1902.10197v1>`_.
+
+    RotatE represents both entities and relations as embedding vectors in the complex space,
+    and models the relation as an element-wise **rotation** from the head to tail:
+    
+    .. math::
+        \\textbf{e}_h \circ \\textbf{r}_r \\approx \\textbf{e}_t
+
+    where :math:`\\textbf{e}_i, \\textbf{r}_i \in \mathbb{C}^k` are vector representations
+    of the entities and relations. and :math:`\circ` is the Hadmard (element-wise) product.
+    
+    The score of :math:`(h,r,t)` is:
+
+    .. math::
+        f(h,r,t) = s(\\textbf{e}_h \circ \\textbf{r}_r, \\textbf{e}_t)
+
+    where :math:`s` is a scoring function (:py:mod:`KGE.score`) that scores the plausibility of matching between :math:`(translation, predicate)`. \n
+    By default, using :py:func:`KGE.score.Lp_distance`, negative L1-distance: 
+    
+    .. math::
+        s(\\textbf{e}_h \circ \\textbf{r}_r, \\textbf{e}_t) = 
+            - \left\| \\textbf{e}_h \circ \\textbf{r}_r - \\textbf{e}_t \\right\|_1
+
+    You can change to L2-distance by giving :code:`score_params={"p": 2}` in :py:func:`__init__`,
+    or change any score function you like by specifying :code:`score_fn` in :py:func:`__init__`.
+
+    RotatE constrains the modulus of each element of :math:`\\textbf{r} \in \mathbb{C}^k` to 1,
+    i.e., :math:`r_i \in \mathbb{C}` to be :math:`\left| r_i \\right| = 1`.
+    By doing this, :math:`r_i` is of the form :math:`e^{i\\theta_{r,i}}`
+    """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 score_fn=p_norm, score_params={"p": 1},
+                 score_fn=Lp_distance, score_params={"p": 1},
                  loss_fn=self_adversarial_negative_sampling_loss, loss_param={"margin":3, "temperature": 1},
-                 ns_strategy=uniform_strategy, constraint=True, n_workers=1):
+                 ns_strategy=uniform_strategy, n_workers=1):
+        """Initialized RotatE
+
+        Parameters
+        ----------
+        embedding_params : dict
+            embedding dimension parameters, should have key :code:`'embedding_size'` for embedding dimension :math:`k`
+        negative_ratio : int
+            number of negative sample
+        corrupt_side : str
+            corrupt from which side while trainging, can be :code:`'h'`, :code:`'t'`, or :code:`'h+t'`
+        score_fn : function, optional
+            scoring function, by default :py:func:`KGE.score.Lp_distance`
+        score_params : dict, optional
+            score parameters for :code:`score_fn`, by default :code:`{"p": 1}`
+        loss_fn : [type], function, optional
+            loss function, by default :py:func:`KGE.loss.self_adversarial_negative_sampling_loss`
+        loss_param : dict, optional
+            loss parameters for :code:`loss_fn`, by default :code:`{"margin":3, "temperature": 1}`
+        ns_strategy : function, optional
+            negative sampling strategy, by default :py:func:`KGE.ns_strategy.uniform_strategy`
+        n_workers : int, optional
+            number of workers for negative sampling, by default 1
+        """
+
         super(RotatE, self).__init__(embedding_params, negative_ratio, corrupt_side,
                                      score_fn, score_params, loss_fn, loss_param,
-                                     ns_strategy, constraint, n_workers)
+                                     ns_strategy, n_workers)
         
     def _init_embeddings(self, seed):
+        """Initialized the RotatE embeddings.
 
-        if self.__model_weights_initial is None:
+        If :code:`model_weight_initial` not given in :py:func:`train`, initialized embeddings randomly,  
+        otherwise, initialized from :code:`model_weight_initial`. 
+
+        Parameters
+        ----------
+        seed : int
+            random seed
+        """
+
+        if self._model_weights_initial is None:
             assert self.embedding_params.get("embedding_size") is not None, "'embedding_size' should be given in embedding_params when using TransE"
             
             self.limit = (self.loss_params["margin"] + 2.0) / self.embedding_params["embedding_size"]
@@ -43,6 +108,14 @@ class RotatE(TranslatingModel):
             self.model_weights = self.__model_weights_initial
 
     def _check_model_weights(self, model_weights):
+        """Check the model_weights have necessary keys and dimensions
+
+        Parameters
+        ----------
+        model_weights : dict
+            model weights to check.
+        """
+
         assert model_weights.get("ent_emb") is not None, "entity embedding should be given in model_weights with key 'ent_emb'"
         assert model_weights.get("rel_emb") is not None, "relation embedding should be given in model_weights with key 'rel_emb'"
         assert list(model_weights["ent_emb"].shape) == [len(self.metadata["ind2ent"]), self.embedding_params["embedding_size"], 2], \
@@ -51,6 +124,27 @@ class RotatE(TranslatingModel):
             "shape of 'rel_emb' should be (len(metadata['ind2rel']), embedding_params['embedding_size'])"
 
     def score_hrt(self, h, r, t):
+        """ Score the triplets :math:`(h,r,t)`.
+
+        If :code:`h` is :code:`None`, score all entities: :math:`(h_i, r, t)`. \n
+        If :code:`t` is :code:`None`, score all entities: :math:`(h, r, t_i)`. \n
+        :code:`h` and :code:`t` should not be :code:`None` simultaneously.
+
+        Parameters
+        ----------
+        h : tf.Tensor or np.ndarray or None
+            index of heads with shape :code:`(n,)`
+        r : tf.Tensor or np.ndarray
+            index of relations with shape :code:`(n,)`
+        t : tf.Tensor or np.ndarray or None
+            index of tails with shape :code:`(n,)`
+
+        Returns
+        -------
+        tf.Tensor
+            triplets scores with shape :code:`(n,)`
+        """
+
         if h is None:
             h = np.arange(len(self.metadata["ind2ent"]))
         if t is None:
@@ -66,7 +160,6 @@ class RotatE(TranslatingModel):
             t_emb = tf.expand_dims(t_emb, 0)
 
         # normalize to [-pi, pi] to ensure sin & cos functions are one-to-one
-        # r_emb = (r_emb - tf.reduce_min(r_emb)) / (tf.reduce_max(r_emb) - tf.reduce_min(r_emb)) * 2 * np.pi - np.pi
         r_emb = r_emb / self.limit * np.pi
         
         hadamard = tf.multiply(tf.complex(h_emb[:,:,0], h_emb[:,:,1]),
@@ -75,4 +168,17 @@ class RotatE(TranslatingModel):
         return self.score_fn(hadamard, tf.complex(t_emb[:,:,0], t_emb[:,:,1]), self.score_params)  
     
     def _constraint_loss(self, X):
+        """Perform constraint if necessary.
+
+        Parameters
+        ----------
+        X : batch_data
+            batch data
+
+        Returns
+        -------
+        tf.Tensor
+            regularization term with shape (1,)
+        """
+
         return 0

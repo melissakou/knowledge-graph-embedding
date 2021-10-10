@@ -7,4 +7,9 @@
    :inherited-members:
    :no-heading:
 
+.. automodule:: {{ qualname }}
+   :members:
+   :inherited-members:
+   :show-inheritance:
+
 
