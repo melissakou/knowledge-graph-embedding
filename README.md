@@ -2,6 +2,12 @@
 A TensorFlow-based implementation of knowledge graph embedding models.  
 Document available here: https://knowledge-graph-embedding.readthedocs.io/en/latest/index.html
 
+## Todos
+[] finish docs
+[] model saving
+[] early stopping with ranking metric (for now using validation loss)
+[] reproducible paper experiment
+
 ## Models
 Including following knowledge graph embedding model:
 ### Translating Based
