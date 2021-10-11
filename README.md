@@ -1,6 +1,6 @@
 # Knowledge Graph Embedding
 A TensorFlow-based implementation of knowledge graph embedding models.  
-Document available here: https://knowledge-graph-embedding.readthedocs.io/en/latest/index.html
+Document available here: https://knowledge-graph-embedding.readthedocs.io/en/latest/index.html [![Documentation Status](https://readthedocs.org/projects/knowledge-graph-embedding/badge/?version=latest)](https://knowledge-graph-embedding.readthedocs.io/en/latest/?badge=latest)
 
 ## Todos
 - [ ] finish docs
