@@ -1,44 +1,56 @@
 import numpy as np
 import tensorflow as tf
-import multiprocessing as mp
-
 from itertools import repeat
 
-def uniform_strategy(X, sample_pool, negative_ratio, pool, params):
-    sample_index = tf.random.uniform(
-        shape=[X.shape[0] * negative_ratio, 1],
-        minval=0, maxval=len(sample_pool), dtype=sample_pool.dtype
-    )
-    sample_entities = tf.gather_nd(sample_pool, sample_index)
+from .utils import ns_with_same_type
 
-    return sample_entities
+from tensorflow.python.ops.gen_math_ops import Neg
+
+class NegativeSampler:
+    def __init__(self):
+        raise NotImplementedError("subclass of NegativeSampler should implement __init__() to init class")
+
+    def __call__(self):
+        raise NotImplementedError("subclass of NegativeSampler should implement __call_() to perform negative sampling")
 
 
-def typed_strategy(X, sample_pool, negative_ratio, pool, params):
+class UniformStrategy(NegativeSampler):
+    def __init__(self, sample_pool):
+        self.sample_pool = sample_pool
 
-    def ns_with_same_type(x, meta_data, negative_ratio):
-        sample_pool = meta_data["type2inds"][meta_data["ind2type"][x]]
-        sample_pool = np.delete(sample_pool, np.where(sample_pool == x), axis=0)
-        sample_entities = np.random.choice(sample_pool, size=negative_ratio)
+    def __call__(self, X, negative_ratio, side):
+        self.sample_pool = tf.cast(self.sample_pool, X.dtype)
+        sample_index = tf.random.uniform(
+            shape=[X.shape[0] * negative_ratio, 1],
+            minval=0, maxval=len(self.sample_pool), dtype=self.sample_pool.dtype
+        )
+        sample_entities = tf.gather_nd(self.sample_pool, sample_index)
 
         return sample_entities
 
-    if params["side"] == "h":
-        ref_type = X[:, 0].numpy()
-    elif params["side"] == "t":
-        ref_type = X[:, 2].numpy()
+class TypedStrategy(NegativeSampler):
+    def __init__(self, pool, metadata):
+        self.pool = pool
+        self.metadata = metadata
 
-    if pool is not None:
-        sample_entities = pool.starmap(
-            ns_with_same_type,
-            zip(ref_type, repeat(params["meta_data"]), repeat(negative_ratio))
-        )
-    else:
-        sample_entities = list(map(
-            lambda x: ns_with_same_type(x, params["meta_data"], negative_ratio),
-            ref_type
-        ))
+    def __call__(self, X, negative_ratio, side):
 
-    sample_entities = tf.constant(np.concatenate(sample_entities), dtype=X.dtype)
+        if side == "h":
+            ref_type = X[:, 0].numpy()
+        elif side == "t":
+            ref_type = X[:, 2].numpy()
 
-    return sample_entities
+        if self.pool is not None:
+            sample_entities = self.pool.starmap(
+                ns_with_same_type,
+                zip(ref_type, repeat(self.metadata), repeat(negative_ratio))
+            )
+        else:
+            sample_entities = list(map(
+                lambda x: ns_with_same_type(x, self.metadata, negative_ratio),
+                ref_type
+            ))
+
+        sample_entities = tf.constant(np.concatenate(sample_entities), dtype=X.dtype)
+
+        return sample_entities

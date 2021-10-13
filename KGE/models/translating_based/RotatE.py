@@ -7,7 +7,7 @@ import tensorflow as tf
 from ..base_model.TranslatingModel import TranslatingModel
 from ...score import LpDistance
 from ...loss import SelfAdversarialNegativeSamplingLoss
-from ...ns_strategy import uniform_strategy
+from ...ns_strategy import UniformStrategy
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -46,7 +46,7 @@ class RotatE(TranslatingModel):
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
                  score_fn=LpDistance(p=1),
                  loss_fn=SelfAdversarialNegativeSamplingLoss(margin=3, temperature=1),
-                 ns_strategy=uniform_strategy, n_workers=1):
+                 ns_strategy=UniformStrategy, n_workers=1):
         """Initialized RotatE
 
         Parameters

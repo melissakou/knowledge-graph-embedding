@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 from ..base_model.SemanticModel import SemanticModel
 from ...loss import PairwiseHingeLoss
-from ...ns_strategy import uniform_strategy
+from ...ns_strategy import UniformStrategy
 from ...constraint import normalized_embeddings, Lp_regularization
 
 class DistMult(SemanticModel):
@@ -36,7 +36,7 @@ class DistMult(SemanticModel):
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 loss_fn=PairwiseHingeLoss(margin=1), ns_strategy=uniform_strategy,
+                 loss_fn=PairwiseHingeLoss(margin=1), ns_strategy=UniformStrategy,
                  constraint=True, constraint_weight=1.0, n_workers=1):
         """Initialized DistMult
 

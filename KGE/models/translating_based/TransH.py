@@ -7,7 +7,7 @@ import tensorflow as tf
 from ..base_model.TranslatingModel import TranslatingModel
 from ...score import LpDistancePow
 from ...loss import PairwiseHingeLoss
-from ...ns_strategy import uniform_strategy
+from ...ns_strategy import UniformStrategy
 from ...constraint import normalized_embeddings, soft_constraint
 
 logging.getLogger().setLevel(logging.INFO)
@@ -53,7 +53,7 @@ class TransH(TranslatingModel):
     1. renormalized :math:`\left\| \\textbf{w}_i \\right\|_2 = 1` to have unit length every iteration \n
     2. :math:`\left\| \\textbf{e}_i \\right\|_2 \leq 1` \n
     3. :math:`\left| \mathbf{w}_{r}^T \mathbf{r}_{r} \\right| /\left\|\mathbf{r}_{r}\\right\|_2 \leq \epsilon` to guarantees the translation vector :math:`\\textbf{r}_r` is in the hyperplane \n
-    constraint 2 & 3 are realized by soft constraint described in
+    constraint 2 & 3 are realized by :py:func:`soft constraint <KGE.constraint.soft_constraint>` described in
     `original TransH paper <https://ojs.aaai.org/index.php/AAAI/article/view/8870>`_:
 
     .. math::
@@ -63,7 +63,7 @@ class TransH(TranslatingModel):
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
                  score_fn=LpDistancePow(p=2), loss_fn=PairwiseHingeLoss(margin=1),
-                 ns_strategy=uniform_strategy, constraint=True, constraint_weight=1.0, n_workers=1):
+                 ns_strategy=UniformStrategy, constraint=True, constraint_weight=1.0, n_workers=1):
         """Initialized TransH
 
         Parameters

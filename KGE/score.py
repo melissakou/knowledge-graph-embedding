@@ -43,7 +43,7 @@ class Score:
         x : tf.Tensor
         y : tf.Tensor
         """
-        raise NotImplementedError("subclass of Score should implement _call_() to calculate score")
+        raise NotImplementedError("subclass of Score should implement __call_() to calculate score")
 
 
 class LpDistance(Score):

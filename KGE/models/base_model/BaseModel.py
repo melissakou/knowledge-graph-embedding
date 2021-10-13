@@ -10,9 +10,8 @@ import tensorflow as tf
 import multiprocessing as mp
 from tqdm import tqdm, trange
 from tensorboard.plugins import projector
+from ...ns_strategy import TypedStrategy, UniformStrategy
 from ...data_utils import calculate_data_size, set_tf_iterator
-from ...ns_strategy import typed_strategy
-from ...evaluation.protocal import generate_negative_lcwa
 from ...evaluation.metrics import mean_reciprocal_rank, mean_rank, hits_at_k, median_rank, geometric_mean_rank, harmonic_mean_rank, std_rank
 
 logging.getLogger().setLevel(logging.INFO)
@@ -185,9 +184,10 @@ class KGEModel:
             self.__log_embeddings_projector(log_path=log_path)
 
         logging.info("[%s] Finished training!" % str(datetime.datetime.now()))
-        if self.__pool is not None:
-            self.__pool.close()
-            self.__pool.join()
+        if hasattr(self.ns_strategy, "pool"):
+            if self.ns_strategy.pool is not None:
+                self.ns_strategy.pool.close()
+                self.ns_strategy.pool.join()
         
     def __prepare_for_train(self, train_X, val_X):
         """Prepartion before training.
@@ -253,19 +253,28 @@ class KGEModel:
         self.ckpt_manager = tf.train.CheckpointManager(checkpoint=self.best_ckpt, directory=self.log_path, max_to_keep=1)
 
         # Create type2inds metadata if using typed strategy
-        if self.ns_strategy == typed_strategy:
+        if self.ns_strategy == UniformStrategy:
+            self.ns_strategy = UniformStrategy(sample_pool=tf.range(len(self.metadata["ind2ent"])))
+        elif self.ns_strategy == TypedStrategy:
             self.metadata["type2inds"] = {}
             all_type = np.unique(self.metadata["ind2type"])
             for t in all_type:
                 indices = [i for (i, ti) in enumerate(self.metadata["ind2type"]) if ti == t]
                 self.metadata["type2inds"][t] = np.array(indices)
-        
-        # Create pool for multiprocessing negative sampling
-        if self.__n_workers > 1:
-            self.__pool = mp.Pool(self.__n_workers)
-        else:
-            self.__pool = None
-        
+
+            # Create pool for multiprocessing negative sampling
+            if self.__n_workers > 1:
+                pool = mp.Pool(self.__n_workers)
+            else:
+                pool = None
+
+            self.ns_strategy = TypedStrategy(
+                pool=pool, metadata={
+                    "type2inds": self.metadata["type2inds"],
+                    "ind2type": self.metadata["ind2type"]
+                }
+            )
+
         return train_iter, val_iter
         
     def _init_embeddings(self):
@@ -335,31 +344,26 @@ class KGEModel:
         tf.Tensor
             corrupted triplets with shaep (n*self.negative_ratio, 3)
         """
-
-        entities_pool = tf.range(len(self.metadata["ind2ent"]), dtype=X.dtype)
         
         # combine hrt:
         if self.corrupt_side == 'h':
-            neg_triplet = self.__corrupt_h(X, entities_pool, self.negative_ratio, strategy)
+            neg_triplet = self.__corrupt_h(X, self.negative_ratio, strategy)
         elif self.corrupt_side == "t":
-            neg_triplet = self.__corrupt_t(X, entities_pool, self.negative_ratio, strategy)
+            neg_triplet = self.__corrupt_t(X, self.negative_ratio, strategy)
         elif self.corrupt_side == "h+t":
-            neg_triplet_h = self.__corrupt_h(X, entities_pool, self.negative_ratio // 2, strategy)
-            neg_triplet_t = self.__corrupt_t(X, entities_pool, self.negative_ratio // 2, strategy)
+            neg_triplet_h = self.__corrupt_h(X, self.negative_ratio // 2, strategy)
+            neg_triplet_t = self.__corrupt_t(X, self.negative_ratio // 2, strategy)
             neg_triplet = tf.reshape(tf.concat([neg_triplet_h, neg_triplet_t], axis=-1), [-1, 3])
 
         return neg_triplet
 
-    def __corrupt_h(self, X, sample_pool, negative_ratio, strategy):
+    def __corrupt_h(self, X, negative_ratio, strategy):
         """Corrupt triplets from head side
 
         Parameters
         ----------
         X : tf.Tensor
             triplets to be corrupt with shape (n,3)
-        sample_pool : tf.Tensor or np.ndarray
-            entity pool that be used to corrupt triplets,
-            should be 1-dimensional tf.Tensor or np.ndarray
         negative_ratio : int
             number of negative triplets to be generated for each triplet
         strategy : function
@@ -369,26 +373,22 @@ class KGEModel:
         -------
         tf.Tensor
             corrupted triplets with shaep (n*negative_ratio, 3)
-        """
-
-        params = {"side": "h", "metadata": self.metadata, "n_workers": self.__n_workers}
-        sample_entities = strategy(X, sample_pool, negative_ratio, self.__pool, params)
+        """       
+        
+        sample_entities = strategy(X, negative_ratio=negative_ratio, side="h")
         h = sample_entities
         r = tf.repeat(X[:, 1], negative_ratio)
         t = tf.repeat(X[:, 2], negative_ratio)
 
         return tf.stack([h, r, t], axis = 1)
 
-    def __corrupt_t(self, X, sample_pool, negative_ratio, strategy):
+    def __corrupt_t(self, X, negative_ratio, strategy):
         """Corrupt triplets from tail side
 
         Parameters
         ----------
         X : tf.Tensor
             triplets to be corrupt with shape (n,3)
-        sample_pool : tf.Tensor or np.ndarray
-            entity pool that be used to corrupt triplets,
-            should be 1-dimensional tf.Tensor or np.ndarray
         negative_ratio : int
             number of negative triplets to be generated for each triplet
         strategy : function
@@ -400,8 +400,7 @@ class KGEModel:
             corrupted triplets with shaep (n*negative_ratio, 3)
         """
 
-        params = {"side": "t", "metadata": self.metadata, "n_workers": self.__n_workers}
-        sample_entities = strategy(X, sample_pool, negative_ratio, self.__pool, params)
+        sample_entities = strategy(X, negative_ratio=negative_ratio, side="t")
         h = tf.repeat(X[:, 0], negative_ratio)
         r = tf.repeat(X[:, 1], negative_ratio)
         t = sample_entities

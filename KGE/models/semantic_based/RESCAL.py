@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 from ..base_model.SemanticModel import SemanticModel
 from ...loss import SquareErrorLoss
-from ...ns_strategy import uniform_strategy
+from ...ns_strategy import UniformStrategy
 from ...constraint import Lp_regularization, normalized_embeddings
 
 class RESCAL(SemanticModel):
@@ -35,7 +35,7 @@ class RESCAL(SemanticModel):
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 loss_fn=SquareErrorLoss(), ns_strategy=uniform_strategy,
+                 loss_fn=SquareErrorLoss(), ns_strategy=UniformStrategy,
                  constraint=True, constraint_weight=1.0, n_workers=1):
         """Initialized RESCAL
 
