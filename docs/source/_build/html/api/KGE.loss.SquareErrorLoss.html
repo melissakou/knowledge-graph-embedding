@@ -39,10 +39,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.translating_based.html">Translating Based Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.translating_based.html">Translating Based Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.semantic_based.html">Semantic Based Models</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Loss</span></p>
 <ul class="current">
@@ -106,11 +110,11 @@
 <dd><p>Bases: <a class="reference internal" href="../src/KGE.loss.html#KGE.loss.Loss" title="KGE.loss.Loss"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGE.loss.Loss</span></code></a></p>
 <p>An implementation of Square Error Loss.</p>
 <p>Square Error Loss is a loss function used in
-<a class="reference external" href="https://icml.cc/2011/papers/438_icmlpaper.pdf">RESCAL</a>.
-Square Error Loss computes the squared difference between model scores
-and labels (<span class="math notranslate nohighlight">\(y_i = 1 or 0\)</span>):</p>
+<a class="reference external" href="https://icml.cc/2011/papers/438_icmlpaper.pdf">RESCAL</a>, it computes
+the squared difference between triplet scores <span class="math notranslate nohighlight">\(f((h,r,t)_i)\)</span> and
+labels (<span class="math notranslate nohighlight">\(y_i = 1~or~0\)</span>):</p>
 <div class="math notranslate nohighlight">
-\[\mathscr{L} = \sum_i \left[ f((h,r,t)_i) - y_i \right]^2\]</div>
+\[\mathscr{L} = \sum_i \left( f((h,r,t)_i) - y_i \right)^2\]</div>
 <p class="rubric">Methods Summary</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -135,9 +139,6 @@ and labels (<span class="math notranslate nohighlight">\(y_i = 1 or 0\)</span>):
 <li><p><strong>neg_score</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code>) – score of negative triplets, with shape <code class="code docutils literal notranslate"><span class="pre">(n,)</span></code></p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>NotImplementedError</strong> – subclass of Loss should implement _call_() to calculate loss</p>
-</dd>
 </dl>
 </dd></dl>
 
@@ -145,11 +146,6 @@ and labels (<span class="math notranslate nohighlight">\(y_i = 1 or 0\)</span>):
 <dt class="sig sig-object py" id="KGE.loss.SquareErrorLoss.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/loss.html#SquareErrorLoss.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.SquareErrorLoss.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Initialize loss</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><strong>NotImplementedError</strong> – subclass of Loss should implement <code class="code docutils literal notranslate"><span class="pre">_init_()</span></code> to init loss parameters</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">

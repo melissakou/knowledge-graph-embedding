@@ -35,10 +35,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.translating_based.html">Translating Based Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.translating_based.html">Translating Based Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.semantic_based.html">Semantic Based Models</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Loss</span></p>
 <ul>
@@ -87,9 +91,9 @@
 <span class="sd">Different Knowledge Graph Embedding Models use different loss functions, the default</span>
 <span class="sd">setting for each KGE model is according to the original paper described,  for example,</span>
 <span class="sd">:py:mod:`TransE &lt;KGE.models.translating_based.TransE&gt;` using </span>
-<span class="sd">:py:func:`Pairwise Hinge Loss &lt;pairwise_hinge_loss&gt;`,</span>
+<span class="sd">:py:mod:`Pairwise Hinge Loss &lt;PairwiseHingeLoss&gt;`,</span>
 <span class="sd">:py:mod:`RotatE &lt;KGE.models.translating_based.RotatE&gt;` using</span>
-<span class="sd">:py:func:`Self Adversarial Negative Sampling Loss &lt;self_adversarial_negative_sampling_loss&gt;`. </span>
+<span class="sd">:py:mod:`Self Adversarial Negative Sampling Loss &lt;SelfAdversarialNegativeSamplingLoss&gt;`. </span>
 
 <span class="sd">You can change the loss function to try any possibility in a very easy way:</span>
 
@@ -115,11 +119,6 @@
 
 <div class="viewcode-block" id="Loss.__init__"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.Loss.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize loss</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        NotImplementedError</span>
-<span class="sd">            subclass of Loss should implement :code:`_init_()` to init loss parameters</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of Loss should implement _init_() to init loss parameters&quot;</span><span class="p">)</span></div>
 
@@ -132,11 +131,6 @@
 <span class="sd">            score of postive triplets, with shape :code:`(n,)`</span>
 <span class="sd">        neg_score : tf.Tensor</span>
 <span class="sd">            score of negative triplets, with shape :code:`(n,)`</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        NotImplementedError</span>
-<span class="sd">            subclass of Loss should implement _call_() to calculate loss</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of Loss should implement _call_() to calculate loss&quot;</span><span class="p">)</span></div></div>
 
@@ -167,30 +161,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="PairwiseHingeLoss.__init__"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.PairwiseHingeLoss.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">margin</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialized PairwiseHingeLoss</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        margin : float</span>
-<span class="sd">            margin :math:`\gamma`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        
         <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">=</span> <span class="n">margin</span></div>
     
 <div class="viewcode-block" id="PairwiseHingeLoss.__call__"><a class="viewcode-back" href="../../api/KGE.loss.PairwiseHingeLoss.html#KGE.loss.PairwiseHingeLoss.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">neg_score</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Calculate loss</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        pos_score : tf.Tensor</span>
-<span class="sd">            score of postive triplets, with shape :code:`(n,)`</span>
-<span class="sd">        neg_score : tf.Tensor</span>
-<span class="sd">            score of negative triplets, with shape :code:`(n,)`</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        tf.Tensor</span>
-<span class="sd">            pairwise hinge loss with shape :code:`(1,)`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        
         <span class="n">pos_score</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">pos_score</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">neg_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">pos_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">clip_by_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">+</span> <span class="n">neg_score</span> <span class="o">-</span> <span class="n">pos_score</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">))</span> <span class="o">/</span> <span class="n">pos_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div></div>
 
@@ -217,25 +192,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     
 <div class="viewcode-block" id="PairwiseLogisticLoss.__init__"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.PairwiseLogisticLoss.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialized PairwiseLogisitcLoss</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="PairwiseLogisticLoss.__call__"><a class="viewcode-back" href="../../api/KGE.loss.PairwiseLogisticLoss.html#KGE.loss.PairwiseLogisticLoss.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">neg_score</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Calculate pairwise logistic loss</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        pos_score : tf.Tensor</span>
-<span class="sd">            score of postive triplets, with shape :code:`(n,)`</span>
-<span class="sd">        neg_score : tf.Tensor</span>
-<span class="sd">            score of negative triplets, with shape :code:`(n,)`</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        tf.Tensor</span>
-<span class="sd">            pairwise hinge loss with shape :code:`(1,)`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        
         <span class="n">pos_score</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">pos_score</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">neg_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">pos_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">neg_score</span> <span class="o">-</span> <span class="n">pos_score</span><span class="p">)))</span></div></div>
 
@@ -245,7 +206,7 @@
 
 <span class="sd">    Binary Cross Entropy Loss is commonly used in binary classification problem.</span>
 <span class="sd">    In KGE, we can also turn the problem into a binary classification problem</span>
-<span class="sd">    that classifies triplet into positive or negative :math:`y_i = 1 or 0` with</span>
+<span class="sd">    that classifies triplet into positive or negative :math:`y_i = 1~or~0` with</span>
 <span class="sd">    the triplet score as logit:  :math:`logit_i = f\left( (h,r,t)_i \\right)`</span>
 
 <span class="sd">    .. math::</span>
@@ -259,25 +220,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="BinaryCrossEntropyLoss.__init__"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.BinaryCrossEntropyLoss.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializedd BinaryCrossEntropyLoss</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="BinaryCrossEntropyLoss.__call__"><a class="viewcode-back" href="../../api/KGE.loss.BinaryCrossEntropyLoss.html#KGE.loss.BinaryCrossEntropyLoss.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">neg_score</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculate binary cross entropy loss</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        pos_score : tf.Tensor</span>
-<span class="sd">            score of postive triplets, with shape :code:`(n,)`</span>
-<span class="sd">        neg_score : tf.Tensor</span>
-<span class="sd">            score of negative triplets, with shape :code:`(n,)`</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        tf.Tensor</span>
-<span class="sd">            pairwise hinge loss with shape :code:`(1,)`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pos_ll</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log_sigmoid</span><span class="p">(</span><span class="n">pos_score</span><span class="p">))</span>
         <span class="n">neg_ll</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log_sigmoid</span><span class="p">(</span><span class="o">-</span><span class="n">neg_score</span><span class="p">))</span>
 
@@ -285,6 +232,28 @@
 
 
 <div class="viewcode-block" id="SelfAdversarialNegativeSamplingLoss"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.SelfAdversarialNegativeSamplingLoss">[docs]</a><span class="k">class</span> <span class="nc">SelfAdversarialNegativeSamplingLoss</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; An implementation of Self Adversarial Negative Sampling Loss.</span>
+
+<span class="sd">    Described in `RotatE: Knowledge Graph Embedding by Relational Rotation in Complex Space &lt;https://arxiv.org/pdf/1902.10197v1.pdf&gt;`_.</span>
+
+<span class="sd">    Self Adversarial Negative Sampling Loss samples negative triples according to the current embedding model. Specifically, it sample</span>
+<span class="sd">    negative triples from the following distribution:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        p\left((h,r,t)_{i,j}^- \\vert (h,r,t)_i^+ \\right) = </span>
+<span class="sd">            \\frac{exp~ \\alpha f((h,r,t)_{i.j}^-)}{\sum_k exp~ \\alpha f((h,r,t)_{i,k}^-)}</span>
+
+<span class="sd">    where :math:`(h,r,t)_i^+` denotes i-th positive triplet, :math:`(h,r,t)_{i,j}^-` denotes j-th negative triplet generate from i-th </span>
+<span class="sd">    positive triplet, :math:`\\alpha` is the temperature of sampling.</span>
+
+<span class="sd">    Since the sampling procedure may be costly, Self Adversarial Negative Sampling Loss treats the above probability as the weight of</span>
+<span class="sd">    the negative sample. Therefore, the final negative sampling loss with self-adversarial training takes the following form:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \mathscr{L} =</span>
+<span class="sd">            - \sum_i log~ \sigma(\gamma + f((h,r,t)_i^+))</span>
+<span class="sd">            - \sum_i \sum_j p\left( (h,r,t)_{i,j}^- \\right) log~ \sigma(-\gamma - f((h,r,t)_{i,j}^-))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SelfAdversarialNegativeSamplingLoss.__init__"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.SelfAdversarialNegativeSamplingLoss.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">margin</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">=</span> <span class="n">margin</span>
@@ -305,12 +274,12 @@
     <span class="sd">&quot;&quot;&quot; An implementation of Square Error Loss.</span>
 
 <span class="sd">    Square Error Loss is a loss function used in</span>
-<span class="sd">    `RESCAL &lt;https://icml.cc/2011/papers/438_icmlpaper.pdf&gt;`_.</span>
-<span class="sd">    Square Error Loss computes the squared difference between model scores</span>
-<span class="sd">    and labels (:math:`y_i = 1 or 0`):</span>
+<span class="sd">    `RESCAL &lt;https://icml.cc/2011/papers/438_icmlpaper.pdf&gt;`_, it computes</span>
+<span class="sd">    the squared difference between triplet scores :math:`f((h,r,t)_i)` and</span>
+<span class="sd">    labels (:math:`y_i = 1~or~0`):</span>
 
 <span class="sd">    .. math::</span>
-<span class="sd">        \mathscr{L} = \sum_i \left[ f((h,r,t)_i) - y_i \\right]^2</span>
+<span class="sd">        \mathscr{L} = \sum_i \left( f((h,r,t)_i) - y_i \\right)^2</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SquareErrorLoss.__init__"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.SquareErrorLoss.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

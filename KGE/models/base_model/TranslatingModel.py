@@ -1,4 +1,4 @@
-"""Translating Model"""
+"""Translating-based Model"""
 
 from .BaseModel import KGEModel
 
@@ -19,11 +19,9 @@ class TranslatingModel(KGEModel):
         number of negaative sample
     corrupt_side : str
         corrupt from which side while trainging
-    score_fn : function
+    score_fn : class
         scoring function
-    score_params : dict
-        score parameters for score_fn
-    loss_fn : function
+    loss_fn : class
         loss function
     loss_params : dict
         loss parameters for loss_fn
@@ -46,7 +44,7 @@ class TranslatingModel(KGEModel):
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 score_fn, score_params, loss_fn, ns_strategy, n_workers):
+                 score_fn, loss_fn, ns_strategy, n_workers):
         """Initialize TranslatingModel.
 
         Parameters
@@ -57,10 +55,8 @@ class TranslatingModel(KGEModel):
             number of negative sample
         corrupt_side : str
             corrupt from which side while trainging, can be "h", "r", or "h+t"
-        score_fn : function
-            scoring function
-        score_params : dict
-            score parameters for score_fn
+        score_fn : class
+            scoring function class :py:mod:`KGE.score.Score`
         loss_fn : class
             loss function class :py:mod:`KGE.loss.Loss`
         ns_strategy : function
@@ -72,4 +68,3 @@ class TranslatingModel(KGEModel):
         super(TranslatingModel, self).__init__(embedding_params, negative_ratio, corrupt_side, 
                                                loss_fn, ns_strategy, n_workers)
         self.score_fn = score_fn
-        self.score_params = score_params

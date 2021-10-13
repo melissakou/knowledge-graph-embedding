@@ -35,10 +35,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.translating_based.html">Translating Based Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.translating_based.html">Translating Based Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.semantic_based.html">Semantic Based Models</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Loss</span></p>
 <ul>
@@ -82,7 +86,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for KGE.models.base_model.TranslatingModel</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Translating Model&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Translating-based Model&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">.BaseModel</span> <span class="kn">import</span> <span class="n">KGEModel</span>
 
@@ -103,11 +107,9 @@
 <span class="sd">        number of negaative sample</span>
 <span class="sd">    corrupt_side : str</span>
 <span class="sd">        corrupt from which side while trainging</span>
-<span class="sd">    score_fn : function</span>
+<span class="sd">    score_fn : class</span>
 <span class="sd">        scoring function</span>
-<span class="sd">    score_params : dict</span>
-<span class="sd">        score parameters for score_fn</span>
-<span class="sd">    loss_fn : function</span>
+<span class="sd">    loss_fn : class</span>
 <span class="sd">        loss function</span>
 <span class="sd">    loss_params : dict</span>
 <span class="sd">        loss parameters for loss_fn</span>
@@ -130,7 +132,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TranslatingModel.__init__"><a class="viewcode-back" href="../../../../src/KGE.models.base_model.TranslatingModel.html#KGE.models.base_model.TranslatingModel.TranslatingModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_params</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="p">,</span> 
-                 <span class="n">score_fn</span><span class="p">,</span> <span class="n">score_params</span><span class="p">,</span> <span class="n">loss_fn</span><span class="p">,</span> <span class="n">ns_strategy</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">):</span>
+                 <span class="n">score_fn</span><span class="p">,</span> <span class="n">loss_fn</span><span class="p">,</span> <span class="n">ns_strategy</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize TranslatingModel.</span>
 
 <span class="sd">        Parameters</span>
@@ -141,10 +143,8 @@
 <span class="sd">            number of negative sample</span>
 <span class="sd">        corrupt_side : str</span>
 <span class="sd">            corrupt from which side while trainging, can be &quot;h&quot;, &quot;r&quot;, or &quot;h+t&quot;</span>
-<span class="sd">        score_fn : function</span>
-<span class="sd">            scoring function</span>
-<span class="sd">        score_params : dict</span>
-<span class="sd">            score parameters for score_fn</span>
+<span class="sd">        score_fn : class</span>
+<span class="sd">            scoring function class :py:mod:`KGE.score.Score`</span>
 <span class="sd">        loss_fn : class</span>
 <span class="sd">            loss function class :py:mod:`KGE.loss.Loss`</span>
 <span class="sd">        ns_strategy : function</span>
@@ -155,8 +155,7 @@
         
         <span class="nb">super</span><span class="p">(</span><span class="n">TranslatingModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">embedding_params</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="p">,</span> 
                                                <span class="n">loss_fn</span><span class="p">,</span> <span class="n">ns_strategy</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span> <span class="o">=</span> <span class="n">score_fn</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">score_params</span> <span class="o">=</span> <span class="n">score_params</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span> <span class="o">=</span> <span class="n">score_fn</span></div></div>
 </pre></div>
 
            </div>

@@ -3,9 +3,9 @@
 Different Knowledge Graph Embedding Models use different loss functions, the default
 setting for each KGE model is according to the original paper described,  for example,
 :py:mod:`TransE <KGE.models.translating_based.TransE>` using 
-:py:func:`Pairwise Hinge Loss <pairwise_hinge_loss>`,
+:py:mod:`Pairwise Hinge Loss <PairwiseHingeLoss>`,
 :py:mod:`RotatE <KGE.models.translating_based.RotatE>` using
-:py:func:`Self Adversarial Negative Sampling Loss <self_adversarial_negative_sampling_loss>`. 
+:py:mod:`Self Adversarial Negative Sampling Loss <SelfAdversarialNegativeSamplingLoss>`. 
 
 You can change the loss function to try any possibility in a very easy way:
 

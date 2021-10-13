@@ -5,7 +5,7 @@ import logging
 import numpy as np
 import tensorflow as tf
 from ..base_model.TranslatingModel import TranslatingModel
-from ...score import Lp_distance
+from ...score import LpDistance
 from ...loss import PairwiseHingeLoss
 from ...ns_strategy import uniform_strategy
 from ...constraint import normalized_embeddings
@@ -28,13 +28,13 @@ class SE(TranslatingModel):
     :math:`\\textbf{R}_i^{head} \in \mathbb{R}^{k \\times k}` and :math:`\\textbf{R}_i^{tail} \in \mathbb{R}^{k \\times k}`
     are relation specific projection matrices for head and tail entities. \n
     and :math:`s` is a scoring function (:py:mod:`KGE.score`) that scores the plausibility of matching between :math:`(translation, predicate)`. \n
-    By default, using :py:func:`KGE.score.Lp_distance`, negative L1-distance: 
+    By default, using :py:mod:`KGE.score.LpDistance`, negative L1-distance: 
     
     .. math::
         s(\\textbf{R}_r^{head} \\textbf{e}_h, \\textbf{R}_r^{tail} \\textbf{e}_t) =
             - \left\| \\textbf{R}_r^{head} \\textbf{e}_h - \\textbf{R}_r^{tail} \\textbf{e}_t \\right\|_1
 
-    You can change to L2-distance by giving :code:`score_params={"p": 2}` in :py:func:`__init__`,
+    You can change to L2-distance by giving :code:`score_fn=LpDistance(p=2)` in :py:func:`__init__`,
     or change any score function you like by specifying :code:`score_fn` in :py:func:`__init__`.
 
     If :code:`constraint=True` given in :py:func:`__init__`,
@@ -43,7 +43,7 @@ class SE(TranslatingModel):
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 score_fn=Lp_distance, score_params={"p": 1}, loss_fn=PairwiseHingeLoss(margin=1),
+                 score_fn=LpDistance(p=1), loss_fn=PairwiseHingeLoss(margin=1),
                  ns_strategy=uniform_strategy, constraint=True, n_workers=1):
         """Initialized SE
 
@@ -56,9 +56,7 @@ class SE(TranslatingModel):
         corrupt_side : str
             corrupt from which side while trainging, can be :code:`'h'`, :code:`'t'`, or :code:`'h+t'`
         score_fn : function, optional
-            scoring function, by default :py:func:`KGE.score.Lp_distance`
-        score_params : dict, optional
-            score parameters for :code:`score_fn`, by default :code:`{"p": 1}`
+            scoring function, by default :py:mod:`KGE.score.LpDistance`
         loss_fn : class, optional
             loss function class :py:mod:`KGE.loss.Loss`, by default :py:mod:`KGE.loss.PairwiseHingeLoss`
         ns_strategy : function, optional
@@ -69,8 +67,7 @@ class SE(TranslatingModel):
             number of workers for negative sampling, by default 1
         """
         super(SE, self).__init__(embedding_params, negative_ratio, corrupt_side,
-                                 score_fn, score_params, loss_fn,
-                                 ns_strategy, constraint, n_workers)
+                                 score_fn, loss_fn, ns_strategy, constraint, n_workers)
         self.constraint = constraint
         
     def _init_embeddings(self, seed):
@@ -164,7 +161,7 @@ class SE(TranslatingModel):
         rel_proj_h = tf.nn.embedding_lookup(self.model_weights["rel_proj_h"], r)
         rel_proj_t = tf.nn.embedding_lookup(self.model_weights["rel_proj_t"], r)
 
-        return self.score_fn(tf.squeeze(tf.matmul(rel_proj_h, h_emb)), tf.squeeze(tf.matmul(rel_proj_t, t_emb)), self.score_params)
+        return self.score_fn(tf.squeeze(tf.matmul(rel_proj_h, h_emb)), tf.squeeze(tf.matmul(rel_proj_t, t_emb)))
 
     def _constraint_loss(self, X):
         """Perform constraint if necessary.

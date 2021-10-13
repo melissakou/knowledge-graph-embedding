@@ -39,10 +39,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.translating_based.html">Translating Based Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.translating_based.html">Translating Based Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.semantic_based.html">Semantic Based Models</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Loss</span></p>
 <ul class="current">
@@ -130,7 +134,7 @@ given margin <span class="math notranslate nohighlight">\(\gamma\)</span>, Pairw
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#KGE.loss.PairwiseHingeLoss.__call__" title="KGE.loss.PairwiseHingeLoss.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(pos_score, neg_score)</p></td>
-<td><p>Calculate loss</p></td>
+<td><p>Calculate loss.</p></td>
 </tr>
 </tbody>
 </table>
@@ -138,7 +142,7 @@ given margin <span class="math notranslate nohighlight">\(\gamma\)</span>, Pairw
 <dl class="py method">
 <dt class="sig sig-object py" id="KGE.loss.PairwiseHingeLoss.__call__">
 <span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neg_score</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/loss.html#PairwiseHingeLoss.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.PairwiseHingeLoss.__call__" title="Permalink to this definition"></a></dt>
-<dd><p>Calculate loss</p>
+<dd><p>Calculate loss.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -146,24 +150,13 @@ given margin <span class="math notranslate nohighlight">\(\gamma\)</span>, Pairw
 <li><p><strong>neg_score</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code>) – score of negative triplets, with shape <code class="code docutils literal notranslate"><span class="pre">(n,)</span></code></p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>pairwise hinge loss with shape <code class="code docutils literal notranslate"><span class="pre">(1,)</span></code></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code></p>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="KGE.loss.PairwiseHingeLoss.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">margin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/loss.html#PairwiseHingeLoss.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.PairwiseHingeLoss.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Initialized PairwiseHingeLoss</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>margin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – margin <span class="math notranslate nohighlight">\(\gamma\)</span></p>
-</dd>
-</dl>
+<dd><p>Initialize loss</p>
 </dd></dl>
 
 <dl class="py method">

@@ -1,0 +1,26 @@
+What's Knowledge Graph Embedding?
+=================================
+
+Translating-based Model
+-----------------------
+
+In translating-based knowledge graph embedding models, the head entity is translated by relation to the tail entity:
+
+.. math::
+    trans_r(h) \approx predicate(t)
+
+Here we repesent the lhs :math:`trans_r(h)` as :math:`translation`,
+the rhs :math:`predicate(t)` as :math:`predicate`.
+Every translating-based model can be formulated in this frame, for example:
+
++---------+------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------+
+| Model   | :math:`translation`                                                                      | :math:`predicate`                                                                         |
++=========+==========================================================================================+===========================================================================================+
+| TransE  | :math:`\textbf{e}_h + \textbf{r}_r`                                                      | :math:`\textbf{e}_t`                                                                      |
++---------+------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------+
+|| TransH || :math:`{\textbf{e}_h}_{\perp} + \textbf{r}_r`                                           || :math:`{\textbf{e}_t}_{\perp}`                                                           |
+||        || :math:`{\textbf{e}_h}_{\perp} = \textbf{e}_h - \textbf{w}_r^T \textbf{e}_h\textbf{w}_r` || :math:`{\textbf{e}_t}_{\perp} = \textbf{e}_t - \textbf{w}_r^T \textbf{e}_t \textbf{w}_r` |
++---------+------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------+
+|| TransR || :math:`{\textbf{e}_h}_{\perp} + \textbf{r}_r`                                           || :math:`{\textbf{}_t}_{\perp}`                                                            |
+||        || :math:`{\textbf{e}_h}_{\perp} = \textbf{e}_h \textbf{M}_r`                              || :math:`{\textbf{e}_t}_{\perp} = \textbf{e}_t - \textbf{w}_r^T \textbf{e}_t \textbf{w}_r` |
++---------+------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------+

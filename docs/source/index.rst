@@ -3,10 +3,16 @@ Knowledge Graph Embedding
 
 .. toctree::
    :maxdepth: 1
+   :caption: Get Started
+
+   What's Knowledge Graph Embedding? <kge_intro.rst>
+
+.. toctree::
+   :maxdepth: 1
    :caption: Models
 
-   Translating Based Model <src/KGE.models.translating_based>
-   Semantic Based Model <src/KGE.models.semantic_based>
+   Translating Based Models <src/KGE.models.translating_based>
+   Semantic Based Models <src/KGE.models.semantic_based>
 
 .. toctree::
    :maxdepth: 1

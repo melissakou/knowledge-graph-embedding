@@ -1,0 +1,8 @@
+<map id="inheritancefd4556912f" name="inheritancefd4556912f">
+<area shape="rect" id="node1" href="#KGE.loss.BinaryCrossEntropyLoss" target="_top" title="An implementation of Binary Cross Entropy Loss." alt="" coords="171,5,350,31"/>
+<area shape="rect" id="node2" href="#KGE.loss.Loss" target="_top" title="A base module for loss." alt="" coords="5,104,77,129"/>
+<area shape="rect" id="node3" href="#KGE.loss.PairwiseHingeLoss" target="_top" title="An implementation of Pairwise Hinge Loss / Margin Ranking Loss." alt="" coords="189,55,332,80"/>
+<area shape="rect" id="node4" href="#KGE.loss.PairwiseLogisticLoss" target="_top" title="An implementation of Pairwise Logistic Loss." alt="" coords="183,104,338,129"/>
+<area shape="rect" id="node5" href="#KGE.loss.SelfAdversarialNegativeSamplingLoss" target="_top" title="An implementation of Self Adversarial Negative Sampling Loss." alt="" coords="125,153,396,179"/>
+<area shape="rect" id="node6" href="#KGE.loss.SquareErrorLoss" target="_top" title="An implementation of Square Error Loss." alt="" coords="197,203,324,228"/>
+</map>

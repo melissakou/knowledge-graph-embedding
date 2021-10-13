@@ -35,10 +35,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.translating_based.html">Translating Based Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.translating_based.html">Translating Based Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.semantic_based.html">Semantic Based Models</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Loss</span></p>
 <ul>
@@ -89,7 +93,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">from</span> <span class="nn">..base_model.TranslatingModel</span> <span class="kn">import</span> <span class="n">TranslatingModel</span>
-<span class="kn">from</span> <span class="nn">...score</span> <span class="kn">import</span> <span class="n">Lp_distance</span>
+<span class="kn">from</span> <span class="nn">...score</span> <span class="kn">import</span> <span class="n">LpDistance</span>
 <span class="kn">from</span> <span class="nn">...loss</span> <span class="kn">import</span> <span class="n">SelfAdversarialNegativeSamplingLoss</span>
 <span class="kn">from</span> <span class="nn">...ns_strategy</span> <span class="kn">import</span> <span class="n">uniform_strategy</span>
 
@@ -113,13 +117,13 @@
 <span class="sd">        f(h,r,t) = s(\\textbf{e}_h \circ \\textbf{r}_r, \\textbf{e}_t)</span>
 
 <span class="sd">    where :math:`s` is a scoring function (:py:mod:`KGE.score`) that scores the plausibility of matching between :math:`(translation, predicate)`. \n</span>
-<span class="sd">    By default, using :py:func:`KGE.score.Lp_distance`, negative L1-distance: </span>
+<span class="sd">    By default, using :py:mod:`KGE.score.LpDistance`, negative L1-distance: </span>
 <span class="sd">    </span>
 <span class="sd">    .. math::</span>
 <span class="sd">        s(\\textbf{e}_h \circ \\textbf{r}_r, \\textbf{e}_t) = </span>
 <span class="sd">            - \left\| \\textbf{e}_h \circ \\textbf{r}_r - \\textbf{e}_t \\right\|_1</span>
 
-<span class="sd">    You can change to L2-distance by giving :code:`score_params={&quot;p&quot;: 2}` in :py:func:`__init__`,</span>
+<span class="sd">    You can change to L2-distance by giving :code:`score_fn=LpDistance(p=2)` in :py:func:`__init__`,</span>
 <span class="sd">    or change any score function you like by specifying :code:`score_fn` in :py:func:`__init__`.</span>
 
 <span class="sd">    RotatE constrains the modulus of each element of :math:`\\textbf{r} \in \mathbb{C}^k` to 1,</span>
@@ -128,7 +132,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="RotatE.__init__"><a class="viewcode-back" href="../../../../src/KGE.models.translating_based.RotatE.html#KGE.models.translating_based.RotatE.RotatE.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_params</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="p">,</span> 
-                 <span class="n">score_fn</span><span class="o">=</span><span class="n">Lp_distance</span><span class="p">,</span> <span class="n">score_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+                 <span class="n">score_fn</span><span class="o">=</span><span class="n">LpDistance</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                  <span class="n">loss_fn</span><span class="o">=</span><span class="n">SelfAdversarialNegativeSamplingLoss</span><span class="p">(</span><span class="n">margin</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                  <span class="n">ns_strategy</span><span class="o">=</span><span class="n">uniform_strategy</span><span class="p">,</span> <span class="n">n_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialized RotatE</span>
@@ -142,9 +146,7 @@
 <span class="sd">        corrupt_side : str</span>
 <span class="sd">            corrupt from which side while trainging, can be :code:`&#39;h&#39;`, :code:`&#39;t&#39;`, or :code:`&#39;h+t&#39;`</span>
 <span class="sd">        score_fn : function, optional</span>
-<span class="sd">            scoring function, by default :py:func:`KGE.score.Lp_distance`</span>
-<span class="sd">        score_params : dict, optional</span>
-<span class="sd">            score parameters for :code:`score_fn`, by default :code:`{&quot;p&quot;: 1}`</span>
+<span class="sd">            scoring function, by default :py:mod:`KGE.score.LpDistance`</span>
 <span class="sd">        loss_fn : class, optional</span>
 <span class="sd">            loss function class :py:mod:`KGE.loss.Loss`, by default :py:mod:`KGE.loss.SelfAdversarialNegativeSamplingLoss`</span>
 <span class="sd">        ns_strategy : function, optional</span>
@@ -154,8 +156,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">RotatE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">embedding_params</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="p">,</span>
-                                     <span class="n">score_fn</span><span class="p">,</span> <span class="n">score_params</span><span class="p">,</span> <span class="n">loss_fn</span><span class="p">,</span>
-                                     <span class="n">ns_strategy</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">)</span></div>
+                                     <span class="n">score_fn</span><span class="p">,</span> <span class="n">loss_fn</span><span class="p">,</span> <span class="n">ns_strategy</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">)</span></div>
         
     <span class="k">def</span> <span class="nf">_init_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialized the RotatE embeddings.</span>
@@ -252,7 +253,7 @@
         <span class="n">hadamard</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">h_emb</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">h_emb</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]),</span>
                                <span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">r_emb</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">r_emb</span><span class="p">)))</span>
         
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="p">(</span><span class="n">hadamard</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">t_emb</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">t_emb</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_params</span><span class="p">)</span>  </div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="p">(</span><span class="n">hadamard</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">t_emb</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">t_emb</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]))</span></div>
     
     <span class="k">def</span> <span class="nf">_constraint_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform constraint if necessary.</span>

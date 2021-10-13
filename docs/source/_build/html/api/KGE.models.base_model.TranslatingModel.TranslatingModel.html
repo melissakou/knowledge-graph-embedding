@@ -37,10 +37,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.translating_based.html">Translating Based Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.translating_based.html">Translating Based Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.semantic_based.html">Semantic Based Models</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Loss</span></p>
 <ul>
@@ -99,9 +103,8 @@
 <li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – metadata for kg data</p></li>
 <li><p><strong>negative_ratio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of negaative sample</p></li>
 <li><p><strong>corrupt_side</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – corrupt from which side while trainging</p></li>
-<li><p><strong>score_fn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">function</span></code>) – scoring function</p></li>
-<li><p><strong>score_params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – score parameters for score_fn</p></li>
-<li><p><strong>loss_fn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">function</span></code>) – loss function</p></li>
+<li><p><strong>score_fn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">class</span></code>) – scoring function</p></li>
+<li><p><strong>loss_fn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">class</span></code>) – loss function</p></li>
 <li><p><strong>loss_params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – loss parameters for loss_fn</p></li>
 <li><p><strong>constraint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – apply constraint or not</p></li>
 <li><p><strong>ns_strategy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">function</span></code>) – negative sampling strategy</p></li>
@@ -254,7 +257,7 @@ by default False</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="KGE.models.base_model.TranslatingModel.TranslatingModel.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corrupt_side</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ns_strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_workers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/models/base_model/TranslatingModel.html#TranslatingModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.models.base_model.TranslatingModel.TranslatingModel.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corrupt_side</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ns_strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_workers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/models/base_model/TranslatingModel.html#TranslatingModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.models.base_model.TranslatingModel.TranslatingModel.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Initialize TranslatingModel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -262,8 +265,7 @@ by default False</p></li>
 <li><p><strong>embedding_params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – embedding dimension parameters</p></li>
 <li><p><strong>negative_ratio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of negative sample</p></li>
 <li><p><strong>corrupt_side</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – corrupt from which side while trainging, can be “h”, “r”, or “h+t”</p></li>
-<li><p><strong>score_fn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">function</span></code>) – scoring function</p></li>
-<li><p><strong>score_params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – score parameters for score_fn</p></li>
+<li><p><strong>score_fn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">class</span></code>) – scoring function class <a class="reference internal" href="../src/KGE.score.html#KGE.score.Score" title="KGE.score.Score"><code class="xref py py-mod docutils literal notranslate"><span class="pre">KGE.score.Score</span></code></a></p></li>
 <li><p><strong>loss_fn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">class</span></code>) – loss function class <a class="reference internal" href="../src/KGE.loss.html#KGE.loss.Loss" title="KGE.loss.Loss"><code class="xref py py-mod docutils literal notranslate"><span class="pre">KGE.loss.Loss</span></code></a></p></li>
 <li><p><strong>ns_strategy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">function</span></code>) – negative sampling strategy</p></li>
 <li><p><strong>n_workers</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of workers for negative sampling</p></li>

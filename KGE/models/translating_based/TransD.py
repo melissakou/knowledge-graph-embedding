@@ -5,7 +5,7 @@ import logging
 import numpy as np
 import tensorflow as tf
 from ..base_model.TranslatingModel import TranslatingModel
-from ...score import Lp_distance_pow
+from ...score import LpDistancePow
 from ...loss import PairwiseHingeLoss
 from ...ns_strategy import uniform_strategy
 from ...constraint import clip_constraint
@@ -53,13 +53,13 @@ class TransD(TranslatingModel):
 
     where :math:`s` is a scoring function (:py:mod:`KGE.score`) that scores the plausibility of matching between
     :math:`(translation, predicate)`. \n
-    By default, using :py:func:`KGE.score.Lp_distance_pow`, negative squared L2-distance: 
+    By default, using :py:func:`KGE.score.LpDistancePow`, negative squared L2-distance: 
     
     .. math::
         s({\\textbf{e}_h}_{\perp} + \\textbf{r}_r, {\\textbf{e}_t}_{\perp}) =
             - \left\| {\\textbf{e}_h}_{\perp} + \\textbf{r}_r - {\\textbf{e}_t}_{\perp} \\right\|_2^2
 
-    You can change to L1-distance by giving :code:`score_params={"p": 1}` in :py:func:`__init__`,
+    You can change to L1-distance by giving :code:`score_fn=LpDistancePow(p=1)` in :py:func:`__init__`,
     or change any score function you like by specifying :code:`score_fn` in :py:func:`__init__`.
 
     If :code:`constraint=True` given in :py:func:`__init__`, conduct following constraints: \n
@@ -72,7 +72,7 @@ class TransD(TranslatingModel):
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 score_fn=Lp_distance_pow, score_params={"p": 2}, loss_fn=PairwiseHingeLoss(margin=1),
+                 score_fn=LpDistancePow(p=2), loss_fn=PairwiseHingeLoss(margin=1),
                  ns_strategy=uniform_strategy, constraint=True, n_workers=1):
         """Initialized TransR
 
@@ -87,9 +87,7 @@ class TransD(TranslatingModel):
         corrupt_side : str
             corrupt from which side while trainging, can be :code:`'h'`, :code:`'t'`, or :code:`'h+t'`
         score_fn : function, optional
-            scoring function, by default :py:func:`KGE.score.Lp_distance_pow`
-        score_params : dict, optional
-            score parameters for :code:`score_fn`, by default :code:`{"p": 2}`
+            scoring function, by default :py:mod:`KGE.score.LpDistancePow`
         loss_fn : class, optional
             loss function class :py:mod:`KGE.loss.Loss`, by default :py:mod:`KGE.loss.PairwiseHingeLoss`
         ns_strategy : function, optional
@@ -101,8 +99,7 @@ class TransD(TranslatingModel):
         """
 
         super(TransD, self).__init__(embedding_params, negative_ratio, corrupt_side,
-                                     score_fn, score_params, loss_fn,
-                                     ns_strategy, constraint, n_workers)
+                                     score_fn, loss_fn, ns_strategy, constraint, n_workers)
         self.constraint = constraint
         
     def _init_embeddings(self, seed):
@@ -218,7 +215,7 @@ class TransD(TranslatingModel):
             h_proj = clip_constraint(X=h_proj, p=2, axis=-1, value=1)
             t_proj = clip_constraint(X=t_proj, p=2, axis=-1, value=1)
         
-        return self.score_fn(h_proj + r_emb, t_proj, self.score_params)
+        return self.score_fn(h_proj + r_emb, t_proj)
 
     def _constraint_loss(self, X):
         """Perform constraint if necessary.

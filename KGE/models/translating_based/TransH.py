@@ -5,7 +5,7 @@ import logging
 import numpy as np
 import tensorflow as tf
 from ..base_model.TranslatingModel import TranslatingModel
-from ...score import Lp_distance_pow
+from ...score import LpDistancePow
 from ...loss import PairwiseHingeLoss
 from ...ns_strategy import uniform_strategy
 from ...constraint import normalized_embeddings, soft_constraint
@@ -40,13 +40,13 @@ class TransH(TranslatingModel):
         f(h,r,t) = s({\\textbf{e}_h}_{\perp} + \\textbf{r}_r, {\\textbf{e}_t}_{\perp})
 
     where :math:`s` is a scoring function (:py:mod:`KGE.score`) that scores the plausibility of matching between :math:`(translation, predicate)`. \n
-    By default, using :py:func:`KGE.score.Lp_distance_pow`, negative squared L2-distance: 
+    By default, using :py:mod:`KGE.score.LpDistancePow`, negative squared L2-distance: 
     
     .. math::
         s({\\textbf{e}_h}_{\perp} + \\textbf{r}_r, {\\textbf{e}_t}_{\perp}) =
             - \left\| {\\textbf{e}_h}_{\perp} + \\textbf{r}_r - {\\textbf{e}_t}_{\perp} \\right\|_2^2
 
-    You can change to L1-distance by giving :code:`score_params={"p": 1}` in :py:func:`__init__`,
+    You can change to L1-distance by giving :code:`score_fn=LpDisrancePow(p=1)` in :py:func:`__init__`,
     or change any score function you like by specifying :code:`score_fn` in :py:func:`__init__`.
 
     If :code:`constraint=True` given in :py:func:`__init__`, conduct following constraints: \n
@@ -62,7 +62,7 @@ class TransH(TranslatingModel):
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 score_fn=Lp_distance_pow, score_params={"p": 2}, loss_fn=PairwiseHingeLoss(margin=1),
+                 score_fn=LpDistancePow(p=2), loss_fn=PairwiseHingeLoss(margin=1),
                  ns_strategy=uniform_strategy, constraint=True, constraint_weight=1.0, n_workers=1):
         """Initialized TransH
 
@@ -75,9 +75,7 @@ class TransH(TranslatingModel):
         corrupt_side : str
             corrupt from which side while trainging, can be :code:`'h'`, :code:`'t'`, or :code:`'h+t'`
         score_fn : function, optional
-            scoring function, by default :py:func:`KGE.score.Lp_distance_pow`
-        score_params : dict, optional
-            score parameters for :code:`score_fn`, by default :code:`{"p": 2}`
+            scoring function, by default :py:mod:`KGE.score.LpDistancePow`
         loss_fn : class, optional
             loss function class :py:mod:`KGE.loss.Loss`, by default :py:mod:`KGE.loss.PairwiseHingeLoss`
         ns_strategy : function, optional
@@ -90,8 +88,7 @@ class TransH(TranslatingModel):
             number of workers for negative sampling, by default 1
         """
         super(TransH, self).__init__(embedding_params, negative_ratio, corrupt_side,
-                                     score_fn, score_params, loss_fn,
-                                     ns_strategy, constraint, n_workers)
+                                     score_fn, loss_fn, ns_strategy, constraint, n_workers)
         self.constraint = constraint
         self.constraint_weight = constraint_weight
         
@@ -188,7 +185,7 @@ class TransH(TranslatingModel):
         h_proj = tf.squeeze(h_emb - tf.multiply(tf.matmul(r_hyper, h_emb, transpose_a=True), r_hyper))
         t_proj = tf.squeeze(t_emb - tf.multiply(tf.matmul(r_hyper, t_emb, transpose_a=True), r_hyper))
 
-        return self.score_fn(h_proj + r_emb, t_proj, self.score_params)
+        return self.score_fn(h_proj + r_emb, t_proj)
 
 
     def _constraint_loss(self, X):
