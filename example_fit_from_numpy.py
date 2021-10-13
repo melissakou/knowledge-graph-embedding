@@ -3,6 +3,7 @@ import numpy as np
 import tensorflow as tf
 from KGE.data_utils import index_kg, convert_kg_to_index
 from KGE.models.translating_based.RotatE import RotatE
+from KGE.loss import SelfAdversarialNegativeSamplingLoss
 
 
 if __name__ == "__main__":
@@ -20,7 +21,7 @@ if __name__ == "__main__":
         negative_ratio=128,
         corrupt_side="h+t",
         score_params={"p": 1},
-        loss_param={"margin":24, "temperature": 1})
+        loss_fn=SelfAdversarialNegativeSamplingLoss(margin=24, temperature=1))
     model.train(train_X=train, val_X=valid, metadata=metadata, epochs=1000, batch_size=512,
                 early_stopping_rounds=None, restore_best_weight=False,
                 optimizer=tf.optimizers.Adam(learning_rate=0.0001),

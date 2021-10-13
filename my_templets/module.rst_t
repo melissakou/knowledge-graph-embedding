@@ -6,6 +6,7 @@
 .. automodapi:: {{ qualname }}
    :inherited-members:
    :no-heading:
+   :no-main-docstr:
 
 .. automodule:: {{ qualname }}
    :members:

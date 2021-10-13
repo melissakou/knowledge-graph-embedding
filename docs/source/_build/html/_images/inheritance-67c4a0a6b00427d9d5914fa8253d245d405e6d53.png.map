@@ -1,0 +1,5 @@
+<map id="inheritancef3ed7af390" name="inheritancef3ed7af390">
+<area shape="rect" id="node1" href="KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel" target="_top" title="A base module for Knowledge Graph Embedding Model." alt="" coords="5,5,93,31"/>
+<area shape="rect" id="node2" href="KGE.models.base_model.TranslatingModel.html#KGE.models.base_model.TranslatingModel.TranslatingModel" target="_top" title="A base module for Semantic Based Embedding Model." alt="" coords="141,5,273,31"/>
+<area shape="rect" id="node3" href="#KGE.models.translating_based.UM.UM" target="_top" title="An implementation of UM (Unstructured Model) from `[brodes 2014] &lt;https://link.springer.com/content/pdf/10.1007%2Fs10994&#45;013&#45;5363&#45;6.pdf&gt;`_." alt="" coords="321,5,393,31"/>
+</map>

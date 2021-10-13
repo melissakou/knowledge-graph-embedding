@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RESCAL &mdash; Knowledge Graph Embedding 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Knowledge Graph Embedding
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.translating_based.html">Translating Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Loss</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.loss.html">Loss Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Score</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.score.html">Score Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Constraint</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.constraint.html">Contraint</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Negative Sampling</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.ns_strategy.html">Negative Sampling Strategy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Knowledge Graph Embedding</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>RESCAL</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/KGE.models.semantic_based.RESCAL.RESCAL.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rescal">
+<h1>RESCAL<a class="headerlink" href="#rescal" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="KGE.models.semantic_based.RESCAL.RESCAL">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.models.semantic_based.RESCAL.</span></span><span class="sig-name descname"><span class="pre">RESCAL</span></span><a class="reference internal" href="../_modules/KGE/models/semantic_based/RESCAL.html#RESCAL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.models.semantic_based.RESCAL.RESCAL" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../src/KGE.models.base_model.SemanticModel.html#KGE.models.base_model.SemanticModel.SemanticModel" title="KGE.models.base_model.SemanticModel.SemanticModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGE.models.base_model.SemanticModel.SemanticModel</span></code></a></p>
+<p>An implementation of RESCAL from <a class="reference external" href="https://icml.cc/2011/papers/438_icmlpaper.pdf">[nickel 2011]</a>.</p>
+<p>RESCAL is a bilinear model that represents each entity as a vector that
+models the latent-component representation and represents each relation
+as a matrix that models the interactions between the latent components.</p>
+<p>The score of <span class="math notranslate nohighlight">\((h,r,t)\)</span> is defined by a bilinear function:</p>
+<div class="math notranslate nohighlight">
+\[f(h,r,t) = \textbf{e}_h^{T} \textbf{R}_{r} \textbf{e}_t\]</div>
+<p>where <span class="math notranslate nohighlight">\(\textbf{e}_i \in \mathbb{R}^k\)</span> are vector representations of
+the entities, and <span class="math notranslate nohighlight">\(\textbf{R}_i \in \mathbb{R}^{k \times k}\)</span> is an
+asymmetric matrix associated with the relation.</p>
+<p>If <code class="code docutils literal notranslate"><span class="pre">constraint=True</span></code> given in <a class="reference internal" href="../src/KGE.models.semantic_based.RESCAL.html#KGE.models.semantic_based.RESCAL.RESCAL.__init__" title="KGE.models.semantic_based.RESCAL.RESCAL.__init__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__init__()</span></code></a>,
+conduct L2-regularization described in
+<a class="reference external" href="https://icml.cc/2011/papers/438_icmlpaper.pdf">original RESCAL paper</a>:</p>
+<div class="math notranslate nohighlight">
+\[regularization~term = \lambda \times
+\left( \sum_{i}  {\left\| \textbf{e}_i \right\|}_2^2 + \sum_{i}  {\left\| \textbf{R}_i \right\|}_F^2 \right).\]</div>
+<p class="rubric">Methods Summary</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../src/KGE.models.semantic_based.RESCAL.html#KGE.models.semantic_based.RESCAL.RESCAL.evaluate" title="KGE.models.semantic_based.RESCAL.RESCAL.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code></a>(eval_X, corrupt_side[, positive_X])</p></td>
+<td><p>Evaluate triplets.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../src/KGE.models.semantic_based.RESCAL.html#KGE.models.semantic_based.RESCAL.RESCAL.get_rank" title="KGE.models.semantic_based.RESCAL.RESCAL.get_rank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_rank</span></code></a>(x, positive_X, corrupt_side)</p></td>
+<td><p>Get rank for specific one triplet.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../src/KGE.models.semantic_based.RESCAL.html#KGE.models.semantic_based.RESCAL.RESCAL.restore_model_weights" title="KGE.models.semantic_based.RESCAL.RESCAL.restore_model_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restore_model_weights</span></code></a>(model_weights)</p></td>
+<td><p>Restore the model weights.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../src/KGE.models.semantic_based.RESCAL.html#KGE.models.semantic_based.RESCAL.RESCAL.score_hrt" title="KGE.models.semantic_based.RESCAL.RESCAL.score_hrt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score_hrt</span></code></a>(h, r, t)</p></td>
+<td><p>Score the triplets <span class="math notranslate nohighlight">\((h,r,t)\)</span>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../src/KGE.models.semantic_based.RESCAL.html#KGE.models.semantic_based.RESCAL.RESCAL.train" title="KGE.models.semantic_based.RESCAL.RESCAL.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train</span></code></a>(train_X, val_X, metadata, epochs, ...)</p></td>
+<td><p>Train the Knowledge Graph Embedding Model.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.models.semantic_based.RESCAL.RESCAL.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eval_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corrupt_side</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive_X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#KGE.models.semantic_based.RESCAL.RESCAL.evaluate" title="Permalink to this definition"></a></dt>
+<dd><p>Evaluate triplets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eval_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – triplets to be evaluated</p></li>
+<li><p><strong>corrupt_side</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – corrupt triplets from which side, can be <code class="code docutils literal notranslate"><span class="pre">'h'</span></code> and <code class="code docutils literal notranslate"><span class="pre">'t'</span></code></p></li>
+<li><p><strong>positive_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>, <em>optional</em>) – positive triplets that should be filtered while generating
+corrupted triplets, by default None (no filter applied)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>evaluation result</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.models.semantic_based.RESCAL.RESCAL.get_rank">
+<span class="sig-name descname"><span class="pre">get_rank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corrupt_side</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#KGE.models.semantic_based.RESCAL.RESCAL.get_rank" title="Permalink to this definition"></a></dt>
+<dd><p>Get rank for specific one triplet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>) – rank this triplet</p></li>
+<li><p><strong>positive_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code>, <em>optional</em>) – positive triplets that should bt filtered while generating
+corrupted triplets, if <code class="code docutils literal notranslate"><span class="pre">None</span></code>, no filter applied</p></li>
+<li><p><strong>corrupt_side</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – corrupt triplets from which side, can be <code class="code docutils literal notranslate"><span class="pre">'h'</span></code> and <code class="code docutils literal notranslate"><span class="pre">'t'</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ranking result</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.models.semantic_based.RESCAL.RESCAL.restore_model_weights">
+<span class="sig-name descname"><span class="pre">restore_model_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_weights</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#KGE.models.semantic_based.RESCAL.RESCAL.restore_model_weights" title="Permalink to this definition"></a></dt>
+<dd><p>Restore the model weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model_weights</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dictionary of model weights to be restored</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.models.semantic_based.RESCAL.RESCAL.score_hrt">
+<span class="sig-name descname"><span class="pre">score_hrt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/models/semantic_based/RESCAL.html#RESCAL.score_hrt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.models.semantic_based.RESCAL.RESCAL.score_hrt" title="Permalink to this definition"></a></dt>
+<dd><p>Score the triplets <span class="math notranslate nohighlight">\((h,r,t)\)</span>.</p>
+<p>If <code class="code docutils literal notranslate"><span class="pre">h</span></code> is <code class="code docutils literal notranslate"><span class="pre">None</span></code>, score all entities: <span class="math notranslate nohighlight">\((h_i, r, t)\)</span>.</p>
+<p>If <code class="code docutils literal notranslate"><span class="pre">t</span></code> is <code class="code docutils literal notranslate"><span class="pre">None</span></code>, score all entities: <span class="math notranslate nohighlight">\((h, r, t_i)\)</span>.</p>
+<p><code class="code docutils literal notranslate"><span class="pre">h</span></code> and <code class="code docutils literal notranslate"><span class="pre">t</span></code> should not be <code class="code docutils literal notranslate"><span class="pre">None</span></code> simultaneously.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – index of heads with shape <code class="code docutils literal notranslate"><span class="pre">(n,)</span></code></p></li>
+<li><p><strong>r</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – index of relations with shape <code class="code docutils literal notranslate"><span class="pre">(n,)</span></code></p></li>
+<li><p><strong>t</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – index of tails with shape <code class="code docutils literal notranslate"><span class="pre">(n,)</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>triplets scores with shape <code class="code docutils literal notranslate"><span class="pre">(n,)</span></code></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.models.semantic_based.RESCAL.RESCAL.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">early_stopping_rounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights_initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restore_best_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Adam'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_projector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#KGE.models.semantic_based.RESCAL.RESCAL.train" title="Permalink to this definition"></a></dt>
+<dd><p>Train the Knowledge Graph Embedding Model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – <p>training triplets.</p>
+<p>If <code class="code docutils literal notranslate"><span class="pre">np.ndarray</span></code>, shape should be <code class="code docutils literal notranslate"><span class="pre">(n,3)</span></code> for <span class="math notranslate nohighlight">\((h,r,t)\)</span> respectively.</p>
+<p>If <code class="code docutils literal notranslate"><span class="pre">str</span></code>, training triplets should be save under this folder path
+with csv format, every csv files should have 3 columns without
+header for <span class="math notranslate nohighlight">\((h,r,t)\)</span> respectively.</p>
+</p></li>
+<li><p><strong>val_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – <p>validation triplets.</p>
+<p>If <code class="code docutils literal notranslate"><span class="pre">np.ndarray</span></code>, shape should be <code class="code docutils literal notranslate"><span class="pre">(n,3)</span></code> for <span class="math notranslate nohighlight">\((h,r,t)\)</span> respectively.</p>
+<p>If <code class="code docutils literal notranslate"><span class="pre">str</span></code>, training triplets should be save under this folder path
+with csv format, every csv files should have 3 columns without
+header for <span class="math notranslate nohighlight">\((h,r,t)\)</span> respectively.</p>
+</p></li>
+<li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – <p>metadata for kg data. should have following keys:</p>
+<p><code class="code docutils literal notranslate"><span class="pre">'ent2ind'</span></code>: dict, dictionay that mapping entity to index.</p>
+<p><code class="code docutils literal notranslate"><span class="pre">'ind2ent'</span></code>: list, list that mapping index to entity.</p>
+<p><code class="code docutils literal notranslate"><span class="pre">'rel2ind'</span></code>: dict, dictionay that mapping relation to index.</p>
+<p><code class="code docutils literal notranslate"><span class="pre">'ind2rel'</span></code>: list, list that mapping index to relation.</p>
+<p>can use KGE.data_utils.index_kg to index and get metadata.</p>
+</p></li>
+<li><p><strong>epochs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of epochs</p></li>
+<li><p><strong>batch_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – batch_size</p></li>
+<li><p><strong>early_stopping_rounds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – number of rounds that trigger early stopping,
+by default None (no early stopping)</p></li>
+<li><p><strong>model_weights_initial</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <em>optional</em>) – initial model wieghts with specific value, by default None</p></li>
+<li><p><strong>restore_best_weight</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – restore weight to the best iteration if early stopping rounds
+is not None, by default True</p></li>
+<li><p><strong>optimizer</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.keras.optimizers</span></code>, <em>optional</em>) – optimizer that apply in training, by default <code class="code docutils literal notranslate"><span class="pre">'Adam'</span></code>,
+use the default setting of <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/Adam">tf.keras.optimizers.Adam</a></p></li>
+<li><p><strong>seed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – random seed for shuffling data &amp; embedding initialzation, by default None</p></li>
+<li><p><strong>log_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – path for tensorboard logging, by default None</p></li>
+<li><p><strong>log_projector</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – project the embbedings in the tensorboard projector tab,
+setting this True will write the metadata and embedding tsv files
+in <code class="code docutils literal notranslate"><span class="pre">log_path</span></code> and project this data on tensorboard projector tab,
+by default False</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.models.semantic_based.RESCAL.RESCAL.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">embedding_params</span></em>, <em class="sig-param"><span class="pre">negative_ratio</span></em>, <em class="sig-param"><span class="pre">corrupt_side</span></em>, <em class="sig-param"><span class="pre">loss_fn=&lt;KGE.loss.SquareErrorLoss</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">ns_strategy=&lt;function</span> <span class="pre">uniform_strategy&gt;</span></em>, <em class="sig-param"><span class="pre">constraint=True</span></em>, <em class="sig-param"><span class="pre">constraint_weight=1.0</span></em>, <em class="sig-param"><span class="pre">n_workers=1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/models/semantic_based/RESCAL.html#RESCAL.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.models.semantic_based.RESCAL.RESCAL.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialized RESCAL</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>embedding_params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – embedding dimension parameters, should have key <code class="code docutils literal notranslate"><span class="pre">'embedding_size'</span></code> for embedding dimension <span class="math notranslate nohighlight">\(k\)</span></p></li>
+<li><p><strong>negative_ratio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of negative sample</p></li>
+<li><p><strong>corrupt_side</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – corrupt from which side while trainging, can be <code class="code docutils literal notranslate"><span class="pre">'h'</span></code>, <code class="code docutils literal notranslate"><span class="pre">'t'</span></code>, or <code class="code docutils literal notranslate"><span class="pre">'h+t'</span></code></p></li>
+<li><p><strong>loss_fn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">class</span></code>, <em>optional</em>) – loss function class <a class="reference internal" href="../src/KGE.loss.html#KGE.loss.Loss" title="KGE.loss.Loss"><code class="xref py py-mod docutils literal notranslate"><span class="pre">KGE.loss.Loss</span></code></a>, by default <a class="reference internal" href="../src/KGE.loss.html#KGE.loss.SquareErrorLoss" title="KGE.loss.SquareErrorLoss"><code class="xref py py-mod docutils literal notranslate"><span class="pre">KGE.loss.SquareErrorLoss</span></code></a></p></li>
+<li><p><strong>ns_strategy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">function</span></code>, <em>optional</em>) – negative sampling strategy, by default <a class="reference internal" href="KGE.ns_strategy.uniform_strategy.html#KGE.ns_strategy.uniform_strategy" title="KGE.ns_strategy.uniform_strategy"><code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.ns_strategy.uniform_strategy()</span></code></a></p></li>
+<li><p><strong>constraint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – conduct constraint or not, by default <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>constraint_weight</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – regularization weight <span class="math notranslate nohighlight">\(\lambda\)</span>, by default 1.0</p></li>
+<li><p><strong>n_workers</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – number of workers for negative sampling, by default 1</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.models.semantic_based.RESCAL.RESCAL.__new__">
+<span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#KGE.models.semantic_based.RESCAL.RESCAL.__new__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Melissa Kuo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

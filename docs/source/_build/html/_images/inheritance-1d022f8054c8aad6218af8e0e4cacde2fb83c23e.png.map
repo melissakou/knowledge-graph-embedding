@@ -1,0 +1,5 @@
+<map id="inheritance748700af2c" name="inheritance748700af2c">
+<area shape="rect" id="node1" href="KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel" target="_top" title="A base module for Knowledge Graph Embedding Model." alt="" coords="5,5,93,31"/>
+<area shape="rect" id="node3" href="KGE.models.base_model.SemanticModel.html#KGE.models.base_model.SemanticModel.SemanticModel" target="_top" title="A base module for Semantic Based Embedding Model." alt="" coords="141,5,264,31"/>
+<area shape="rect" id="node2" href="#KGE.models.semantic_based.RESCAL.RESCAL" target="_top" title="An implementation of RESCAL from `[nickel 2011] &lt;https://icml.cc/2011/papers/438_icmlpaper.pdf&gt;`_." alt="" coords="312,5,384,31"/>
+</map>

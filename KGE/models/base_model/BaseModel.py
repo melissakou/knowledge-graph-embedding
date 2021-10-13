@@ -28,7 +28,7 @@ class KGEModel:
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 loss_fn, loss_params, ns_strategy, n_workers):
+                 loss_fn, ns_strategy, n_workers):
         """Initialize KGEModel.
 
         Parameters
@@ -39,10 +39,8 @@ class KGEModel:
             number of negative sample
         corrupt_side : str
             corrupt from which side while trainging, can be :code:`'h'`, :code:`'t'`, or :code:`'h+t'`
-        loss_fn : function
-            loss function
-        loss_params : dict
-            loss paraneters for :code:`loss_fn`
+        loss_fn : class
+            loss function class :py:mod:`KGE.loss.Loss`
         ns_strategy : function
             negative sampling strategy
         n_workers : int
@@ -55,7 +53,6 @@ class KGEModel:
         self.negative_ratio = negative_ratio
         self.corrupt_side = corrupt_side
         self.loss_fn = loss_fn
-        self.loss_params = loss_params
         self.ns_strategy = ns_strategy
         self.__n_workers = n_workers
 
@@ -313,7 +310,7 @@ class KGEModel:
             constraint_term = self._constraint_loss(batch_data)
             pos_score = self.score_hrt(batch_data[:, 0], batch_data[:, 1], batch_data[:, 2])
             neg_score = self.score_hrt(neg_triplet[:, 0], neg_triplet[:, 1], neg_triplet[:, 2])
-            batch_loss = self.loss_fn(pos_score, neg_score, self.loss_params)
+            batch_loss = self.loss_fn(pos_score, neg_score)
             batch_loss += constraint_term
 
         if is_train:

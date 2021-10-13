@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KGE.models.base_model.BaseModel &mdash; Knowledge Graph Embedding 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> Knowledge Graph Embedding
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.translating_based.html">Translating Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Loss</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.loss.html">Loss Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Score</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.score.html">Score Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Constraint</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.constraint.html">Contraint</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Negative Sampling</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.ns_strategy.html">Negative Sampling Strategy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Knowledge Graph Embedding</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>KGE.models.base_model.BaseModel</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for KGE.models.base_model.BaseModel</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">base module for Knowledge Graph Embedding Model</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span><span class="p">,</span> <span class="n">trange</span>
+<span class="kn">from</span> <span class="nn">tensorboard.plugins</span> <span class="kn">import</span> <span class="n">projector</span>
+<span class="kn">from</span> <span class="nn">...data_utils</span> <span class="kn">import</span> <span class="n">calculate_data_size</span><span class="p">,</span> <span class="n">set_tf_iterator</span>
+<span class="kn">from</span> <span class="nn">...ns_strategy</span> <span class="kn">import</span> <span class="n">typed_strategy</span>
+<span class="kn">from</span> <span class="nn">...evaluation.protocal</span> <span class="kn">import</span> <span class="n">generate_negative_lcwa</span>
+<span class="kn">from</span> <span class="nn">...evaluation.metrics</span> <span class="kn">import</span> <span class="n">mean_reciprocal_rank</span><span class="p">,</span> <span class="n">mean_rank</span><span class="p">,</span> <span class="n">hits_at_k</span><span class="p">,</span> <span class="n">median_rank</span><span class="p">,</span> <span class="n">geometric_mean_rank</span><span class="p">,</span> <span class="n">harmonic_mean_rank</span><span class="p">,</span> <span class="n">std_rank</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="n">gpus</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">list_physical_devices</span><span class="p">(</span><span class="s2">&quot;GPU&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gpus</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">set_memory_growth</span><span class="p">(</span><span class="n">gpus</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="KGEModel"><a class="viewcode-back" href="../../../../src/KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel">[docs]</a><span class="k">class</span> <span class="nc">KGEModel</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A base module for Knowledge Graph Embedding Model.</span>
+
+<span class="sd">    Subclass of :class:`KGEModel` can have thier own translation and interation model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="KGEModel.__init__"><a class="viewcode-back" href="../../../../src/KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_params</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="p">,</span> 
+                 <span class="n">loss_fn</span><span class="p">,</span> <span class="n">ns_strategy</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize KGEModel.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        embedding_params : dict</span>
+<span class="sd">            embedding dimension parameters</span>
+<span class="sd">        negative_ratio : int</span>
+<span class="sd">            number of negative sample</span>
+<span class="sd">        corrupt_side : str</span>
+<span class="sd">            corrupt from which side while trainging, can be :code:`&#39;h&#39;`, :code:`&#39;t&#39;`, or :code:`&#39;h+t&#39;`</span>
+<span class="sd">        loss_fn : class</span>
+<span class="sd">            loss function class :py:mod:`KGE.loss.Loss`</span>
+<span class="sd">        ns_strategy : function</span>
+<span class="sd">            negative sampling strategy</span>
+<span class="sd">        n_workers : int</span>
+<span class="sd">            number of workers for negative sampling</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">assert</span> <span class="n">corrupt_side</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;h+t&#39;</span><span class="p">,</span> <span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">],</span> <span class="s2">&quot;Invalid corrupt_side, valid options: &#39;h+t&#39;, &#39;h&#39;, &#39;t&#39;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding_params</span> <span class="o">=</span> <span class="n">embedding_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">negative_ratio</span> <span class="o">=</span> <span class="n">negative_ratio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corrupt_side</span> <span class="o">=</span> <span class="n">corrupt_side</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_fn</span> <span class="o">=</span> <span class="n">loss_fn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ns_strategy</span> <span class="o">=</span> <span class="n">ns_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__n_workers</span> <span class="o">=</span> <span class="n">n_workers</span></div>
+
+<div class="viewcode-block" id="KGEModel.train"><a class="viewcode-back" href="../../../../src/KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_X</span><span class="p">,</span> <span class="n">val_X</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span>
+              <span class="n">early_stopping_rounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_weights_initial</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">restore_best_weight</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;Adam&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">log_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log_projector</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Train the Knowledge Graph Embedding Model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        train_X : np.ndarray or str</span>
+<span class="sd">            training triplets. \n</span>
+<span class="sd">            If :code:`np.ndarray`, shape should be :code:`(n,3)` for :math:`(h,r,t)` respectively. \n</span>
+<span class="sd">            If :code:`str`, training triplets should be save under this folder path</span>
+<span class="sd">            with csv format, every csv files should have 3 columns without</span>
+<span class="sd">            header for :math:`(h,r,t)` respectively.</span>
+<span class="sd">        val_X : np.ndarray or str</span>
+<span class="sd">            validation triplets. \n</span>
+<span class="sd">            If :code:`np.ndarray`, shape should be :code:`(n,3)` for :math:`(h,r,t)` respectively. \n</span>
+<span class="sd">            If :code:`str`, training triplets should be save under this folder path</span>
+<span class="sd">            with csv format, every csv files should have 3 columns without</span>
+<span class="sd">            header for :math:`(h,r,t)` respectively.</span>
+<span class="sd">        metadata : dict</span>
+<span class="sd">            metadata for kg data. should have following keys: \n</span>
+<span class="sd">            :code:`&#39;ent2ind&#39;`: dict, dictionay that mapping entity to index. \n</span>
+<span class="sd">            :code:`&#39;ind2ent&#39;`: list, list that mapping index to entity. \n </span>
+<span class="sd">            :code:`&#39;rel2ind&#39;`: dict, dictionay that mapping relation to index. \n</span>
+<span class="sd">            :code:`&#39;ind2rel&#39;`: list, list that mapping index to relation. \n</span>
+<span class="sd">            can use KGE.data_utils.index_kg to index and get metadata.</span>
+<span class="sd">        epochs : int</span>
+<span class="sd">            number of epochs</span>
+<span class="sd">        batch_size : int</span>
+<span class="sd">            batch_size</span>
+<span class="sd">        early_stopping_rounds : int, optional</span>
+<span class="sd">            number of rounds that trigger early stopping,</span>
+<span class="sd">            by default None (no early stopping)</span>
+<span class="sd">        model_weights_initial : dict, optional</span>
+<span class="sd">            initial model wieghts with specific value, by default None</span>
+<span class="sd">        restore_best_weight : bool, optional</span>
+<span class="sd">            restore weight to the best iteration if early stopping rounds</span>
+<span class="sd">            is not None, by default True</span>
+<span class="sd">        optimizer : str or tensorflow.keras.optimizers, optional</span>
+<span class="sd">            optimizer that apply in training, by default :code:`&#39;Adam&#39;`,</span>
+<span class="sd">            use the default setting of `tf.keras.optimizers.Adam &lt;https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/Adam&gt;`_</span>
+<span class="sd">        seed : int, optional</span>
+<span class="sd">            random seed for shuffling data &amp; embedding initialzation, by default None</span>
+<span class="sd">        log_path : str, optional</span>
+<span class="sd">            path for tensorboard logging, by default None</span>
+<span class="sd">        log_projector : bool, optional</span>
+<span class="sd">            project the embbedings in the tensorboard projector tab, </span>
+<span class="sd">            setting this True will write the metadata and embedding tsv files</span>
+<span class="sd">            in :code:`log_path` and project this data on tensorboard projector tab,</span>
+<span class="sd">            by default False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_weights_initial</span> <span class="o">=</span> <span class="n">model_weights_initial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__optimizer</span> <span class="o">=</span> <span class="n">optimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_path</span> <span class="o">=</span> <span class="n">log_path</span>
+        
+        <span class="c1"># Create a Summary Writer to log the metrics to Tensorboard</span>
+        <span class="n">summary_writer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">create_file_writer</span><span class="p">(</span><span class="n">log_path</span><span class="p">)</span>
+        <span class="n">train_logger</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">create_file_writer</span><span class="p">(</span><span class="n">log_path</span> <span class="o">+</span> <span class="s1">&#39;/scalar/train&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">val_X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">val_logger</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">create_file_writer</span><span class="p">(</span><span class="n">log_path</span> <span class="o">+</span> <span class="s1">&#39;/scalar/validation&#39;</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] Preparing for training...&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+        <span class="n">train_iter</span><span class="p">,</span> <span class="n">val_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__prepare_for_train</span><span class="p">(</span><span class="n">train_X</span><span class="o">=</span><span class="n">train_X</span><span class="p">,</span> <span class="n">val_X</span><span class="o">=</span><span class="n">val_X</span><span class="p">)</span>
+        <span class="n">train_loss_history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">val_loss_history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">patience_count</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># Start Training</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] Start Training...&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+        <span class="n">epoch_bar</span> <span class="o">=</span> <span class="n">trange</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Epoch&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">epoch_bar</span><span class="p">:</span>
+            <span class="n">train_loss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">val_loss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">batch_bar</span> <span class="o">=</span> <span class="n">trange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__batch_count_train</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;  Batch&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">batch_bar</span><span class="p">:</span>
+                <span class="n">train_batch_X</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">train_iter</span><span class="p">)</span>
+                <span class="n">train_batch_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__run_single_batch</span><span class="p">(</span><span class="n">batch_data</span><span class="o">=</span><span class="n">train_batch_X</span><span class="p">,</span> <span class="n">is_train</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">train_loss</span> <span class="o">+=</span> <span class="n">train_batch_loss</span>
+                <span class="k">if</span> <span class="n">val_iter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__batch_count_val</span><span class="p">:</span>
+                        <span class="n">val_batch_X</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">val_iter</span><span class="p">)</span>
+                        <span class="n">val_batch_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__run_single_batch</span><span class="p">(</span><span class="n">batch_data</span><span class="o">=</span><span class="n">val_batch_X</span><span class="p">,</span> <span class="n">is_train</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                        <span class="n">val_loss</span> <span class="o">+=</span> <span class="n">val_batch_loss</span>
+                
+            <span class="n">train_loss</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__batch_count_train</span>
+            <span class="n">val_loss</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__batch_count_val</span>
+            <span class="n">train_loss_history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__append_history_and_log</span><span class="p">(</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">train_loss</span><span class="p">,</span> <span class="n">loss_history</span><span class="o">=</span><span class="n">train_loss_history</span><span class="p">,</span> <span class="n">summary_writer</span><span class="o">=</span><span class="n">train_logger</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">i</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">val_X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">val_loss_history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__append_history_and_log</span><span class="p">(</span>
+                    <span class="n">loss</span> <span class="o">=</span> <span class="n">val_loss</span><span class="p">,</span> <span class="n">loss_history</span><span class="o">=</span><span class="n">val_loss_history</span><span class="p">,</span> <span class="n">summary_writer</span><span class="o">=</span><span class="n">val_logger</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">i</span>
+                <span class="p">)</span>
+                <span class="n">epoch_bar</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span><span class="s2">&quot;epoch: </span><span class="si">%i</span><span class="s2">, train loss: </span><span class="si">%f</span><span class="s2">, valid loss: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">train_loss_history</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">val_loss_history</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">epoch_bar</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span><span class="s2">&quot;epoch: </span><span class="si">%i</span><span class="s2">, train loss: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">train_loss_history</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+            <span class="n">epoch_bar</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__log_embeddings_histogram</span><span class="p">(</span><span class="n">summary_writer</span><span class="o">=</span><span class="n">summary_writer</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">early_stopping_rounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">val_X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;val_X should be given if want to check early stopping.&quot;</span>
+                <span class="n">early_stop</span><span class="p">,</span> <span class="n">patience_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__check_early_stopping</span><span class="p">(</span>
+                    <span class="n">metric_history</span><span class="o">=</span><span class="n">val_loss_history</span><span class="p">,</span>
+                    <span class="n">magnitude</span><span class="o">=</span><span class="s2">&quot;larger&quot;</span><span class="p">,</span>
+                    <span class="n">patience_now</span><span class="o">=</span><span class="n">patience_count</span><span class="p">,</span>
+                    <span class="n">patience_max</span><span class="o">=</span><span class="n">early_stopping_rounds</span><span class="p">,</span>
+                    <span class="n">step</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
+                    <span class="n">restore_best_weight</span><span class="o">=</span><span class="n">restore_best_weight</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">early_stop</span><span class="p">:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] Val loss does not improve within </span><span class="si">%i</span><span class="s2"> iterations, trigger early stopping.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()),</span> <span class="n">early_stop</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">restore_best_weight</span><span class="p">:</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] Restore best weight from </span><span class="si">%i</span><span class="s2"> to </span><span class="si">%i</span><span class="s2"> step.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()),</span> <span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_step</span><span class="p">))</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ckpt_manager</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>                
+        
+        <span class="k">if</span> <span class="n">log_projector</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] Logging final embeddings into tensorboard projector...&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__log_embeddings_projector</span><span class="p">(</span><span class="n">log_path</span><span class="o">=</span><span class="n">log_path</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] Finished training!&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pool</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+        
+    <span class="k">def</span> <span class="nf">__prepare_for_train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_X</span><span class="p">,</span> <span class="n">val_X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prepartion before training.</span>
+
+<span class="sd">        Do the following steps:</span>
+<span class="sd">        - calculate number of batch</span>
+<span class="sd">        - set tensorflow dataset iterator</span>
+<span class="sd">        - initilized embedding, optimizer &amp; checkpoint manager</span>
+<span class="sd">        - create &quot;type2inds&quot; metadata if using typed_strategy</span>
+<span class="sd">        - create pool for multiprocessing negative sampling if n_workers &gt; 1</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        train_X : np.ndarray or str</span>
+<span class="sd">            training triplets.</span>
+<span class="sd">            If `np.ndarray`, shape should be (n,3) for (h,r,t) respectively.</span>
+<span class="sd">            If `str`, training triplets should be save under this folder path</span>
+<span class="sd">            with csv format, every csv files should have 3 columns without</span>
+<span class="sd">            header for (h,r,t) respectively.</span>
+<span class="sd">        val_X : np.ndarray or str</span>
+<span class="sd">            validation triplets.</span>
+<span class="sd">            If `np.ndarray`, shape should be (n,3) for (h,r,t) respectively.</span>
+<span class="sd">            If `str`, training triplets should be save under this folder path</span>
+<span class="sd">            with csv format, every csv files should have 3 columns without</span>
+<span class="sd">            header for (h,r,t) respectively.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        iterator, iterator</span>
+<span class="sd">            training and validation data iterator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># calculate number of batch</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] - Calculating number of batch...&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+        <span class="n">n_train</span> <span class="o">=</span> <span class="n">calculate_data_size</span><span class="p">(</span><span class="n">train_X</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__batch_count_train</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">n_train</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">val_X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n_val</span> <span class="o">=</span> <span class="n">calculate_data_size</span><span class="p">(</span><span class="n">val_X</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__batch_count_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">n_val</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">))</span>
+
+        <span class="c1"># set tensorflow dataset iterator</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] - Setting data iterator...&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+        <span class="n">train_iter</span> <span class="o">=</span> <span class="n">set_tf_iterator</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">train_X</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">buffer_size</span><span class="o">=</span><span class="n">n_train</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">val_X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">val_iter</span> <span class="o">=</span> <span class="n">set_tf_iterator</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">val_X</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">val_iter</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># initilized embedding, optimizer &amp; checkpoint manager</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] - Initialized embedding...&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_embeddings</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] - Initialized optimizer...&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__optimizer</span> <span class="o">==</span> <span class="s2">&quot;Adam&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__optimizer</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] - Initialized checkpoint manager...&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_ckpt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Checkpoint</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_ckpt</span><span class="o">.</span><span class="n">listed</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_ckpt</span><span class="o">.</span><span class="n">listed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_ckpt</span><span class="o">.</span><span class="n">mapped</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">values</span><span class="p">()))}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ckpt_manager</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">CheckpointManager</span><span class="p">(</span><span class="n">checkpoint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">best_ckpt</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log_path</span><span class="p">,</span> <span class="n">max_to_keep</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Create type2inds metadata if using typed strategy</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ns_strategy</span> <span class="o">==</span> <span class="n">typed_strategy</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;type2inds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">all_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;ind2type&quot;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">all_type</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">ti</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;ind2type&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">ti</span> <span class="o">==</span> <span class="n">t</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;type2inds&quot;</span><span class="p">][</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+        
+        <span class="c1"># Create pool for multiprocessing negative sampling</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__n_workers</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__n_workers</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__pool</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">return</span> <span class="n">train_iter</span><span class="p">,</span> <span class="n">val_iter</span>
+        
+    <span class="k">def</span> <span class="nf">_init_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialized embeddings.</span>
+<span class="sd">        </span>
+<span class="sd">        Should be implemented in subclass for their own embedding parameters.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        NotImplementedError</span>
+<span class="sd">            subclass doesnt not implement _init_embeddings().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of KGEModel should implement _init_embeddings()&quot;</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__run_single_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_data</span><span class="p">,</span> <span class="n">is_train</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run training procedure on one single batch.</span>
+
+<span class="sd">        whole training procedure:</span>
+<span class="sd">        - perform negative sampling</span>
+<span class="sd">        - calculate contraint term or contraint embedding</span>
+<span class="sd">        - calculate positive &amp; negative score</span>
+<span class="sd">        - calculate loss</span>
+<span class="sd">        - backpropagation &amp; update model weights (if is_train)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        batch_data : tf.Tensor</span>
+<span class="sd">            batch data to be processed, shape should be (n,3)</span>
+<span class="sd">        is_train : bool</span>
+<span class="sd">            whether to calculate gradients and update model weights</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            loss of this batch.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">neg_triplet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__negative_sampling</span><span class="p">(</span><span class="n">batch_data</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ns_strategy</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">g</span><span class="p">:</span>
+            <span class="n">constraint_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constraint_loss</span><span class="p">(</span><span class="n">batch_data</span><span class="p">)</span>
+            <span class="n">pos_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_hrt</span><span class="p">(</span><span class="n">batch_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">batch_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">batch_data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="n">neg_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_hrt</span><span class="p">(</span><span class="n">neg_triplet</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">neg_triplet</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">neg_triplet</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="n">batch_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_fn</span><span class="p">(</span><span class="n">pos_score</span><span class="p">,</span> <span class="n">neg_score</span><span class="p">)</span>
+            <span class="n">batch_loss</span> <span class="o">+=</span> <span class="n">constraint_term</span>
+
+        <span class="k">if</span> <span class="n">is_train</span><span class="p">:</span>
+            <span class="n">gradients</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">batch_loss</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+            <span class="n">gradients</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">clip_by_norm</span><span class="p">(</span><span class="n">grad</span><span class="p">,</span> <span class="n">clip_norm</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">grad</span> <span class="ow">in</span> <span class="n">gradients</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
+        
+        <span class="k">return</span> <span class="n">batch_loss</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__negative_sampling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">strategy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perfoem negative sampling</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : tf.Tensor</span>
+<span class="sd">            triplets to be corrupt with shape (n,3)</span>
+<span class="sd">        strategy : function</span>
+<span class="sd">            negative sampling strategy function in KGE.ns_strategy</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            corrupted triplets with shaep (n*self.negative_ratio, 3)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">entities_pool</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;ind2ent&quot;</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        
+        <span class="c1"># combine hrt:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">corrupt_side</span> <span class="o">==</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span>
+            <span class="n">neg_triplet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__corrupt_h</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">entities_pool</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_ratio</span><span class="p">,</span> <span class="n">strategy</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">corrupt_side</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
+            <span class="n">neg_triplet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__corrupt_t</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">entities_pool</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_ratio</span><span class="p">,</span> <span class="n">strategy</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">corrupt_side</span> <span class="o">==</span> <span class="s2">&quot;h+t&quot;</span><span class="p">:</span>
+            <span class="n">neg_triplet_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__corrupt_h</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">entities_pool</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_ratio</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">strategy</span><span class="p">)</span>
+            <span class="n">neg_triplet_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__corrupt_t</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">entities_pool</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_ratio</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">strategy</span><span class="p">)</span>
+            <span class="n">neg_triplet</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">neg_triplet_h</span><span class="p">,</span> <span class="n">neg_triplet_t</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">neg_triplet</span>
+
+    <span class="k">def</span> <span class="nf">__corrupt_h</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">sample_pool</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">strategy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Corrupt triplets from head side</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : tf.Tensor</span>
+<span class="sd">            triplets to be corrupt with shape (n,3)</span>
+<span class="sd">        sample_pool : tf.Tensor or np.ndarray</span>
+<span class="sd">            entity pool that be used to corrupt triplets,</span>
+<span class="sd">            should be 1-dimensional tf.Tensor or np.ndarray</span>
+<span class="sd">        negative_ratio : int</span>
+<span class="sd">            number of negative triplets to be generated for each triplet</span>
+<span class="sd">        strategy : function</span>
+<span class="sd">            negative sampling strategy function in KGE.ns_strategy</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            corrupted triplets with shaep (n*negative_ratio, 3)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;side&quot;</span><span class="p">:</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;n_workers&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__n_workers</span><span class="p">}</span>
+        <span class="n">sample_entities</span> <span class="o">=</span> <span class="n">strategy</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">sample_pool</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pool</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">sample_entities</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">negative_ratio</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">negative_ratio</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">h</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__corrupt_t</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">sample_pool</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">strategy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Corrupt triplets from tail side</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : tf.Tensor</span>
+<span class="sd">            triplets to be corrupt with shape (n,3)</span>
+<span class="sd">        sample_pool : tf.Tensor or np.ndarray</span>
+<span class="sd">            entity pool that be used to corrupt triplets,</span>
+<span class="sd">            should be 1-dimensional tf.Tensor or np.ndarray</span>
+<span class="sd">        negative_ratio : int</span>
+<span class="sd">            number of negative triplets to be generated for each triplet</span>
+<span class="sd">        strategy : function</span>
+<span class="sd">            negative sampling strategy function in KGE.ns_strategy</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            corrupted triplets with shaep (n*negative_ratio, 3)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;side&quot;</span><span class="p">:</span> <span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;n_workers&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__n_workers</span><span class="p">}</span>
+        <span class="n">sample_entities</span> <span class="o">=</span> <span class="n">strategy</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">sample_pool</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pool</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">negative_ratio</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">negative_ratio</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">sample_entities</span>
+
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">h</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="KGEModel.score_hrt"><a class="viewcode-back" href="../../../../src/KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel.score_hrt">[docs]</a>    <span class="k">def</span> <span class="nf">score_hrt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Scoring the triplets.</span>
+
+<span class="sd">        Should be implemented in subclass for their own scoring function.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        NotImplementedError</span>
+<span class="sd">            subclass doesnt not implement score_hrt().</span>
+<span class="sd">        &quot;&quot;&quot;</span>      
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of KGEModel should implement score_hrt()&quot;</span><span class="p">)</span></div>
+    
+    <span class="k">def</span> <span class="nf">_constraint_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform penalty on loss or constraint on model weights.</span>
+
+<span class="sd">        Should be implemented in subclass for their own constraint.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        NotImplementedError</span>
+<span class="sd">            subclass doesnt not implement _constraint_loss().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of KGEModel should implement _constraint_loss()&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__append_history_and_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">loss_history</span><span class="p">,</span> <span class="n">summary_writer</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Append current loss history and log into tensorboard.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        loss : float</span>
+<span class="sd">            current loss should be appended loss_history</span>
+<span class="sd">        loss_history : list of flost</span>
+<span class="sd">            loss history to be appended</span>
+<span class="sd">        summary_writer : tensorflow.python.ops.summary_ops_v2.ResourceSummaryWriter</span>
+<span class="sd">            tensorboard summary writer</span>
+<span class="sd">        step : int</span>
+<span class="sd">            current step</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of float</span>
+<span class="sd">            appended loss history</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">loss_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">summary_writer</span><span class="o">.</span><span class="n">as_default</span><span class="p">():</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">loss_history</span>
+
+    <span class="k">def</span> <span class="nf">__log_embeddings_histogram</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">summary_writer</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Logging all model weights to tensorboard histogram.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        summary_writer : tensorflow.python.ops.summary_ops_v2.ResourceSummaryWriter</span>
+<span class="sd">            tensorboard summary writer</span>
+<span class="sd">        step : int</span>
+<span class="sd">            current step</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">summary_writer</span><span class="o">.</span><span class="n">as_default</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">[</span><span class="n">w</span><span class="p">],</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__check_early_stopping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_history</span><span class="p">,</span> <span class="n">magnitude</span><span class="p">,</span> <span class="n">patience_now</span><span class="p">,</span>
+                               <span class="n">patience_max</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">restore_best_weight</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check early stopping and restore the weights to the best step</span>
+<span class="sd">           if early stopping criteria is match.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        metric_history : list of float</span>
+<span class="sd">            metric history to be check for early stopping.</span>
+<span class="sd">        magnitude : str</span>
+<span class="sd">           overfitting metric magnitude, can be &#39;larger&#39; or &#39;smaller&#39;</span>
+<span class="sd">           for example, if metric is loss,</span>
+<span class="sd">           the loss becomes larger and larger when overfitting occur.</span>
+<span class="sd">        patience_now : int</span>
+<span class="sd">            how many times that metric does not improve.</span>
+<span class="sd">        patience_max : int</span>
+<span class="sd">            maximum patience that metrics does not improve.</span>
+<span class="sd">            when patience_now == patience_max, trigger early stopping.</span>
+<span class="sd">        step : int</span>
+<span class="sd">            current step</span>
+<span class="sd">        restore_best_weight : bool, optional</span>
+<span class="sd">            whether to restore model weights to the best step, by default True</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool, int</span>
+<span class="sd">            whther trigger early stopping, updated patience_now</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ckpt_manager</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_step</span> <span class="o">=</span> <span class="n">step</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">patience_now</span>
+        
+        <span class="k">assert</span> <span class="n">magnitude</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;larger&quot;</span><span class="p">,</span> <span class="s2">&quot;smaller&quot;</span><span class="p">],</span> <span class="s2">&quot;magnitude must be &#39;larger&#39; or &#39;smaller&#39;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_step</span> <span class="o">=</span> <span class="n">step</span>
+        
+        <span class="k">if</span> <span class="n">magnitude</span> <span class="o">==</span> <span class="s2">&quot;larger&quot;</span><span class="p">:</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">metric_history</span><span class="p">[</span><span class="n">step</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">metric_history</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">best_step</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">magnitude</span> <span class="o">==</span> <span class="s2">&quot;smaller&quot;</span><span class="p">:</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">metric_history</span><span class="p">[</span><span class="n">step</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">metric_history</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">best_step</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">patience_now</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">patience_now</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_step</span> <span class="o">=</span> <span class="n">step</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ckpt_manager</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">patience_now</span> <span class="o">==</span> <span class="n">patience_max</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">restore_best_weight</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">best_ckpt</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ckpt_manager</span><span class="o">.</span><span class="n">latest_checkpoint</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">patience_now</span>
+
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">patience_now</span>
+
+    <span class="k">def</span> <span class="nf">__log_embeddings_projector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Log embedding to TensorBoard projector tab.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        log_path : str</span>
+<span class="sd">            path for tensorboard logging</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">write_metadata_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        
+        <span class="n">write_metadata_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_path</span><span class="p">,</span> <span class="s2">&quot;ent_metadata.tsv&quot;</span><span class="p">),</span> <span class="n">obj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;ind2ent&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rel_emb&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">write_metadata_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_path</span><span class="p">,</span> <span class="s2">&quot;rel_metadata.tsv&quot;</span><span class="p">),</span> <span class="n">obj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;ind2rel&quot;</span><span class="p">])</span>
+            <span class="n">ckpt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Checkpoint</span><span class="p">(</span><span class="n">ent_emb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;ent_emb&quot;</span><span class="p">],</span> <span class="n">rel_emb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;rel_emb&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ckpt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Checkpoint</span><span class="p">(</span><span class="n">ent_emb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;ent_emb&quot;</span><span class="p">])</span>
+
+        <span class="n">ckpt</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_path</span><span class="p">,</span> <span class="s2">&quot;embedding.ckpt&quot;</span><span class="p">))</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">projector</span><span class="o">.</span><span class="n">ProjectorConfig</span><span class="p">()</span>
+        <span class="n">ent_embedding</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">add</span><span class="p">()</span>
+        <span class="n">ent_embedding</span><span class="o">.</span><span class="n">tensor_name</span> <span class="o">=</span> <span class="s2">&quot;ent_emb/.ATTRIBUTES/VARIABLE_VALUE&quot;</span>
+        <span class="n">ent_embedding</span><span class="o">.</span><span class="n">metadata_path</span> <span class="o">=</span> <span class="s2">&quot;ent_metadata.tsv&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rel_emb&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rel_embedding</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">add</span><span class="p">()</span>
+            <span class="n">rel_embedding</span><span class="o">.</span><span class="n">tensor_name</span> <span class="o">=</span> <span class="s2">&quot;rel_emb/.ATTRIBUTES/VARIABLE_VALUE&quot;</span>
+            <span class="n">rel_embedding</span><span class="o">.</span><span class="n">metadata_path</span> <span class="o">=</span> <span class="s2">&quot;rel_metadata.tsv&quot;</span>
+
+        <span class="n">projector</span><span class="o">.</span><span class="n">visualize_embeddings</span><span class="p">(</span><span class="n">log_path</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="KGEModel.evaluate"><a class="viewcode-back" href="../../../../src/KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eval_X</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="p">,</span> <span class="n">positive_X</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Evaluate triplets.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        eval_X : tf.Tensor or np.array</span>
+<span class="sd">            triplets to be evaluated</span>
+<span class="sd">        corrupt_side : str</span>
+<span class="sd">            corrupt triplets from which side, can be :code:`&#39;h&#39;` and :code:`&#39;t&#39;`</span>
+<span class="sd">        positive_X : tf.Tensor or np.array, optional</span>
+<span class="sd">            positive triplets that should be filtered while generating</span>
+<span class="sd">            corrupted triplets, by default None (no filter applied)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            evaluation result</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ranks</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_rank</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">positive_X</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">eval_X</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">eval_X</span><span class="p">))]</span>
+
+        <span class="n">eval_result</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;mean_rank&quot;</span><span class="p">:</span> <span class="n">mean_rank</span><span class="p">(</span><span class="n">ranks</span><span class="p">),</span>
+            <span class="s2">&quot;mean_reciprocal_rank&quot;</span><span class="p">:</span> <span class="n">mean_reciprocal_rank</span><span class="p">(</span><span class="n">ranks</span><span class="p">),</span>
+            <span class="s2">&quot;median_rank&quot;</span><span class="p">:</span> <span class="n">median_rank</span><span class="p">(</span><span class="n">ranks</span><span class="p">),</span>
+            <span class="s2">&quot;geometric_mean_rank&quot;</span><span class="p">:</span> <span class="n">geometric_mean_rank</span><span class="p">(</span><span class="n">ranks</span><span class="p">),</span>
+            <span class="s2">&quot;harmonic_mean_rank&quot;</span><span class="p">:</span> <span class="n">harmonic_mean_rank</span><span class="p">(</span><span class="n">ranks</span><span class="p">),</span>
+            <span class="s2">&quot;std_rank&quot;</span><span class="p">:</span> <span class="n">std_rank</span><span class="p">(</span><span class="n">ranks</span><span class="p">),</span>
+            <span class="s2">&quot;hit@1&quot;</span><span class="p">:</span> <span class="n">hits_at_k</span><span class="p">(</span><span class="n">ranks</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="s2">&quot;hit@3&quot;</span><span class="p">:</span> <span class="n">hits_at_k</span><span class="p">(</span><span class="n">ranks</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+            <span class="s2">&quot;hit@10&quot;</span><span class="p">:</span> <span class="n">hits_at_k</span><span class="p">(</span><span class="n">ranks</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="p">}</span>
+                
+        <span class="k">return</span> <span class="n">eval_result</span></div>
+
+<div class="viewcode-block" id="KGEModel.get_rank"><a class="viewcode-back" href="../../../../src/KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel.get_rank">[docs]</a>    <span class="k">def</span> <span class="nf">get_rank</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">positive_X</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get rank for specific one triplet.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : tf.Tensor or np.array</span>
+<span class="sd">            rank this triplet</span>
+<span class="sd">        positive_X : tf.Tensor or np.array, optional</span>
+<span class="sd">            positive triplets that should bt filtered while generating</span>
+<span class="sd">            corrupted triplets, if :code:`None`, no filter applied</span>
+<span class="sd">        corrupt_side : str</span>
+<span class="sd">            corrupt triplets from which side, can be :code:`&#39;h&#39;` and :code:`&#39;t&#39;`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">           ranking result </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">corrupt_side</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
+            <span class="n">filter_side</span><span class="p">,</span> <span class="n">corrupt_side</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_hrt</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">t</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">corrupt_side</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
+            <span class="n">filter_side</span><span class="p">,</span> <span class="n">corrupt_side</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_hrt</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">t</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">positive_X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">r_mask</span> <span class="o">=</span> <span class="n">positive_X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">e_mask</span> <span class="o">=</span> <span class="n">positive_X</span><span class="p">[:,</span> <span class="n">filter_side</span><span class="p">]</span> <span class="o">==</span> <span class="n">x</span><span class="p">[</span><span class="n">filter_side</span><span class="p">]</span>
+            <span class="n">positive_e</span> <span class="o">=</span> <span class="n">positive_X</span><span class="p">[</span><span class="n">r_mask</span> <span class="o">&amp;</span> <span class="n">e_mask</span><span class="p">][:,</span> <span class="n">corrupt_side</span><span class="p">]</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tensor_scatter_nd_update</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">positive_e</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">positive_e</span><span class="p">))</span>
+
+        <span class="n">pos_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_hrt</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">scores</span> <span class="o">&gt;</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int16</span><span class="p">))</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="KGEModel.restore_model_weights"><a class="viewcode-back" href="../../../../src/KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel.restore_model_weights">[docs]</a>    <span class="k">def</span> <span class="nf">restore_model_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_weights</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Restore the model weights.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model_weights : dict</span>
+<span class="sd">            dictionary of model weights to be restored</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_model_weights</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span> <span class="o">=</span> <span class="n">model_weights</span></div>
+
+    <span class="k">def</span> <span class="nf">_check_model_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Check modle weights have required keys.</span>
+
+<span class="sd">        Should be implemented in subclass for their own key checking.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        NotImplementedError</span>
+<span class="sd">            subclass doesnt not implement _check_model_weights().</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of KGEModel should implement _check_model_weights()&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Melissa Kuo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -4,7 +4,7 @@
 import numpy as np
 import tensorflow as tf
 from ..base_model.SemanticModel import SemanticModel
-from ...loss import pairwise_hinge_loss
+from ...loss import PairwiseHingeLoss
 from ...ns_strategy import uniform_strategy
 from ...constraint import normalized_embeddings, Lp_regularization
 
@@ -36,7 +36,7 @@ class DistMult(SemanticModel):
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 loss_fn=pairwise_hinge_loss, loss_params={"margin": 1}, ns_strategy=uniform_strategy,
+                 loss_fn=PairwiseHingeLoss(margin=1), ns_strategy=uniform_strategy,
                  constraint=True, constraint_weight=1.0, n_workers=1):
         """Initialized DistMult
 
@@ -48,10 +48,8 @@ class DistMult(SemanticModel):
             number of negative sample
         corrupt_side : str
             corrupt from which side while trainging, can be :code:`'h'`, :code:`'t'`, or :code:`'h+t'`
-        loss_fn : function, optional
-            loss function, by default :py:func:`KGE.loss.pairwise_hinge_loss`
-        loss_params : dict, optional
-            loss parameters for loss_fn, by default :code:`{"margin": 1}`
+        loss_fn : class, optional
+            loss function class :py:mod:`KGE.loss.Loss`, by default :py:mod:`KGE.loss.PairwiseHingeLoss`
         ns_strategy : function, optional
             negative sampling strategy, by default :py:func:`KGE.ns_strategy.uniform_strategy`
         constraint : bool, optional
@@ -63,7 +61,7 @@ class DistMult(SemanticModel):
         """
         
         super(DistMult, self).__init__(embedding_params, negative_ratio, corrupt_side, 
-                                     loss_fn, loss_params, ns_strategy, constraint, n_workers)
+                                       loss_fn, ns_strategy, constraint, n_workers)
         self.constraint = constraint
         self.constraint_weight = constraint_weight
 

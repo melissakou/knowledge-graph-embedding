@@ -1,0 +1,5 @@
+<map id="inheritance20dded34aa" name="inheritance20dded34aa">
+<area shape="rect" id="node1" href="KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel" target="_top" title="A base module for Knowledge Graph Embedding Model." alt="" coords="5,5,93,31"/>
+<area shape="rect" id="node3" href="KGE.models.base_model.TranslatingModel.html#KGE.models.base_model.TranslatingModel.TranslatingModel" target="_top" title="A base module for Semantic Based Embedding Model." alt="" coords="141,5,273,31"/>
+<area shape="rect" id="node2" href="#KGE.models.translating_based.TransH.TransH" target="_top" title="An implementation of TransH from `[wang 2014] &lt;https://ojs.aaai.org/index.php/AAAI/article/view/8870&gt;`_." alt="" coords="321,5,393,31"/>
+</map>

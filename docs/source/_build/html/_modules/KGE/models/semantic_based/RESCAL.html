@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KGE.models.semantic_based.RESCAL &mdash; Knowledge Graph Embedding 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> Knowledge Graph Embedding
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.translating_based.html">Translating Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Loss</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.loss.html">Loss Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Score</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.score.html">Score Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Constraint</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.constraint.html">Contraint</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Negative Sampling</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.ns_strategy.html">Negative Sampling Strategy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Knowledge Graph Embedding</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>KGE.models.semantic_based.RESCAL</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for KGE.models.semantic_based.RESCAL</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;An implementation of RESCAL</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">from</span> <span class="nn">..base_model.SemanticModel</span> <span class="kn">import</span> <span class="n">SemanticModel</span>
+<span class="kn">from</span> <span class="nn">...loss</span> <span class="kn">import</span> <span class="n">SquareErrorLoss</span>
+<span class="kn">from</span> <span class="nn">...ns_strategy</span> <span class="kn">import</span> <span class="n">uniform_strategy</span>
+<span class="kn">from</span> <span class="nn">...constraint</span> <span class="kn">import</span> <span class="n">Lp_regularization</span><span class="p">,</span> <span class="n">normalized_embeddings</span>
+
+<div class="viewcode-block" id="RESCAL"><a class="viewcode-back" href="../../../../src/KGE.models.semantic_based.RESCAL.html#KGE.models.semantic_based.RESCAL.RESCAL">[docs]</a><span class="k">class</span> <span class="nc">RESCAL</span><span class="p">(</span><span class="n">SemanticModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An implementation of RESCAL from `[nickel 2011] &lt;https://icml.cc/2011/papers/438_icmlpaper.pdf&gt;`_.</span>
+
+<span class="sd">    RESCAL is a bilinear model that represents each entity as a vector that</span>
+<span class="sd">    models the latent-component representation and represents each relation</span>
+<span class="sd">    as a matrix that models the interactions between the latent components.</span>
+
+<span class="sd">    The score of :math:`(h,r,t)` is defined by a bilinear function:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        f(h,r,t) = \\textbf{e}_h^{T} \\textbf{R}_{r} \\textbf{e}_t</span>
+
+<span class="sd">    </span>
+<span class="sd">    where :math:`\\textbf{e}_i \in \mathbb{R}^k` are vector representations of</span>
+<span class="sd">    the entities, and :math:`\\textbf{R}_i \in \mathbb{R}^{k \\times k}` is an</span>
+<span class="sd">    asymmetric matrix associated with the relation.</span>
+
+<span class="sd">    If :code:`constraint=True` given in :py:func:`__init__`,</span>
+<span class="sd">    conduct L2-regularization described in</span>
+<span class="sd">    `original RESCAL paper &lt;https://icml.cc/2011/papers/438_icmlpaper.pdf&gt;`_:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        regularization~term = \lambda \\times</span>
+<span class="sd">        \left( \sum_{i}  {\left\| \\textbf{e}_i \\right\|}_2^2 + \sum_{i}  {\left\| \\textbf{R}_i \\right\|}_F^2 \\right).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RESCAL.__init__"><a class="viewcode-back" href="../../../../src/KGE.models.semantic_based.RESCAL.html#KGE.models.semantic_based.RESCAL.RESCAL.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_params</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="p">,</span> 
+                 <span class="n">loss_fn</span><span class="o">=</span><span class="n">SquareErrorLoss</span><span class="p">(),</span> <span class="n">ns_strategy</span><span class="o">=</span><span class="n">uniform_strategy</span><span class="p">,</span>
+                 <span class="n">constraint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">constraint_weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialized RESCAL</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        embedding_params : dict</span>
+<span class="sd">            embedding dimension parameters, should have key :code:`&#39;embedding_size&#39;` for embedding dimension :math:`k`</span>
+<span class="sd">        negative_ratio : int</span>
+<span class="sd">            number of negative sample</span>
+<span class="sd">        corrupt_side : str</span>
+<span class="sd">            corrupt from which side while trainging, can be :code:`&#39;h&#39;`, :code:`&#39;t&#39;`, or :code:`&#39;h+t&#39;`</span>
+<span class="sd">        loss_fn : class, optional</span>
+<span class="sd">            loss function class :py:mod:`KGE.loss.Loss`, by default :py:mod:`KGE.loss.SquareErrorLoss`</span>
+<span class="sd">        ns_strategy : function, optional</span>
+<span class="sd">            negative sampling strategy, by default :py:func:`KGE.ns_strategy.uniform_strategy`</span>
+<span class="sd">        constraint : bool, optional</span>
+<span class="sd">            conduct constraint or not, by default :code:`True`</span>
+<span class="sd">        constraint_weight : float, optional</span>
+<span class="sd">            regularization weight :math:`\lambda`, by default 1.0</span>
+<span class="sd">        n_workers : int, optional</span>
+<span class="sd">            number of workers for negative sampling, by default 1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="nb">super</span><span class="p">(</span><span class="n">RESCAL</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">embedding_params</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span>
+                                     <span class="n">corrupt_side</span><span class="p">,</span> <span class="n">loss_fn</span><span class="p">,</span>
+                                     <span class="n">ns_strategy</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraint</span> <span class="o">=</span> <span class="n">constraint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraint_weight</span> <span class="o">=</span> <span class="n">constraint_weight</span></div>
+
+    <span class="k">def</span> <span class="nf">_init_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialized the RESCAL embeddings.</span>
+
+<span class="sd">        If :code:`model_weight_initial` not given in :py:func:`train`, initialized embeddings randomly,  </span>
+<span class="sd">        otherwise, initialized from :code:`model_weight_initial`. </span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        seed : int</span>
+<span class="sd">            random seed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_weights_initial</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+                <span class="s2">&quot;&#39;embedding_size&#39; should be given in embedding_params when using RESCAL&quot;</span>
+            
+            <span class="n">limit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">6.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_params</span><span class="p">[</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">])</span>
+            <span class="n">uniform_initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">RandomUniform</span><span class="p">(</span>
+                <span class="n">minval</span><span class="o">=-</span><span class="n">limit</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span>
+            <span class="p">)</span>
+            <span class="n">ent_emb</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="n">uniform_initializer</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s2">&quot;ind2ent&quot;</span><span class="p">]),</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">embedding_params</span><span class="p">[</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">]]),</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;entities_embedding&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+            <span class="p">)</span>
+
+            <span class="n">limit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_params</span><span class="p">[</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">])</span>
+            <span class="n">uniform_initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">RandomUniform</span><span class="p">(</span>
+                <span class="n">minval</span><span class="o">=-</span><span class="n">limit</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span>
+            <span class="p">)</span>
+            <span class="n">rel_inter</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="n">uniform_initializer</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s2">&quot;ind2rel&quot;</span><span class="p">]),</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">embedding_params</span><span class="p">[</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">],</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">embedding_params</span><span class="p">[</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">]]),</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;relations_interaction&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+            <span class="p">)</span>       
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ent_emb&quot;</span><span class="p">:</span> <span class="n">ent_emb</span><span class="p">,</span> <span class="s2">&quot;rel_inter&quot;</span><span class="p">:</span> <span class="n">rel_inter</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_model_weights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_weights_initial</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_weights_initial</span>
+        
+        <span class="c1"># Constraint model weights while initial to help optimization</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraint</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;ent_emb&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">normalized_embeddings</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;ent_emb&quot;</span><span class="p">],</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;rel_inter&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">normalized_embeddings</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;rel_inter&quot;</span><span class="p">],</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_model_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_weights</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check the model_weights have necessary keys and dimensions</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model_weights : dict</span>
+<span class="sd">            model weights to check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">desired_ent_emb_shape</span> <span class="o">=</span> \
+            <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s2">&quot;ind2ent&quot;</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_params</span><span class="p">[</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">]]</span>
+        <span class="n">desired_rel_inter_shape</span> <span class="o">=</span> \
+            <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s2">&quot;ind2rel&quot;</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_params</span><span class="p">[</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_params</span><span class="p">[</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">]]</span>
+
+        <span class="k">assert</span> <span class="n">model_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ent_emb&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+            <span class="s2">&quot;entity embedding should be given in model_weights with key &#39;ent_emb&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">model_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rel_inter&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+            <span class="s2">&quot;relation interaction matrix should be given in model_weights with key &#39;rel_inter&#39;&quot;</span>
+        <span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;ent_emb&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="n">desired_ent_emb_shape</span><span class="p">,</span> \
+            <span class="s2">&quot;shape of &#39;ent_emb&#39; should be (len(meta_data[&#39;ind2ent&#39;]), embedding_params[&#39;embedding_size&#39;])&quot;</span>
+        <span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;rel_inter&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="n">desired_rel_inter_shape</span><span class="p">,</span> \
+            <span class="s2">&quot;shape of &#39;rel_inter&#39; should be (len(meta_data[&#39;ind2rel&#39;]), embedding_params[&#39;embedding_size&#39;], embedding_params[&#39;embedding_size&#39;])&quot;</span>
+    
+<div class="viewcode-block" id="RESCAL.score_hrt"><a class="viewcode-back" href="../../../../src/KGE.models.semantic_based.RESCAL.html#KGE.models.semantic_based.RESCAL.RESCAL.score_hrt">[docs]</a>    <span class="k">def</span> <span class="nf">score_hrt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Score the triplets :math:`(h,r,t)`.</span>
+
+<span class="sd">        If :code:`h` is :code:`None`, score all entities: :math:`(h_i, r, t)`. \n</span>
+<span class="sd">        If :code:`t` is :code:`None`, score all entities: :math:`(h, r, t_i)`. \n</span>
+<span class="sd">        :code:`h` and :code:`t` should not be :code:`None` simultaneously.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        h : tf.Tensor or np.ndarray or None</span>
+<span class="sd">            index of heads with shape :code:`(n,)`</span>
+<span class="sd">        r : tf.Tensor or np.ndarray</span>
+<span class="sd">            index of relations with shape :code:`(n,)`</span>
+<span class="sd">        t : tf.Tensor or np.ndarray or None</span>
+<span class="sd">            index of tails with shape :code:`(n,)`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            triplets scores with shape :code:`(n,)`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;h and t should not be None simultaneously&quot;</span>
+        <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s2">&quot;ind2ent&quot;</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s2">&quot;ind2ent&quot;</span><span class="p">]))</span>
+
+        <span class="n">h_emb</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;ent_emb&quot;</span><span class="p">],</span> <span class="n">h</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="n">t_emb</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;ent_emb&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="n">r_inter</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;rel_inter&quot;</span><span class="p">],</span> <span class="n">r</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">h_emb</span><span class="p">,</span> <span class="n">r_inter</span><span class="p">,</span> <span class="n">transpose_a</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">t_emb</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_constraint_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform constraint if necessary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : batch_data</span>
+<span class="sd">            batch data</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            regularization term with shape (1,)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraint</span><span class="p">:</span>
+            <span class="n">e_norm</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span>
+                <span class="n">Lp_regularization</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;ent_emb&quot;</span><span class="p">],</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">r_norm</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span>
+                <span class="n">Lp_regularization</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">[</span><span class="s2">&quot;rel_inter&quot;</span><span class="p">],</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraint_weight</span> <span class="o">*</span> <span class="p">(</span><span class="n">e_norm</span> <span class="o">+</span> <span class="n">r_norm</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span></div>
+
+
+
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Melissa Kuo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

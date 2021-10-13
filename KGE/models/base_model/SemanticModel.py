@@ -42,7 +42,7 @@ class SemanticModel(KGEModel):
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 loss_fn, loss_params, ns_strategy, n_workers):
+                 loss_fn, ns_strategy, n_workers):
         """Initialize SemanticModel.
 
         Parameters
@@ -53,10 +53,8 @@ class SemanticModel(KGEModel):
             number of negative sample
         corrupt_side : str
             corrupt from which side while trainging, can be "h", "r", or "h+t"
-        loss_fn : function
-            loss function
-        loss_params : dict
-            loss paraneters for loss_fn
+        loss_fn : class
+            loss function class :py:mod:`KGE.loss.Loss`
         ns_strategy : function
             negative sampling strategy
         n_workers : int
@@ -64,4 +62,4 @@ class SemanticModel(KGEModel):
         """
         
         super(SemanticModel, self).__init__(embedding_params, negative_ratio, corrupt_side, 
-                                            loss_fn, loss_params, ns_strategy, n_workers)
+                                            loss_fn, ns_strategy, n_workers)

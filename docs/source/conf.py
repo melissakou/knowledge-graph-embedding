@@ -43,6 +43,7 @@ extensions = [
 autosummary_generate = True
 autoclass_content = "class"
 autodoc_class_signature = "separated"
+pygments_style = "friendly"
 
 # Napoleon settings
 napoleon_google_docstring = True

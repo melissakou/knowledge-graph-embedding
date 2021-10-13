@@ -46,8 +46,7 @@ class TranslatingModel(KGEModel):
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 score_fn, score_params, loss_fn, loss_params,
-                 ns_strategy, n_workers):
+                 score_fn, score_params, loss_fn, ns_strategy, n_workers):
         """Initialize TranslatingModel.
 
         Parameters
@@ -62,10 +61,8 @@ class TranslatingModel(KGEModel):
             scoring function
         score_params : dict
             score parameters for score_fn
-        loss_fn : function
-            loss function
-        loss_params : dict
-            loss paraneters for loss_fn
+        loss_fn : class
+            loss function class :py:mod:`KGE.loss.Loss`
         ns_strategy : function
             negative sampling strategy
         n_workers : int
@@ -73,6 +70,6 @@ class TranslatingModel(KGEModel):
         """
         
         super(TranslatingModel, self).__init__(embedding_params, negative_ratio, corrupt_side, 
-                                               loss_fn, loss_params, ns_strategy, n_workers)
+                                               loss_fn, ns_strategy, n_workers)
         self.score_fn = score_fn
         self.score_params = score_params

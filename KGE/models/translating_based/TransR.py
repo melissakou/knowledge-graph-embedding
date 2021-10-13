@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 from ..base_model.TranslatingModel import TranslatingModel
 from ...score import Lp_distance_pow
-from ...loss import pairwise_hinge_loss
+from ...loss import PairwiseHingeLoss
 from ...ns_strategy import uniform_strategy
 from ...constraint import clip_constraint
 
@@ -62,7 +62,7 @@ class TransR(TranslatingModel):
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 score_fn=Lp_distance_pow, score_params={"p": 2}, loss_fn=pairwise_hinge_loss, loss_param={"margin": 1},
+                 score_fn=Lp_distance_pow, score_params={"p": 2}, loss_fn=PairwiseHingeLoss(margin=1),
                  ns_strategy=uniform_strategy, constraint=True, n_workers=1):
         """Initialized TransR
 
@@ -80,10 +80,8 @@ class TransR(TranslatingModel):
             scoring function, by default :py:func:`KGE.score.Lp_distance_pow`
         score_params : dict, optional
             score parameters for :code:`score_fn`, by default :code:`{"p": 2}`
-        loss_fn : function, optional
-            loss function, by default :py:func:`KGE.loss.pairwise_hinge_loss`
-        loss_param : dict, optional
-            loss parameters for :code:`loss_fn`, by default :code:`{"margin": 1}`
+        loss_fn : class, optional
+            loss function class :py:mod:`KGE.loss.Loss`, by default :py:mod:`KGE.loss.PairwiseHingeLoss`
         ns_strategy : function, optional
             negative sampling strategy, by default :py:func:`KGE.ns_strategy.uniform_strategy`
         constraint : bool, optional
@@ -93,7 +91,7 @@ class TransR(TranslatingModel):
         """
 
         super(TransR, self).__init__(embedding_params, negative_ratio, corrupt_side,
-                                     score_fn, score_params, loss_fn, loss_param,
+                                     score_fn, score_params, loss_fn,
                                      ns_strategy, constraint, n_workers)
         self.constraint = constraint
         

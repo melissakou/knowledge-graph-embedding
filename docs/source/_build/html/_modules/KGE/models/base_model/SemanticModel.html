@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KGE.models.base_model.SemanticModel &mdash; Knowledge Graph Embedding 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> Knowledge Graph Embedding
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.translating_based.html">Translating Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Loss</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.loss.html">Loss Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Score</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.score.html">Score Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Constraint</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.constraint.html">Contraint</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Negative Sampling</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.ns_strategy.html">Negative Sampling Strategy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Knowledge Graph Embedding</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>KGE.models.base_model.SemanticModel</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for KGE.models.base_model.SemanticModel</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Semantic Model&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.BaseModel</span> <span class="kn">import</span> <span class="n">KGEModel</span>
+
+<div class="viewcode-block" id="SemanticModel"><a class="viewcode-back" href="../../../../src/KGE.models.base_model.SemanticModel.html#KGE.models.base_model.SemanticModel.SemanticModel">[docs]</a><span class="k">class</span> <span class="nc">SemanticModel</span><span class="p">(</span><span class="n">KGEModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A base module for Semantic Based Embedding Model.</span>
+
+<span class="sd">    Subclass of :class:`SemanticModel` can have thier own interation model.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    embedding_params : dict</span>
+<span class="sd">        embedding dimension parameters</span>
+<span class="sd">    model_weights : dict of tf.Tensor</span>
+<span class="sd">        model weights</span>
+<span class="sd">    metadata : dict</span>
+<span class="sd">        metadata for kg data</span>
+<span class="sd">    negative_ratio : int</span>
+<span class="sd">        number of negaative sample</span>
+<span class="sd">    corrupt_side : str</span>
+<span class="sd">        corrupt from which side while trainging</span>
+<span class="sd">    loss_fn : function</span>
+<span class="sd">        loss function</span>
+<span class="sd">    loss_params : dict</span>
+<span class="sd">        loss parameters for loss_fn</span>
+<span class="sd">    constraint : bool</span>
+<span class="sd">        apply constraint or not</span>
+<span class="sd">    ns_strategy : function</span>
+<span class="sd">        negative sampling strategy</span>
+<span class="sd">    batch_size : int</span>
+<span class="sd">        batch size</span>
+<span class="sd">    seed : int</span>
+<span class="sd">        seed for shuffling data &amp; embedding initialzation</span>
+<span class="sd">    log_path : str</span>
+<span class="sd">        path of tensorboard logging</span>
+<span class="sd">    best_step : int</span>
+<span class="sd">        best iteration step, only has value if check_early_stop is not None</span>
+<span class="sd">    ckpt_manager : tf.train.CheckpointManager</span>
+<span class="sd">        checkpoint manager</span>
+<span class="sd">    best_ckpt : tf.train.Checkpoint</span>
+<span class="sd">        best checkoint</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SemanticModel.__init__"><a class="viewcode-back" href="../../../../src/KGE.models.base_model.SemanticModel.html#KGE.models.base_model.SemanticModel.SemanticModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_params</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="p">,</span> 
+                 <span class="n">loss_fn</span><span class="p">,</span> <span class="n">ns_strategy</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize SemanticModel.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        embedding_params : dict</span>
+<span class="sd">            embedding dimension parameters</span>
+<span class="sd">        negative_ratio : int</span>
+<span class="sd">            number of negative sample</span>
+<span class="sd">        corrupt_side : str</span>
+<span class="sd">            corrupt from which side while trainging, can be &quot;h&quot;, &quot;r&quot;, or &quot;h+t&quot;</span>
+<span class="sd">        loss_fn : class</span>
+<span class="sd">            loss function class :py:mod:`KGE.loss.Loss`</span>
+<span class="sd">        ns_strategy : function</span>
+<span class="sd">            negative sampling strategy</span>
+<span class="sd">        n_workers : int</span>
+<span class="sd">            number of workers for negative sampling</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="nb">super</span><span class="p">(</span><span class="n">SemanticModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">embedding_params</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="p">,</span> 
+                                            <span class="n">loss_fn</span><span class="p">,</span> <span class="n">ns_strategy</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Melissa Kuo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KGE.loss &mdash; Knowledge Graph Embedding 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BinaryCrossEntropyLoss" href="../api/KGE.loss.BinaryCrossEntropyLoss.html" />
+    <link rel="prev" title="KGE.models.semantic_based" href="KGE.models.semantic_based.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Knowledge Graph Embedding
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="KGE.models.translating_based.html">Translating Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="KGE.models.semantic_based.html">Semantic Based Model</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Loss</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Loss Function</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/KGE.loss.BinaryCrossEntropyLoss.html">BinaryCrossEntropyLoss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/KGE.loss.Loss.html">Loss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/KGE.loss.PairwiseHingeLoss.html">PairwiseHingeLoss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/KGE.loss.PairwiseLogisticLoss.html">PairwiseLogisticLoss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/KGE.loss.SelfAdversarialNegativeSamplingLoss.html">SelfAdversarialNegativeSamplingLoss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/KGE.loss.SquareErrorLoss.html">SquareErrorLoss</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Score</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="KGE.score.html">Score Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Constraint</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="KGE.constraint.html">Contraint</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Negative Sampling</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="KGE.ns_strategy.html">Negative Sampling Strategy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Knowledge Graph Embedding</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>KGE.loss</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/src/KGE.loss.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="kge-loss">
+<h1>KGE.loss<a class="headerlink" href="#kge-loss" title="Permalink to this headline"></a></h1>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline"></a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#KGE.loss.BinaryCrossEntropyLoss" title="KGE.loss.BinaryCrossEntropyLoss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BinaryCrossEntropyLoss</span></code></a></p></td>
+<td><p>An implementation of Binary Cross Entropy Loss.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#KGE.loss.Loss" title="KGE.loss.Loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Loss</span></code></a></p></td>
+<td><p>A base module for loss.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#KGE.loss.PairwiseHingeLoss" title="KGE.loss.PairwiseHingeLoss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PairwiseHingeLoss</span></code></a></p></td>
+<td><p>An implementation of Pairwise Hinge Loss / Margin Ranking Loss.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#KGE.loss.PairwiseLogisticLoss" title="KGE.loss.PairwiseLogisticLoss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PairwiseLogisticLoss</span></code></a></p></td>
+<td><p>An implementation of Pairwise Logistic Loss.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#KGE.loss.SelfAdversarialNegativeSamplingLoss" title="KGE.loss.SelfAdversarialNegativeSamplingLoss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SelfAdversarialNegativeSamplingLoss</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#KGE.loss.SquareErrorLoss" title="KGE.loss.SquareErrorLoss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SquareErrorLoss</span></code></a></p></td>
+<td><p>An implementation of Square Error Loss.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-e5a9c842a27d6f999ee880c1b11e3cfe86a78309.png" alt="Inheritance diagram of KGE.loss.BinaryCrossEntropyLoss, KGE.loss.Loss, KGE.loss.PairwiseHingeLoss, KGE.loss.PairwiseLogisticLoss, KGE.loss.SelfAdversarialNegativeSamplingLoss, KGE.loss.SquareErrorLoss" usemap="#inheritancefd4556912f" class="inheritance graphviz" /></div>
+<map id="inheritancefd4556912f" name="inheritancefd4556912f">
+<area shape="rect" id="node1" href="#KGE.loss.BinaryCrossEntropyLoss" target="_top" title="An implementation of Binary Cross Entropy Loss." alt="" coords="171,5,350,31"/>
+<area shape="rect" id="node2" href="#KGE.loss.Loss" target="_top" title="A base module for loss." alt="" coords="5,104,77,129"/>
+<area shape="rect" id="node3" href="#KGE.loss.PairwiseHingeLoss" target="_top" title="An implementation of Pairwise Hinge Loss / Margin Ranking Loss." alt="" coords="189,55,332,80"/>
+<area shape="rect" id="node4" href="#KGE.loss.PairwiseLogisticLoss" target="_top" title="An implementation of Pairwise Logistic Loss." alt="" coords="183,104,338,129"/>
+<area shape="rect" id="node5" href="#KGE.loss.SelfAdversarialNegativeSamplingLoss" target="_top" title="SelfAdversarialNegativeSamplingLoss" alt="" coords="125,153,396,179"/>
+<area shape="rect" id="node6" href="#KGE.loss.SquareErrorLoss" target="_top" title="An implementation of Square Error Loss." alt="" coords="197,203,324,228"/>
+</map><span class="target" id="module-KGE.loss"></span><p>Different loss functions that you can choose when training Knowledge Graph Embedding Model.</p>
+<p>Different Knowledge Graph Embedding Models use different loss functions, the default
+setting for each KGE model is according to the original paper described,  for example,
+<a class="reference internal" href="KGE.models.translating_based.TransE.html#module-KGE.models.translating_based.TransE" title="KGE.models.translating_based.TransE"><code class="xref py py-mod docutils literal notranslate"><span class="pre">TransE</span></code></a> using
+<code class="xref py py-func docutils literal notranslate"><span class="pre">Pairwise</span> <span class="pre">Hinge</span> <span class="pre">Loss</span></code>,
+<a class="reference internal" href="KGE.models.translating_based.RotatE.html#module-KGE.models.translating_based.RotatE" title="KGE.models.translating_based.RotatE"><code class="xref py py-mod docutils literal notranslate"><span class="pre">RotatE</span></code></a> using
+<code class="xref py py-func docutils literal notranslate"><span class="pre">Self</span> <span class="pre">Adversarial</span> <span class="pre">Negative</span> <span class="pre">Sampling</span> <span class="pre">Loss</span></code>.</p>
+<p>You can change the loss function to try any possibility in a very easy way:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">KGE.models.translating_based.TransE</span> <span class="kn">import</span> <span class="n">TransE</span>
+<span class="kn">from</span> <span class="nn">KGE.loss</span> <span class="kn">import</span> <span class="n">SelfAdversarialNegativeSamplingLoss</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">TransE</span><span class="p">(</span>
+    <span class="n">embedding_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+    <span class="n">negative_ratio</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">corrupt_side</span><span class="o">=</span><span class="s2">&quot;h+t&quot;</span><span class="p">,</span>
+    <span class="n">loss_fn</span><span class="o">=</span><span class="n">SelfAdversarialNegativeSamplingLoss</span><span class="p">(</span><span class="n">margin</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># specifying loss function you want</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="KGE.loss.BinaryCrossEntropyLoss">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.loss.</span></span><span class="sig-name descname"><span class="pre">BinaryCrossEntropyLoss</span></span><a class="reference internal" href="../_modules/KGE/loss.html#BinaryCrossEntropyLoss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.BinaryCrossEntropyLoss" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#KGE.loss.Loss" title="KGE.loss.Loss"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGE.loss.Loss</span></code></a></p>
+<p>An implementation of Binary Cross Entropy Loss.</p>
+<p>Binary Cross Entropy Loss is commonly used in binary classification problem.
+In KGE, we can also turn the problem into a binary classification problem
+that classifies triplet into positive or negative <span class="math notranslate nohighlight">\(y_i = 1 or 0\)</span> with
+the triplet score as logit:  <span class="math notranslate nohighlight">\(logit_i = f\left( (h,r,t)_i \right)\)</span></p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\begin{aligned}
+\mathscr{L} &amp;= - \sum_i y_i log(\hat{y}_i) + (1-y_i) log(1-\hat{y}_i)\\            &amp;= - \sum_i log\left[\sigma(f((h,r,t)_i^+))\right] - \sum_i log\left[1-\sigma(f((h,r,t)_i^-))\right]\\            &amp;= - \sum_i log\left[\sigma(f((h,r,t)_i^+))\right] - \sum_i log\left[\sigma(-f((h,r,t)_i^-))\right]
+\end{aligned}\end{aligned}\end{align} \]</div>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/KGE.loss.BinaryCrossEntropyLoss.html#KGE.loss.BinaryCrossEntropyLoss.__call__" title="KGE.loss.BinaryCrossEntropyLoss.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(pos_score, neg_score)</p></td>
+<td><p>Calculate binary cross entropy loss</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.loss.BinaryCrossEntropyLoss.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/loss.html#BinaryCrossEntropyLoss.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.BinaryCrossEntropyLoss.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initializedd BinaryCrossEntropyLoss</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="KGE.loss.Loss">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.loss.</span></span><span class="sig-name descname"><span class="pre">Loss</span></span><a class="reference internal" href="../_modules/KGE/loss.html#Loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.Loss" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A base module for loss.</p>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/KGE.loss.Loss.html#KGE.loss.Loss.__call__" title="KGE.loss.Loss.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(pos_score, neg_score)</p></td>
+<td><p>Calculate loss.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.loss.Loss.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/loss.html#Loss.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.Loss.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize loss</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – subclass of Loss should implement <code class="code docutils literal notranslate"><span class="pre">_init_()</span></code> to init loss parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="KGE.loss.PairwiseHingeLoss">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.loss.</span></span><span class="sig-name descname"><span class="pre">PairwiseHingeLoss</span></span><a class="reference internal" href="../_modules/KGE/loss.html#PairwiseHingeLoss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.PairwiseHingeLoss" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#KGE.loss.Loss" title="KGE.loss.Loss"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGE.loss.Loss</span></code></a></p>
+<p>An implementation of Pairwise Hinge Loss / Margin Ranking Loss.</p>
+<p>Pairwise Hinge Loss or Margin Ranking Loss is a common loss function that used in many
+models such as <a class="reference external" href="https://link.springer.com/content/pdf/10.1007%2Fs10994-013-5363-6.pdf">UM</a>,
+<a class="reference external" href="https://www.aaai.org/ocs/index.php/AAAI/AAAI11/paper/viewFile/3659/3898">SE</a>,
+<a class="reference external" href="http://papers.nips.cc/paper/5071-translating-embeddings-for-modeling-multi-relational-data">TransE</a>,
+<a class="reference external" href="https://ojs.aaai.org/index.php/AAAI/article/view/8870">TransH</a>,
+<a class="reference external" href="https://www.aaai.org/ocs/index.php/AAAI/AAAI15/paper/viewFile/9571/9523/">TransR</a>,
+<a class="reference external" href="https://aclanthology.org/P15-1067.pdf">TransD</a>,
+<a class="reference external" href="https://arxiv.org/abs/1412.6575">DistMult</a>.</p>
+<p>For each <strong>pair</strong> of postive triplet <span class="math notranslate nohighlight">\((h,r,t)_i^+\)</span> and negative triplet <span class="math notranslate nohighlight">\((h,r,t)_i^-\)</span>,
+Pairwise Hinge Loss compare the difference of scores between postivie triplet and negative triplet:</p>
+<div class="math notranslate nohighlight">
+\[\Delta_i = f\left( (h,r,t)_i^- \right) - f\left( (h,r,t)_i^+ \right)\]</div>
+<p>Since the socre of triplet <span class="math notranslate nohighlight">\(f(h,r,t)\)</span> measures how plausible <span class="math notranslate nohighlight">\((h,r,t)\)</span> is, so
+<span class="math notranslate nohighlight">\(\Delta_i &lt; 0\)</span> is favorable. If the difference <span class="math notranslate nohighlight">\(\Delta_i\)</span> does not execeed the
+given margin <span class="math notranslate nohighlight">\(\gamma\)</span>, Pairwise Hinge Loss penalize this pair:</p>
+<div class="math notranslate nohighlight">
+\[\mathscr{L} = \sum_i max \left( 0, \gamma + \Delta_i \right)\]</div>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/KGE.loss.PairwiseHingeLoss.html#KGE.loss.PairwiseHingeLoss.__call__" title="KGE.loss.PairwiseHingeLoss.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(pos_score, neg_score)</p></td>
+<td><p>Calculate loss</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.loss.PairwiseHingeLoss.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">margin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/loss.html#PairwiseHingeLoss.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.PairwiseHingeLoss.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialized PairwiseHingeLoss</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>margin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – margin <span class="math notranslate nohighlight">\(\gamma\)</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="KGE.loss.PairwiseLogisticLoss">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.loss.</span></span><span class="sig-name descname"><span class="pre">PairwiseLogisticLoss</span></span><a class="reference internal" href="../_modules/KGE/loss.html#PairwiseLogisticLoss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.PairwiseLogisticLoss" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#KGE.loss.Loss" title="KGE.loss.Loss"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGE.loss.Loss</span></code></a></p>
+<p>An implementation of Pairwise Logistic Loss.</p>
+<p>Described in <a class="reference external" href="http://ceur-ws.org/Vol-2377/paper_1.pdf">Loss Functions in Knowledge Graph Embedding Models</a>.</p>
+<p>For each <strong>pair</strong> of postive triplet <span class="math notranslate nohighlight">\((h,r,t)_i^+\)</span> and negative triplet <span class="math notranslate nohighlight">\((h,r,t)_i^-\)</span>,
+Pairwise Logistic Loss compare the difference of scores between postivie triplet and negative triplet:</p>
+<div class="math notranslate nohighlight">
+\[\Delta_i = f\left( (h,r,t)_i^- \right) - f\left( (h,r,t)_i^+ \right)\]</div>
+<p>and define the Pairwise Logistic Loss as:</p>
+<div class="math notranslate nohighlight">
+\[\mathscr{L} = \sum_i log(1+exp(\Delta_i))\]</div>
+<p>Pairwise Logistic Loss is a smooth version of <code class="xref py py-func docutils literal notranslate"><span class="pre">Pairwise</span> <span class="pre">Hinge</span> <span class="pre">Loss</span></code> while
+<span class="math notranslate nohighlight">\(\gamma = 0\)</span>, you can view function graph <a class="reference external" href="https://www.desmos.com/calculator/vvrrjhqbgu">here</a> to
+campare these two functions.</p>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/KGE.loss.PairwiseLogisticLoss.html#KGE.loss.PairwiseLogisticLoss.__call__" title="KGE.loss.PairwiseLogisticLoss.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(pos_score, neg_score)</p></td>
+<td><p>Calculate pairwise logistic loss</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.loss.PairwiseLogisticLoss.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/loss.html#PairwiseLogisticLoss.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.PairwiseLogisticLoss.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialized PairwiseLogisitcLoss</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="KGE.loss.SelfAdversarialNegativeSamplingLoss">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.loss.</span></span><span class="sig-name descname"><span class="pre">SelfAdversarialNegativeSamplingLoss</span></span><a class="reference internal" href="../_modules/KGE/loss.html#SelfAdversarialNegativeSamplingLoss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.SelfAdversarialNegativeSamplingLoss" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#KGE.loss.Loss" title="KGE.loss.Loss"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGE.loss.Loss</span></code></a></p>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/KGE.loss.SelfAdversarialNegativeSamplingLoss.html#KGE.loss.SelfAdversarialNegativeSamplingLoss.__call__" title="KGE.loss.SelfAdversarialNegativeSamplingLoss.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(pos_score, neg_score)</p></td>
+<td><p>Calculate loss.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.loss.SelfAdversarialNegativeSamplingLoss.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">margin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/loss.html#SelfAdversarialNegativeSamplingLoss.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.SelfAdversarialNegativeSamplingLoss.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize loss</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – subclass of Loss should implement <code class="code docutils literal notranslate"><span class="pre">_init_()</span></code> to init loss parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="KGE.loss.SquareErrorLoss">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.loss.</span></span><span class="sig-name descname"><span class="pre">SquareErrorLoss</span></span><a class="reference internal" href="../_modules/KGE/loss.html#SquareErrorLoss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.SquareErrorLoss" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#KGE.loss.Loss" title="KGE.loss.Loss"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGE.loss.Loss</span></code></a></p>
+<p>An implementation of Square Error Loss.</p>
+<p>Square Error Loss is a loss function used in
+<a class="reference external" href="https://icml.cc/2011/papers/438_icmlpaper.pdf">RESCAL</a>.
+Square Error Loss computes the squared difference between model scores
+and labels (<span class="math notranslate nohighlight">\(y_i = 1 or 0\)</span>):</p>
+<div class="math notranslate nohighlight">
+\[\mathscr{L} = \sum_i \left[ f((h,r,t)_i) - y_i \right]^2\]</div>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/KGE.loss.SquareErrorLoss.html#KGE.loss.SquareErrorLoss.__call__" title="KGE.loss.SquareErrorLoss.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(pos_score, neg_score)</p></td>
+<td><p>Calculate loss.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.loss.SquareErrorLoss.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/loss.html#SquareErrorLoss.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.loss.SquareErrorLoss.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize loss</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – subclass of Loss should implement <code class="code docutils literal notranslate"><span class="pre">_init_()</span></code> to init loss parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="KGE.models.semantic_based.html" class="btn btn-neutral float-left" title="KGE.models.semantic_based" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../api/KGE.loss.BinaryCrossEntropyLoss.html" class="btn btn-neutral float-right" title="BinaryCrossEntropyLoss" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Melissa Kuo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,5 @@
+<map id="inheritancee79b052084" name="inheritancee79b052084">
+<area shape="rect" id="node1" href="KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel" target="_top" title="A base module for Knowledge Graph Embedding Model." alt="" coords="5,5,93,31"/>
+<area shape="rect" id="node3" href="KGE.models.base_model.TranslatingModel.html#KGE.models.base_model.TranslatingModel.TranslatingModel" target="_top" title="A base module for Semantic Based Embedding Model." alt="" coords="141,5,273,31"/>
+<area shape="rect" id="node2" href="#KGE.models.translating_based.TransE.TransE" target="_top" title="An implementation of TransE from `[brodes 2013] &lt;http://papers.nips.cc/paper/5071&#45;translating&#45;embeddings&#45;for&#45;modeling&#45;multi&#45;relational&#45;data&gt;`_." alt="" coords="321,5,393,31"/>
+</map>

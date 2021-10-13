@@ -1,0 +1,5 @@
+<map id="inheritancecd90b65090" name="inheritancecd90b65090">
+<area shape="rect" id="node1" href="KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel" target="_top" title="A base module for Knowledge Graph Embedding Model." alt="" coords="5,5,93,31"/>
+<area shape="rect" id="node3" href="KGE.models.base_model.TranslatingModel.html#KGE.models.base_model.TranslatingModel.TranslatingModel" target="_top" title="A base module for Semantic Based Embedding Model." alt="" coords="141,5,273,31"/>
+<area shape="rect" id="node2" href="#KGE.models.translating_based.RotatE.RotatE" target="_top" title="An implementation of RotatE from `[sun 2019] &lt;https://arxiv.org/abs/1902.10197v1&gt;`_." alt="" coords="321,5,393,31"/>
+</map>

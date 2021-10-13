@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KGE.loss &mdash; Knowledge Graph Embedding 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Knowledge Graph Embedding
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.translating_based.html">Translating Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Loss</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.loss.html">Loss Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Score</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.score.html">Score Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Constraint</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.constraint.html">Contraint</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Negative Sampling</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.ns_strategy.html">Negative Sampling Strategy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Knowledge Graph Embedding</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>KGE.loss</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for KGE.loss</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Different loss functions that you can choose when training Knowledge Graph Embedding Model.</span>
+
+<span class="sd">Different Knowledge Graph Embedding Models use different loss functions, the default</span>
+<span class="sd">setting for each KGE model is according to the original paper described,  for example,</span>
+<span class="sd">:py:mod:`TransE &lt;KGE.models.translating_based.TransE&gt;` using </span>
+<span class="sd">:py:func:`Pairwise Hinge Loss &lt;pairwise_hinge_loss&gt;`,</span>
+<span class="sd">:py:mod:`RotatE &lt;KGE.models.translating_based.RotatE&gt;` using</span>
+<span class="sd">:py:func:`Self Adversarial Negative Sampling Loss &lt;self_adversarial_negative_sampling_loss&gt;`. </span>
+
+<span class="sd">You can change the loss function to try any possibility in a very easy way:</span>
+
+<span class="sd">.. code-block:: python</span>
+
+<span class="sd">    from KGE.models.translating_based.TransE import TransE</span>
+<span class="sd">    from KGE.loss import SelfAdversarialNegativeSamplingLoss</span>
+
+<span class="sd">    model = TransE(</span>
+<span class="sd">        embedding_params={&quot;embedding_size&quot;: 10},</span>
+<span class="sd">        negative_ratio=10,</span>
+<span class="sd">        corrupt_side=&quot;h+t&quot;,</span>
+<span class="sd">        loss_fn=SelfAdversarialNegativeSamplingLoss(margin=3, temperature=1) # specifying loss function you want</span>
+<span class="sd">    )</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<div class="viewcode-block" id="Loss"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.Loss">[docs]</a><span class="k">class</span> <span class="nc">Loss</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A base module for loss.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Loss.__init__"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.Loss.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize loss</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        NotImplementedError</span>
+<span class="sd">            subclass of Loss should implement :code:`_init_()` to init loss parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of Loss should implement _init_() to init loss parameters&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Loss.__call__"><a class="viewcode-back" href="../../api/KGE.loss.Loss.html#KGE.loss.Loss.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">neg_score</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Calculate loss.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pos_score : tf.Tensor</span>
+<span class="sd">            score of postive triplets, with shape :code:`(n,)`</span>
+<span class="sd">        neg_score : tf.Tensor</span>
+<span class="sd">            score of negative triplets, with shape :code:`(n,)`</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        NotImplementedError</span>
+<span class="sd">            subclass of Loss should implement _call_() to calculate loss</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of Loss should implement _call_() to calculate loss&quot;</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="PairwiseHingeLoss"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.PairwiseHingeLoss">[docs]</a><span class="k">class</span> <span class="nc">PairwiseHingeLoss</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An implementation of Pairwise Hinge Loss / Margin Ranking Loss.</span>
+
+<span class="sd">    Pairwise Hinge Loss or Margin Ranking Loss is a common loss function that used in many</span>
+<span class="sd">    models such as `UM &lt;https://link.springer.com/content/pdf/10.1007%2Fs10994-013-5363-6.pdf&gt;`_,</span>
+<span class="sd">    `SE &lt;https://www.aaai.org/ocs/index.php/AAAI/AAAI11/paper/viewFile/3659/3898&gt;`_,</span>
+<span class="sd">    `TransE &lt;http://papers.nips.cc/paper/5071-translating-embeddings-for-modeling-multi-relational-data&gt;`_,</span>
+<span class="sd">    `TransH &lt;https://ojs.aaai.org/index.php/AAAI/article/view/8870&gt;`_,</span>
+<span class="sd">    `TransR &lt;https://www.aaai.org/ocs/index.php/AAAI/AAAI15/paper/viewFile/9571/9523/&gt;`_,</span>
+<span class="sd">    `TransD &lt;https://aclanthology.org/P15-1067.pdf&gt;`_,</span>
+<span class="sd">    `DistMult &lt;https://arxiv.org/abs/1412.6575&gt;`_.</span>
+
+<span class="sd">    For each **pair** of postive triplet :math:`(h,r,t)_i^+` and negative triplet :math:`(h,r,t)_i^-`,</span>
+<span class="sd">    Pairwise Hinge Loss compare the difference of scores between postivie triplet and negative triplet:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \Delta_i = f\left( (h,r,t)_i^- \\right) - f\left( (h,r,t)_i^+ \\right)</span>
+<span class="sd">    </span>
+<span class="sd">    Since the socre of triplet :math:`f(h,r,t)` measures how plausible :math:`(h,r,t)` is, so</span>
+<span class="sd">    :math:`\Delta_i &lt; 0` is favorable. If the difference :math:`\Delta_i` does not execeed the</span>
+<span class="sd">    given margin :math:`\gamma`, Pairwise Hinge Loss penalize this pair:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \mathscr{L} = \sum_i max \left( 0, \gamma + \Delta_i \\right)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PairwiseHingeLoss.__init__"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.PairwiseHingeLoss.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">margin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialized PairwiseHingeLoss</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        margin : float</span>
+<span class="sd">            margin :math:`\gamma`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">=</span> <span class="n">margin</span></div>
+    
+<div class="viewcode-block" id="PairwiseHingeLoss.__call__"><a class="viewcode-back" href="../../api/KGE.loss.PairwiseHingeLoss.html#KGE.loss.PairwiseHingeLoss.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">neg_score</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Calculate loss</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pos_score : tf.Tensor</span>
+<span class="sd">            score of postive triplets, with shape :code:`(n,)`</span>
+<span class="sd">        neg_score : tf.Tensor</span>
+<span class="sd">            score of negative triplets, with shape :code:`(n,)`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            pairwise hinge loss with shape :code:`(1,)`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pos_score</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">pos_score</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">neg_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">pos_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">clip_by_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">+</span> <span class="n">neg_score</span> <span class="o">-</span> <span class="n">pos_score</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">))</span> <span class="o">/</span> <span class="n">pos_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="PairwiseLogisticLoss"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.PairwiseLogisticLoss">[docs]</a><span class="k">class</span> <span class="nc">PairwiseLogisticLoss</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An implementation of Pairwise Logistic Loss.</span>
+
+<span class="sd">    Described in `Loss Functions in Knowledge Graph Embedding Models &lt;http://ceur-ws.org/Vol-2377/paper_1.pdf&gt;`_.</span>
+
+<span class="sd">    For each **pair** of postive triplet :math:`(h,r,t)_i^+` and negative triplet :math:`(h,r,t)_i^-`,</span>
+<span class="sd">    Pairwise Logistic Loss compare the difference of scores between postivie triplet and negative triplet:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \Delta_i = f\left( (h,r,t)_i^- \\right) - f\left( (h,r,t)_i^+ \\right)</span>
+
+<span class="sd">    and define the Pairwise Logistic Loss as:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \mathscr{L} = \sum_i log(1+exp(\Delta_i))</span>
+
+<span class="sd">    Pairwise Logistic Loss is a smooth version of :py:func:`Pairwise Hinge Loss &lt;KGE.loss.pairwise_hinge_loss&gt;` while</span>
+<span class="sd">    :math:`\gamma = 0`, you can view function graph `here &lt;https://www.desmos.com/calculator/vvrrjhqbgu&gt;`_ to</span>
+<span class="sd">    campare these two functions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="PairwiseLogisticLoss.__init__"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.PairwiseLogisticLoss.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialized PairwiseLogisitcLoss</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="PairwiseLogisticLoss.__call__"><a class="viewcode-back" href="../../api/KGE.loss.PairwiseLogisticLoss.html#KGE.loss.PairwiseLogisticLoss.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">neg_score</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Calculate pairwise logistic loss</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pos_score : tf.Tensor</span>
+<span class="sd">            score of postive triplets, with shape :code:`(n,)`</span>
+<span class="sd">        neg_score : tf.Tensor</span>
+<span class="sd">            score of negative triplets, with shape :code:`(n,)`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            pairwise hinge loss with shape :code:`(1,)`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pos_score</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">pos_score</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">neg_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">pos_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">neg_score</span> <span class="o">-</span> <span class="n">pos_score</span><span class="p">)))</span></div></div>
+
+
+<div class="viewcode-block" id="BinaryCrossEntropyLoss"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.BinaryCrossEntropyLoss">[docs]</a><span class="k">class</span> <span class="nc">BinaryCrossEntropyLoss</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An implementation of Binary Cross Entropy Loss.</span>
+
+<span class="sd">    Binary Cross Entropy Loss is commonly used in binary classification problem.</span>
+<span class="sd">    In KGE, we can also turn the problem into a binary classification problem</span>
+<span class="sd">    that classifies triplet into positive or negative :math:`y_i = 1 or 0` with</span>
+<span class="sd">    the triplet score as logit:  :math:`logit_i = f\left( (h,r,t)_i \\right)`</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \\begin{aligned}</span>
+<span class="sd">        \mathscr{L} &amp;= - \sum_i y_i log(\hat{y}_i) + (1-y_i) log(1-\hat{y}_i)</span>
+
+<span class="sd">                    &amp;= - \sum_i log\left[\sigma(f((h,r,t)_i^+))\\right] - \sum_i log\left[1-\sigma(f((h,r,t)_i^-))\\right]</span>
+
+<span class="sd">                    &amp;= - \sum_i log\left[\sigma(f((h,r,t)_i^+))\\right] - \sum_i log\left[\sigma(-f((h,r,t)_i^-))\\right]</span>
+<span class="sd">        \end{aligned}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BinaryCrossEntropyLoss.__init__"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.BinaryCrossEntropyLoss.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializedd BinaryCrossEntropyLoss</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="BinaryCrossEntropyLoss.__call__"><a class="viewcode-back" href="../../api/KGE.loss.BinaryCrossEntropyLoss.html#KGE.loss.BinaryCrossEntropyLoss.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">neg_score</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate binary cross entropy loss</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pos_score : tf.Tensor</span>
+<span class="sd">            score of postive triplets, with shape :code:`(n,)`</span>
+<span class="sd">        neg_score : tf.Tensor</span>
+<span class="sd">            score of negative triplets, with shape :code:`(n,)`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            pairwise hinge loss with shape :code:`(1,)`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pos_ll</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log_sigmoid</span><span class="p">(</span><span class="n">pos_score</span><span class="p">))</span>
+        <span class="n">neg_ll</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log_sigmoid</span><span class="p">(</span><span class="o">-</span><span class="n">neg_score</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="n">pos_ll</span> <span class="o">+</span> <span class="n">neg_ll</span><span class="p">)</span> <span class="o">/</span> <span class="n">pos_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="SelfAdversarialNegativeSamplingLoss"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.SelfAdversarialNegativeSamplingLoss">[docs]</a><span class="k">class</span> <span class="nc">SelfAdversarialNegativeSamplingLoss</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SelfAdversarialNegativeSamplingLoss.__init__"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.SelfAdversarialNegativeSamplingLoss.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">margin</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">=</span> <span class="n">margin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span></div>
+
+<div class="viewcode-block" id="SelfAdversarialNegativeSamplingLoss.__call__"><a class="viewcode-back" href="../../api/KGE.loss.SelfAdversarialNegativeSamplingLoss.html#KGE.loss.SelfAdversarialNegativeSamplingLoss.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">neg_score</span><span class="p">):</span>
+        
+        <span class="n">neg_score</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">neg_score</span><span class="p">,</span> <span class="p">(</span><span class="n">pos_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">neg_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">pos_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+        <span class="n">neg_prob</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stop_gradient</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">*</span> <span class="n">neg_score</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">pos_ll</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log_sigmoid</span><span class="p">(</span><span class="n">pos_score</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">margin</span><span class="p">))</span>
+        <span class="n">neg_ll</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">neg_prob</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log_sigmoid</span><span class="p">(</span><span class="o">-</span> <span class="n">neg_score</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">margin</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="n">pos_ll</span> <span class="o">+</span> <span class="n">neg_ll</span><span class="p">)</span> <span class="o">/</span> <span class="n">pos_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="SquareErrorLoss"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.SquareErrorLoss">[docs]</a><span class="k">class</span> <span class="nc">SquareErrorLoss</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; An implementation of Square Error Loss.</span>
+
+<span class="sd">    Square Error Loss is a loss function used in</span>
+<span class="sd">    `RESCAL &lt;https://icml.cc/2011/papers/438_icmlpaper.pdf&gt;`_.</span>
+<span class="sd">    Square Error Loss computes the squared difference between model scores</span>
+<span class="sd">    and labels (:math:`y_i = 1 or 0`):</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \mathscr{L} = \sum_i \left[ f((h,r,t)_i) - y_i \\right]^2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SquareErrorLoss.__init__"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.SquareErrorLoss.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="SquareErrorLoss.__call__"><a class="viewcode-back" href="../../api/KGE.loss.SquareErrorLoss.html#KGE.loss.SquareErrorLoss.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">neg_score</span><span class="p">):</span>
+        <span class="n">pos_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">pos_score</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">neg_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">neg_score</span> <span class="o">-</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">pos_loss</span> <span class="o">+</span> <span class="n">neg_loss</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">pos_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Melissa Kuo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

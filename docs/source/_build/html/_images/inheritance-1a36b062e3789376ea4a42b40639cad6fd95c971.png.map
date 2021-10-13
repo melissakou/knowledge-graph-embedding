@@ -1,0 +1,5 @@
+<map id="inheritancefa6db68fa1" name="inheritancefa6db68fa1">
+<area shape="rect" id="node1" href="#KGE.models.semantic_based.DistMult.DistMult" target="_top" title="An implementation of DistMult from `[yang 2014] &lt;https://arxiv.org/abs/1412.6575&gt;`_." alt="" coords="312,5,388,31"/>
+<area shape="rect" id="node2" href="KGE.models.base_model.SemanticModel.html#KGE.models.base_model.SemanticModel.SemanticModel" target="_top" title="A base module for Semantic Based Embedding Model." alt="" coords="141,5,264,31"/>
+<area shape="rect" id="node3" href="KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel" target="_top" title="A base module for Knowledge Graph Embedding Model." alt="" coords="5,5,93,31"/>
+</map>

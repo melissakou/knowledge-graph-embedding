@@ -4,7 +4,7 @@
 import numpy as np
 import tensorflow as tf
 from ..base_model.SemanticModel import SemanticModel
-from ...loss import square_error_loss
+from ...loss import SquareErrorLoss
 from ...ns_strategy import uniform_strategy
 from ...constraint import Lp_regularization, normalized_embeddings
 
@@ -35,9 +35,8 @@ class RESCAL(SemanticModel):
     """
 
     def __init__(self, embedding_params, negative_ratio, corrupt_side, 
-                 loss_fn=square_error_loss, loss_params=None,
-                 ns_strategy=uniform_strategy, constraint=True,
-                 constraint_weight=1.0, n_workers=1):
+                 loss_fn=SquareErrorLoss(), ns_strategy=uniform_strategy,
+                 constraint=True, constraint_weight=1.0, n_workers=1):
         """Initialized RESCAL
 
         Parameters
@@ -48,10 +47,8 @@ class RESCAL(SemanticModel):
             number of negative sample
         corrupt_side : str
             corrupt from which side while trainging, can be :code:`'h'`, :code:`'t'`, or :code:`'h+t'`
-        loss_fn : function, optional
-            loss function, by default :py:func:`KGE.loss.square_error_loss`
-        loss_params : dict, optional
-            loss parameters for :code:`loss_fn`, by default :code:`None`
+        loss_fn : class, optional
+            loss function class :py:mod:`KGE.loss.Loss`, by default :py:mod:`KGE.loss.SquareErrorLoss`
         ns_strategy : function, optional
             negative sampling strategy, by default :py:func:`KGE.ns_strategy.uniform_strategy`
         constraint : bool, optional
@@ -63,7 +60,7 @@ class RESCAL(SemanticModel):
         """
         
         super(RESCAL, self).__init__(embedding_params, negative_ratio,
-                                     corrupt_side, loss_fn, loss_params,
+                                     corrupt_side, loss_fn,
                                      ns_strategy, constraint, n_workers)
         self.constraint = constraint
         self.constraint_weight = constraint_weight
