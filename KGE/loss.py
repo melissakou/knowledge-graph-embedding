@@ -32,7 +32,7 @@ class Loss:
     def __init__(self):
         """ Initialize loss
         """
-        raise NotImplementedError("subclass of Loss should implement _init_() to init loss parameters")
+        raise NotImplementedError("subclass of Loss should implement __init__() to init loss parameters")
 
     def __call__(self, pos_score, neg_score):
         """ Calculate loss.
@@ -44,7 +44,7 @@ class Loss:
         neg_score : tf.Tensor
             score of negative triplets, with shape :code:`(n,)`
         """
-        raise NotImplementedError("subclass of Loss should implement _call_() to calculate loss")
+        raise NotImplementedError("subclass of Loss should implement __call__() to calculate loss")
 
 class PairwiseHingeLoss(Loss):
     """An implementation of Pairwise Hinge Loss / Margin Ranking Loss.

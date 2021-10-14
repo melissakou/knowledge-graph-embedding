@@ -1,24 +1,59 @@
 import numpy as np
 import tensorflow as tf
-from itertools import repeat
 
 from .utils import ns_with_same_type
 
-from tensorflow.python.ops.gen_math_ops import Neg
-
 class NegativeSampler:
+    """ A base module for negative sampler.
+    """
     def __init__(self):
+        """ Initialized negative sampler
+        """
         raise NotImplementedError("subclass of NegativeSampler should implement __init__() to init class")
 
     def __call__(self):
-        raise NotImplementedError("subclass of NegativeSampler should implement __call_() to perform negative sampling")
+        """ Confuct negative sampling
+        """
+        raise NotImplementedError("subclass of NegativeSampler should implement __call__() to conduct negative sampling")
 
 
 class UniformStrategy(NegativeSampler):
+    """ An implementation of uniform negative sampling
+
+    Uniform sampling is the most simple negative sampling strategy, usually is
+    the default setting of knowledge graph embedding models. It sample entities
+    from all entites with uniform distribution, and replaces either head or tail
+    entity.
+    """
+
     def __init__(self, sample_pool):
+        """ Initialize UniformStrategy negative sampler.
+
+        Parameters
+        ----------
+        sample_pool : tf.Tensor
+            entities pool that used to sample.
+        """
         self.sample_pool = sample_pool
 
     def __call__(self, X, negative_ratio, side):
+        """ perform negative sampling
+
+        Parameters
+        ----------
+        X : tf.Tensor
+            positive triplets to be corrupt.
+        negative_ratio : int
+            number of negative sample.
+        side : str
+            corrup from which side, can be :code:`'h'` or :code:`'t'`
+
+        Returns
+        -------
+        tf.Tensor
+            sampling entities
+        """
+
         self.sample_pool = tf.cast(self.sample_pool, X.dtype)
         sample_index = tf.random.uniform(
             shape=[X.shape[0] * negative_ratio, 1],
@@ -29,11 +64,52 @@ class UniformStrategy(NegativeSampler):
         return sample_entities
 
 class TypedStrategy(NegativeSampler):
+    """ An implementation of typed negative sampling strategy.
+
+    Typed negative sampling consider the entities' type, for example, for the
+    positive triplet *(MonaLisa, is_in, Louvre)*, we may generate illogical
+    negative triplet such as *(MonaLis, is_in, DaVinci)*. So Typed negative
+    sampling strategy consider the type of entity to be corrupt, if we want
+    to replace *Louvre*, we only sample the entities which have same type
+    with *Louvre*.
+
+    .. caution::
+        When using TypedStrategy, :code:`metadata` should contains
+        key :code:`'ind2type'` to indicate the entities' type when calling
+        :code:`train()`.
+    """
     def __init__(self, pool, metadata):
+        """ Initialize TypedStrategy negative sampler.
+
+        Parameters
+        ----------
+        pool : :ref:`multiprocessing.pool.Pool <https://docs.python.org/3/library/multiprocessing.html#multiprocessing.pool.Pool>`
+            multiprocessing pool for parallel.
+        metadata : dict
+            metadata that store the entities' type information.
+        """
         self.pool = pool
         self.metadata = metadata
 
     def __call__(self, X, negative_ratio, side):
+        """ perform negative sampling
+
+        Parameters
+        ----------
+        X : tf.Tensor
+            positive triplets to be corrupt.
+        negative_ratio : int
+            number of negative sample.
+        side : str
+            corrup from which side, can be :code:`'h'` or :code:`'t'`
+
+        Returns
+        -------
+        tf.Tensor
+            sampling entities
+        """
+        
+        from itertools import repeat
 
         if side == "h":
             ref_type = X[:, 0].numpy()

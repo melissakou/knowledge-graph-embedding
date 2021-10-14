@@ -33,7 +33,7 @@ class Score:
     def __init__(self):
         """ Initialize score.
         """
-        raise NotImplementedError("subclass of Score should implement _init_() to init score parameters")
+        raise NotImplementedError("subclass of Score should implement __init__() to init score parameters")
 
     def __call__(self, x, y):
         """ Calculate score.
@@ -43,7 +43,7 @@ class Score:
         x : tf.Tensor
         y : tf.Tensor
         """
-        raise NotImplementedError("subclass of Score should implement __call_() to calculate score")
+        raise NotImplementedError("subclass of Score should implement __call__() to calculate score")
 
 
 class LpDistance(Score):
