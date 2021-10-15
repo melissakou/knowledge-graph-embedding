@@ -1,0 +1,5 @@
+<map id="inheritance8b5cb4c306" name="inheritance8b5cb4c306">
+<area shape="rect" id="node1" href="#KGE.ns_strategy.NegativeSampler" target="_top" title="A base module for negative sampler." alt="" coords="5,31,140,56"/>
+<area shape="rect" id="node2" href="#KGE.ns_strategy.TypedStrategy" target="_top" title="An implementation of typed negative sampling strategy." alt="" coords="196,5,311,31"/>
+<area shape="rect" id="node3" href="#KGE.ns_strategy.UniformStrategy" target="_top" title="An implementation of uniform negative sampling" alt="" coords="188,55,319,80"/>
+</map>

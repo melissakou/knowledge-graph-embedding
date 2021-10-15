@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TypedStrategy &mdash; Knowledge Graph Embedding 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="UniformStrategy" href="KGE.ns_strategy.UniformStrategy.html" />
+    <link rel="prev" title="NegativeSampler" href="KGE.ns_strategy.NegativeSampler.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Knowledge Graph Embedding
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.translating_based.html">Translating Based Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.models.semantic_based.html">Semantic Based Models</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Loss</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.loss.html">Loss Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Score</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.score.html">Score Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Constraint</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src/KGE.constraint.html">Contraint</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Negative Sampling</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../src/KGE.ns_strategy.html">Negative Sampling Strategy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../src/KGE.ns_strategy.html#classes">Classes</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="KGE.ns_strategy.NegativeSampler.html">NegativeSampler</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">TypedStrategy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="KGE.ns_strategy.UniformStrategy.html">UniformStrategy</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../src/KGE.ns_strategy.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Knowledge Graph Embedding</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../src/KGE.ns_strategy.html">KGE.ns_strategy</a> &raquo;</li>
+      <li>TypedStrategy</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/KGE.ns_strategy.TypedStrategy.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="typedstrategy">
+<h1>TypedStrategy<a class="headerlink" href="#typedstrategy" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="KGE.ns_strategy.TypedStrategy">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.ns_strategy.</span></span><span class="sig-name descname"><span class="pre">TypedStrategy</span></span><a class="reference internal" href="../_modules/KGE/ns_strategy.html#TypedStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.ns_strategy.TypedStrategy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../src/KGE.ns_strategy.html#KGE.ns_strategy.NegativeSampler" title="KGE.ns_strategy.NegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGE.ns_strategy.NegativeSampler</span></code></a></p>
+<p>An implementation of typed negative sampling strategy.</p>
+<p>Typed negative sampling consider the entities’ type, for example, for the
+positive triplet <span class="math notranslate nohighlight">\((MonaLisa, is\_in, Louvre)\)</span>, we may generate illogical
+negative triplet such as <span class="math notranslate nohighlight">\((MonaLis, is\_in, DaVinci)\)</span>. So Typed negative
+sampling strategy consider the type of entity to be corrupt, if we want
+to replace <em>Louvre</em>, we only sample the entities which have same type
+with <em>Louvre</em>.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>When using <a class="reference internal" href="../src/KGE.ns_strategy.html#KGE.ns_strategy.TypedStrategy" title="KGE.ns_strategy.TypedStrategy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">TypedStrategy</span></code></a>, <code class="code docutils literal notranslate"><span class="pre">metadata</span></code> should contains
+key <code class="code docutils literal notranslate"><span class="pre">'ind2type'</span></code> to indicate the entities’ type when calling
+<a class="reference internal" href="../src/KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel.train" title="KGE.models.base_model.BaseModel.KGEModel.train"><code class="xref py py-func docutils literal notranslate"><span class="pre">train()</span></code></a>.</p>
+</div>
+<p class="rubric">Methods Summary</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#KGE.ns_strategy.TypedStrategy.__call__" title="KGE.ns_strategy.TypedStrategy.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(X, negative_ratio, side)</p></td>
+<td><p>perform negative sampling</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.ns_strategy.TypedStrategy.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/ns_strategy.html#TypedStrategy.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.ns_strategy.TypedStrategy.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>perform negative sampling</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code>) – positive triplets to be corrupt.</p></li>
+<li><p><strong>negative_ratio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of negative sample.</p></li>
+<li><p><strong>side</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – corrup from which side, can be <code class="code docutils literal notranslate"><span class="pre">'h'</span></code> or <code class="code docutils literal notranslate"><span class="pre">'t'</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>sampling entities</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.ns_strategy.TypedStrategy.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/ns_strategy.html#TypedStrategy.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.ns_strategy.TypedStrategy.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize TypedStrategy negative sampler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pool</strong> (<span class="xref std std-ref">multiprocessing.pool.Pool</span>) – multiprocessing pool for parallel.</p></li>
+<li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – metadata that store the entities’ type information.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.ns_strategy.TypedStrategy.__new__">
+<span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#KGE.ns_strategy.TypedStrategy.__new__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="KGE.ns_strategy.NegativeSampler.html" class="btn btn-neutral float-left" title="NegativeSampler" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="KGE.ns_strategy.UniformStrategy.html" class="btn btn-neutral float-right" title="UniformStrategy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Melissa Kuo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How To Use &mdash; Knowledge Graph Embedding 1.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="KGE.models.translating_based" href="src/KGE.models.translating_based.html" />
+    <link rel="prev" title="What’s Knowledge Graph Embedding?" href="kge_intro.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Knowledge Graph Embedding
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How To Use</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#toy-example">Toy Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#train-kg-from-disk-file">Train KG from Disk File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#train-test-splitting-kg-data">Train-Test Splitting KG Data</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src/KGE.models.translating_based.html">Translating Based Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src/KGE.models.semantic_based.html">Semantic Based Models</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Loss</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src/KGE.loss.html">Loss Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Score</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src/KGE.score.html">Score Function</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Constraint</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src/KGE.constraint.html">Contraint</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Negative Sampling</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src/KGE.ns_strategy.html">Negative Sampling Strategy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Knowledge Graph Embedding</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>How To Use</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/how_to.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="how-to-use">
+<h1>How To Use<a class="headerlink" href="#how-to-use" title="Permalink to this headline"></a></h1>
+<section id="toy-example">
+<h2>Toy Example<a class="headerlink" href="#toy-example" title="Permalink to this headline"></a></h2>
+<p>Here is a toy example that demonstrates how to train a KGE model.</p>
+<p>First, you should index the KG data. You can use <a class="reference internal" href="api/KGE.data_utils.index_kg.html#KGE.data_utils.index_kg" title="KGE.data_utils.index_kg"><code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.data_utils.index_kg()</span></code></a>
+to index all entities and relation, this function return metadata of KG that mapping
+all entities and relation to index. After creating the metadata, you can use
+<a class="reference internal" href="api/KGE.data_utils.convert_kg_to_index.html#KGE.data_utils.convert_kg_to_index" title="KGE.data_utils.convert_kg_to_index"><code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.data_utils.convert_kg_to_index()</span></code></a> to conver the string (h,r,t) into index.</p>
+<p>After all preparation done for KG data, you can initialized the KGE model,
+train the model, and evaluate model.</p>
+<p>You can monitor the training and validation loss, distribution of model parameters on
+tensorboard_logs using the command <code class="code docutils literal notranslate"><span class="pre">tensorboard</span> <span class="pre">--logdir=./tensorboard_logs</span></code>.</p>
+<p>After the training finished, the entities embedding are projected into lower dimension
+and show on the Projector Tab in tensorboard
+(if <code class="code docutils literal notranslate"><span class="pre">log_projector=True</span></code> is given when <code class="code docutils literal notranslate"><span class="pre">train()</span></code>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">KGE.data_utils</span> <span class="kn">import</span> <span class="n">index_kg</span><span class="p">,</span> <span class="n">convert_kg_to_index</span>
+<span class="linenos"> 3</span><span class="kn">from</span> <span class="nn">KGE.models.translating_based.TransE</span> <span class="kn">import</span> <span class="n">TransE</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="c1"># load data</span>
+<span class="linenos"> 6</span><span class="n">train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;./data/fb15k/train/train.csv&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+<span class="linenos"> 7</span><span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;./data/fb15k/valid/valid.csv&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+<span class="linenos"> 8</span><span class="n">test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;./data/fb15k/test/test.csv&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="c1"># index the kg data</span>
+<span class="linenos">11</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">index_kg</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="c1"># conver kg into index</span>
+<span class="linenos">14</span><span class="n">train</span> <span class="o">=</span> <span class="n">convert_kg_to_index</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;ent2ind&quot;</span><span class="p">],</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rel2ind&quot;</span><span class="p">])</span>
+<span class="linenos">15</span><span class="n">valid</span> <span class="o">=</span> <span class="n">convert_kg_to_index</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;ent2ind&quot;</span><span class="p">],</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rel2ind&quot;</span><span class="p">])</span>
+<span class="linenos">16</span><span class="n">test</span> <span class="o">=</span> <span class="n">convert_kg_to_index</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;ent2ind&quot;</span><span class="p">],</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rel2ind&quot;</span><span class="p">])</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="c1"># initialized TransE model object</span>
+<span class="linenos">19</span><span class="n">model</span> <span class="o">=</span> <span class="n">TransE</span><span class="p">(</span>
+<span class="linenos">20</span>    <span class="n">embedding_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">},</span>
+<span class="linenos">21</span>    <span class="n">negative_ratio</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="linenos">22</span>    <span class="n">corrupt_side</span><span class="o">=</span><span class="s2">&quot;h+t&quot;</span><span class="p">,</span>
+<span class="linenos">23</span><span class="p">)</span>
+<span class="linenos">24</span>
+<span class="linenos">25</span><span class="c1"># train the model</span>
+<span class="linenos">26</span><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">train_X</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> <span class="n">val_X</span><span class="o">=</span><span class="n">valid</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+<span class="linenos">27</span>            <span class="n">log_path</span><span class="o">=</span><span class="s2">&quot;./tensorboard_logs&quot;</span><span class="p">,</span> <span class="n">log_projector</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span><span class="c1"># evaluate</span>
+<span class="linenos">30</span><span class="n">eval_result_filtered</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">eval_X</span><span class="o">=</span><span class="n">test</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="n">positive_X</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">train</span><span class="p">,</span> <span class="n">valid</span><span class="p">,</span> <span class="n">test</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="train-kg-from-disk-file">
+<h2>Train KG from Disk File<a class="headerlink" href="#train-kg-from-disk-file" title="Permalink to this headline"></a></h2>
+<p>The toy example above demonstrates how to train KGE model from KG data stored in Numpy Array,
+however, when your KG is too big to can not fit in memory, you can train the KG from the disk file
+without loading them into memory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span> <span class="nn">KGE.data_utils</span> <span class="kn">import</span> <span class="n">index_kg</span><span class="p">,</span> <span class="n">convert_kg_to_index</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">KGE.models.translating_based.TransE</span> <span class="kn">import</span> <span class="n">TransE</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="n">train</span> <span class="o">=</span> <span class="s2">&quot;./data/fb15k/train&quot;</span>
+<span class="linenos"> 5</span><span class="n">valid</span> <span class="o">=</span> <span class="s2">&quot;./data/fb15k/valid&quot;</span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">index_kg</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="n">convert_kg_to_index</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;ent2ind&quot;</span><span class="p">],</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rel2ind&quot;</span><span class="p">])</span>
+<span class="linenos">10</span><span class="n">convert_kg_to_index</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;ent2ind&quot;</span><span class="p">],</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rel2ind&quot;</span><span class="p">])</span>
+<span class="linenos">11</span><span class="n">train</span> <span class="o">=</span> <span class="n">train</span> <span class="o">+</span> <span class="s2">&quot;_indexed&quot;</span>
+<span class="linenos">12</span><span class="n">valid</span> <span class="o">=</span> <span class="n">valid</span> <span class="o">+</span> <span class="s2">&quot;_indexed&quot;</span>
+<span class="linenos">13</span>
+<span class="linenos">14</span><span class="n">model</span> <span class="o">=</span> <span class="n">TransE</span><span class="p">(</span>
+<span class="linenos">15</span>    <span class="n">embedding_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">},</span>
+<span class="linenos">16</span>    <span class="n">negative_ratio</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="linenos">17</span>    <span class="n">corrupt_side</span><span class="o">=</span><span class="s2">&quot;h+t&quot;</span>
+<span class="linenos">18</span><span class="p">)</span>
+<span class="linenos">19</span>
+<span class="linenos">20</span><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">train_X</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> <span class="n">val_X</span><span class="o">=</span><span class="n">valid</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+<span class="linenos">21</span>            <span class="n">log_path</span><span class="o">=</span><span class="s2">&quot;./tensorboard_logs&quot;</span><span class="p">,</span> <span class="n">log_projector</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We use the same function <a class="reference internal" href="api/KGE.data_utils.index_kg.html#KGE.data_utils.index_kg" title="KGE.data_utils.index_kg"><code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.data_utils.index_kg()</span></code></a> and
+<a class="reference internal" href="api/KGE.data_utils.convert_kg_to_index.html#KGE.data_utils.convert_kg_to_index" title="KGE.data_utils.convert_kg_to_index"><code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.data_utils.convert_kg_to_index()</span></code></a> to deal with KG data stored in disk.
+If the input of <a class="reference internal" href="api/KGE.data_utils.convert_kg_to_index.html#KGE.data_utils.convert_kg_to_index" title="KGE.data_utils.convert_kg_to_index"><code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.data_utils.convert_kg_to_index()</span></code></a> is a string path folder
+but a numpy array, it won’t return the indexed numpy array, instean it save the indexed KG
+to the disk with suffix <code class="code docutils literal notranslate"><span class="pre">_indexed</span></code>.</p>
+<p>Data folder can have multiple CSVs that store the different partitions of KG like taht:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./data/fb15k
+├── test
+│   ├── test.csv
+│   ├── test1.csv
+│   └── test2.csv
+├── train
+│   ├── train.csv
+│   ├── train1.csv
+│   └── train2.csv
+└── valid
+    ├── valid.csv
+    ├── valid1.csv
+    └── valid2.csv
+</pre></div>
+</div>
+</section>
+<section id="train-test-splitting-kg-data">
+<h2>Train-Test Splitting KG Data<a class="headerlink" href="#train-test-splitting-kg-data" title="Permalink to this headline"></a></h2>
+<p>In the example above we use the benchmark dataset FB15K which is split
+into the train, valid, test already, but when you bring your own KG data,
+you should split data by yourself. Note that when splitting the KG data,
+we need to guarantee that the entities in test data are also present in
+the train data, otherwise, the entities not in the train would not have
+embeddings being trained.</p>
+<p>You can use <a class="reference internal" href="api/KGE.data_utils.train_test_split_no_unseen.html#KGE.data_utils.train_test_split_no_unseen" title="KGE.data_utils.train_test_split_no_unseen"><code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.data_utils.train_test_split_no_unseen()</span></code></a> to split
+the KG data that guarantee the entities in test data are also present in
+the train data.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><a class="reference internal" href="api/KGE.data_utils.train_test_split_no_unseen.html#KGE.data_utils.train_test_split_no_unseen" title="KGE.data_utils.train_test_split_no_unseen"><code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.data_utils.train_test_split_no_unseen()</span></code></a> only support for numpy array.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">KGE.data_utils</span> <span class="kn">import</span> <span class="n">train_test_split_no_unseen</span>
+
+<span class="n">KG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="p">[[</span><span class="s1">&#39;DaVinci&#39;</span><span class="p">,</span> <span class="s1">&#39;painted&#39;</span><span class="p">,</span> <span class="s1">&#39;MonaLisa&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;DaVinci&#39;</span><span class="p">,</span> <span class="s1">&#39;is_a&#39;</span><span class="p">,</span> <span class="s1">&#39;Person&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;Lily&#39;</span><span class="p">,</span> <span class="s1">&#39;is_interested_in&#39;</span><span class="p">,</span> <span class="s1">&#39;DaVinci&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;Lily&#39;</span><span class="p">,</span> <span class="s1">&#39;is_a&#39;</span><span class="p">,</span> <span class="s1">&#39;Person&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;Lily&#39;</span><span class="p">,</span> <span class="s1">&#39;is_a_friend_of&#39;</span><span class="p">,</span> <span class="s1">&#39;James&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;James&#39;</span><span class="p">,</span> <span class="s1">&#39;is_a&#39;</span><span class="p">,</span> <span class="s1">&#39;Person&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;James&#39;</span><span class="p">,</span> <span class="s1">&#39;like&#39;</span><span class="p">,</span> <span class="s1">&#39;MonaLisa&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;James&#39;</span><span class="p">,</span> <span class="s1">&#39;has_visited&#39;</span><span class="p">,</span> <span class="s1">&#39;Louvre&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;James&#39;</span><span class="p">,</span> <span class="s1">&#39;has_lived_in&#39;</span><span class="p">,</span> <span class="s1">&#39;TourEiffel&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;James&#39;</span><span class="p">,</span> <span class="s1">&#39;is_born_on&#39;</span><span class="p">,</span> <span class="s1">&#39;Jan,1,1984&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;LaJocondeAWashinton&#39;</span><span class="p">,</span> <span class="s1">&#39;is_about&#39;</span><span class="p">,</span> <span class="s1">&#39;MonaLisa&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;MonaLis&#39;</span><span class="p">,</span> <span class="s1">&#39;is_in&#39;</span><span class="p">,</span> <span class="s1">&#39;Louvre&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;Louvre&#39;</span><span class="p">,</span> <span class="s1">&#39;is_located_in&#39;</span><span class="p">,</span> <span class="s1">&#39;Paris&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;Paris&#39;</span><span class="p">,</span> <span class="s1">&#39;is_a&#39;</span><span class="p">,</span> <span class="s1">&#39;Place&#39;</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">&#39;TourEiffel&#39;</span><span class="p">,</span> <span class="s1">&#39;is_located_in&#39;</span><span class="p">,</span> <span class="s1">&#39;Paris&#39;</span><span class="p">]]</span>
+<span class="p">)</span>
+
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">train_test_split_no_unseen</span><span class="p">(</span><span class="n">KG</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">12345</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kge_intro.html" class="btn btn-neutral float-left" title="What’s Knowledge Graph Embedding?" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="src/KGE.models.translating_based.html" class="btn btn-neutral float-right" title="KGE.models.translating_based" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Melissa Kuo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

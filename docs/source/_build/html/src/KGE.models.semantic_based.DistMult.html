@@ -40,6 +40,7 @@
               <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to.html">How To Use</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Models</span></p>
 <ul>
@@ -106,6 +107,9 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SemanticModel</span></code></p></td>
 <td><p>A base module for Semantic Based Embedding Model.</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">UniformStrategy</span></code></p></td>
+<td><p>An implementation of uniform negative sampling</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -164,7 +168,7 @@ and conduct L2-regularization on <span class="math notranslate nohighlight">\(\t
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="KGE.models.semantic_based.DistMult.DistMult.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">embedding_params</span></em>, <em class="sig-param"><span class="pre">negative_ratio</span></em>, <em class="sig-param"><span class="pre">corrupt_side</span></em>, <em class="sig-param"><span class="pre">loss_fn=&lt;KGE.loss.PairwiseHingeLoss</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">ns_strategy=&lt;function</span> <span class="pre">uniform_strategy&gt;</span></em>, <em class="sig-param"><span class="pre">constraint=True</span></em>, <em class="sig-param"><span class="pre">constraint_weight=1.0</span></em>, <em class="sig-param"><span class="pre">n_workers=1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/models/semantic_based/DistMult.html#DistMult.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.models.semantic_based.DistMult.DistMult.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">embedding_params</span></em>, <em class="sig-param"><span class="pre">negative_ratio</span></em>, <em class="sig-param"><span class="pre">corrupt_side</span></em>, <em class="sig-param"><span class="pre">loss_fn=&lt;KGE.loss.PairwiseHingeLoss</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">ns_strategy=&lt;class</span> <span class="pre">'KGE.ns_strategy.UniformStrategy'&gt;</span></em>, <em class="sig-param"><span class="pre">constraint=True</span></em>, <em class="sig-param"><span class="pre">constraint_weight=1.0</span></em>, <em class="sig-param"><span class="pre">n_workers=1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/models/semantic_based/DistMult.html#DistMult.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.models.semantic_based.DistMult.DistMult.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Initialized DistMult</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -173,7 +177,7 @@ and conduct L2-regularization on <span class="math notranslate nohighlight">\(\t
 <li><p><strong>negative_ratio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of negative sample</p></li>
 <li><p><strong>corrupt_side</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – corrupt from which side while trainging, can be <code class="code docutils literal notranslate"><span class="pre">'h'</span></code>, <code class="code docutils literal notranslate"><span class="pre">'t'</span></code>, or <code class="code docutils literal notranslate"><span class="pre">'h+t'</span></code></p></li>
 <li><p><strong>loss_fn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">class</span></code>, <em>optional</em>) – loss function class <a class="reference internal" href="KGE.loss.html#KGE.loss.Loss" title="KGE.loss.Loss"><code class="xref py py-mod docutils literal notranslate"><span class="pre">KGE.loss.Loss</span></code></a>, by default <a class="reference internal" href="KGE.loss.html#KGE.loss.PairwiseHingeLoss" title="KGE.loss.PairwiseHingeLoss"><code class="xref py py-mod docutils literal notranslate"><span class="pre">KGE.loss.PairwiseHingeLoss</span></code></a></p></li>
-<li><p><strong>ns_strategy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">function</span></code>, <em>optional</em>) – negative sampling strategy, by default <a class="reference internal" href="../api/KGE.ns_strategy.uniform_strategy.html#KGE.ns_strategy.uniform_strategy" title="KGE.ns_strategy.uniform_strategy"><code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.ns_strategy.uniform_strategy()</span></code></a></p></li>
+<li><p><strong>ns_strategy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">function</span></code>, <em>optional</em>) – negative sampling strategy, by default <code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.ns_strategy.uniform_strategy()</span></code></p></li>
 <li><p><strong>constraint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – conduct constraint or not, by default <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
 <li><p><strong>constraint_weight</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – regularization weight <span class="math notranslate nohighlight">\(\lambda\)</span>, by default 1.0</p></li>
 <li><p><strong>n_workers</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – number of workers for negative sampling, by default 1</p></li>

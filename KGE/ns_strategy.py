@@ -67,16 +67,16 @@ class TypedStrategy(NegativeSampler):
     """ An implementation of typed negative sampling strategy.
 
     Typed negative sampling consider the entities' type, for example, for the
-    positive triplet *(MonaLisa, is_in, Louvre)*, we may generate illogical
-    negative triplet such as *(MonaLis, is_in, DaVinci)*. So Typed negative
+    positive triplet :math:`(MonaLisa, is\_in, Louvre)`, we may generate illogical
+    negative triplet such as :math:`(MonaLis, is\_in, DaVinci)`. So Typed negative
     sampling strategy consider the type of entity to be corrupt, if we want
     to replace *Louvre*, we only sample the entities which have same type
     with *Louvre*.
 
     .. caution::
-        When using TypedStrategy, :code:`metadata` should contains
+        When using :py:mod:`TypedStrategy <KGE.ns_strategy.TypedStrategy>`, :code:`metadata` should contains
         key :code:`'ind2type'` to indicate the entities' type when calling
-        :code:`train()`.
+        :py:func:`train() <KGE.models.base_model.BaseModel.KGEModel.train>`.
     """
     def __init__(self, pool, metadata):
         """ Initialize TypedStrategy negative sampler.

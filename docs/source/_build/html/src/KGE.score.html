@@ -110,13 +110,13 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#KGE.score.Dot" title="KGE.score.Dot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Dot</span></code></a></p></td>
-<td><p></p></td>
+<td><p>An implementation of dot product.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#KGE.score.LpDistance" title="KGE.score.LpDistance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LpDistance</span></code></a></p></td>
-<td><p></p></td>
+<td><p>An implementation of negative Lp-distance.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#KGE.score.LpDistancePow" title="KGE.score.LpDistancePow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LpDistancePow</span></code></a></p></td>
-<td><p></p></td>
+<td><p>An implementation of negative squared Lp-distance.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#KGE.score.Score" title="KGE.score.Score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Score</span></code></a></p></td>
 <td><p>A base module for score.</p></td>
@@ -126,32 +126,29 @@
 </section>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-fd394cbefcf1bba8c1ff103ef4502728983d664c.png" alt="Inheritance diagram of KGE.score.Dot, KGE.score.LpDistance, KGE.score.LpDistancePow, KGE.score.Score" usemap="#inheritance116022a68a" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-588485e06cf4cf988276606e4273482d6878576b.png" alt="Inheritance diagram of KGE.score.Dot, KGE.score.LpDistance, KGE.score.LpDistancePow, KGE.score.Score" usemap="#inheritance116022a68a" class="inheritance graphviz" /></div>
 <map id="inheritance116022a68a" name="inheritance116022a68a">
-<area shape="rect" id="node1" href="#KGE.score.Dot" target="_top" title="Dot" alt="" coords="150,5,222,31"/>
+<area shape="rect" id="node1" href="#KGE.score.Dot" target="_top" title="An implementation of dot product." alt="" coords="150,5,222,31"/>
 <area shape="rect" id="node2" href="#KGE.score.Score" target="_top" title="A base module for score." alt="" coords="5,55,77,80"/>
-<area shape="rect" id="node3" href="#KGE.score.LpDistance" target="_top" title="LpDistance" alt="" coords="139,55,233,80"/>
-<area shape="rect" id="node4" href="#KGE.score.LpDistancePow" target="_top" title="LpDistancePow" alt="" coords="125,104,247,129"/>
-</map><span class="target" id="module-KGE.score"></span><p>Different score functions that you can choose when training Translating-based Knowledge Graph Embedding Model.</p>
-<p>In translating-based knowledge graph embedding models, the head entity is translated by relation to the tail entity:</p>
-<div class="math notranslate nohighlight">
-\[translate_r(h) \approx t\]</div>
-<p>For example</p>
-<p>Different Translating-based Knowledge Graph Embedding Models use different loss functions, the default
-setting for each KGE model is according to the original paper described,  for example,
-<a class="reference internal" href="KGE.models.translating_based.TransE.html#module-KGE.models.translating_based.TransE" title="KGE.models.translating_based.TransE"><code class="xref py py-mod docutils literal notranslate"><span class="pre">TransE</span></code></a> using
-<code class="xref py py-func docutils literal notranslate"><span class="pre">Pairwise</span> <span class="pre">Hinge</span> <span class="pre">Loss</span></code>,
-<a class="reference internal" href="KGE.models.translating_based.RotatE.html#module-KGE.models.translating_based.RotatE" title="KGE.models.translating_based.RotatE"><code class="xref py py-mod docutils literal notranslate"><span class="pre">RotatE</span></code></a> using
-<code class="xref py py-func docutils literal notranslate"><span class="pre">Self</span> <span class="pre">Adversarial</span> <span class="pre">Negative</span> <span class="pre">Sampling</span> <span class="pre">Loss</span></code>.</p>
-<p>You can change the loss function to try any possibility in a very easy way:</p>
+<area shape="rect" id="node3" href="#KGE.score.LpDistance" target="_top" title="An implementation of negative Lp&#45;distance." alt="" coords="139,55,233,80"/>
+<area shape="rect" id="node4" href="#KGE.score.LpDistancePow" target="_top" title="An implementation of negative squared Lp&#45;distance." alt="" coords="125,104,247,129"/>
+</map><span class="target" id="module-KGE.score"></span><p>Different score functions that you can choose when training translating-based models.</p>
+<p>Score functions measure the distance bewtween <span class="math notranslate nohighlight">\(translation\)</span> and <span class="math notranslate nohighlight">\(predicate\)</span>
+in translating-based models, for example,
+<a class="reference external" href="http://papers.nips.cc/paper/5071-translating-embeddings-for-modeling-multi-relational-data">TransE</a>
+uses <code class="xref py py-mod docutils literal notranslate"><span class="pre">L1</span> <span class="pre">or</span> <span class="pre">L2-distance</span></code>,
+<a class="reference external" href="https://ojs.aaai.org/index.php/AAAI/article/view/8870">TransH</a>,
+<a class="reference external" href="https://www.aaai.org/ocs/index.php/AAAI/AAAI15/paper/viewFile/9571/9523/">TransR</a>,
+<a class="reference external" href="https://aclanthology.org/P15-1067.pdf">TransD</a> use <code class="xref py py-mod docutils literal notranslate"><span class="pre">squared</span> <span class="pre">L2-distance</span></code>.</p>
+<p>You can change the score function to try any possibility in a very easy way:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">KGE.models.translating_based.TransE</span> <span class="kn">import</span> <span class="n">TransE</span>
-<span class="kn">from</span> <span class="nn">KGE.loss</span> <span class="kn">import</span> <span class="n">SelfAdversarialNegativeSamplingLoss</span>
+<span class="kn">from</span> <span class="nn">KGE.score</span> <span class="kn">import</span> <span class="n">LpDistancePow</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">TransE</span><span class="p">(</span>
     <span class="n">embedding_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;embedding_size&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
     <span class="n">negative_ratio</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">corrupt_side</span><span class="o">=</span><span class="s2">&quot;h+t&quot;</span><span class="p">,</span>
-    <span class="n">loss_fn</span><span class="o">=</span><span class="n">SelfAdversarialNegativeSamplingLoss</span><span class="p">(</span><span class="n">margin</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># specifying loss function you want</span>
+    <span class="n">score_fn</span><span class="o">=</span><span class="n">LpDistancePow</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># specifying score function you want</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -159,6 +156,9 @@ setting for each KGE model is according to the original paper described,  for ex
 <dt class="sig sig-object py" id="KGE.score.Dot">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.score.</span></span><span class="sig-name descname"><span class="pre">Dot</span></span><a class="reference internal" href="../_modules/KGE/score.html#Dot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.score.Dot" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#KGE.score.Score" title="KGE.score.Score"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGE.score.Score</span></code></a></p>
+<p>An implementation of dot product.</p>
+<p>Score between <span class="math notranslate nohighlight">\(\textbf{x}\)</span> and <span class="math notranslate nohighlight">\(\textbf{y}\)</span> is defined as
+<span class="math notranslate nohighlight">\(\textbf{x} \cdot \textbf{y}\)</span></p>
 <p class="rubric">Methods</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -183,6 +183,9 @@ setting for each KGE model is according to the original paper described,  for ex
 <dt class="sig sig-object py" id="KGE.score.LpDistance">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.score.</span></span><span class="sig-name descname"><span class="pre">LpDistance</span></span><a class="reference internal" href="../_modules/KGE/score.html#LpDistance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.score.LpDistance" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#KGE.score.Score" title="KGE.score.Score"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGE.score.Score</span></code></a></p>
+<p>An implementation of negative Lp-distance.</p>
+<p>Score between <span class="math notranslate nohighlight">\(\textbf{x}\)</span> and <span class="math notranslate nohighlight">\(\textbf{y}\)</span> is defined as
+<span class="math notranslate nohighlight">\(- \left\| \textbf{x} - \textbf{y} \right\|_p\)</span></p>
 <p class="rubric">Methods</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -207,6 +210,9 @@ setting for each KGE model is according to the original paper described,  for ex
 <dt class="sig sig-object py" id="KGE.score.LpDistancePow">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.score.</span></span><span class="sig-name descname"><span class="pre">LpDistancePow</span></span><a class="reference internal" href="../_modules/KGE/score.html#LpDistancePow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.score.LpDistancePow" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#KGE.score.Score" title="KGE.score.Score"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGE.score.Score</span></code></a></p>
+<p>An implementation of negative squared Lp-distance.</p>
+<p>Score between <span class="math notranslate nohighlight">\(\textbf{x}\)</span> and <span class="math notranslate nohighlight">\(\textbf{y}\)</span> is defined as
+<span class="math notranslate nohighlight">\(- \left\| \textbf{x} - \textbf{y} \right\|_p^2\)</span></p>
 <p class="rubric">Methods</p>
 <table class="longtable docutils align-default">
 <colgroup>

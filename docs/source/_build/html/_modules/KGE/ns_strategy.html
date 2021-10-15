@@ -35,10 +35,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.translating_based.html">Translating Based Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.translating_based.html">Translating Based Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.semantic_based.html">Semantic Based Models</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Loss</span></p>
 <ul>
@@ -84,48 +88,136 @@
   <h1>Source code for KGE.ns_strategy</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
 
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">repeat</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">ns_with_same_type</span>
 
-<div class="viewcode-block" id="uniform_strategy"><a class="viewcode-back" href="../../api/KGE.ns_strategy.uniform_strategy.html#KGE.ns_strategy.uniform_strategy">[docs]</a><span class="k">def</span> <span class="nf">uniform_strategy</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">sample_pool</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">pool</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-    <span class="n">sample_index</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
-        <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
-        <span class="n">minval</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">sample_pool</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">sample_pool</span><span class="o">.</span><span class="n">dtype</span>
-    <span class="p">)</span>
-    <span class="n">sample_entities</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">sample_pool</span><span class="p">,</span> <span class="n">sample_index</span><span class="p">)</span>
+<div class="viewcode-block" id="NegativeSampler"><a class="viewcode-back" href="../../src/KGE.ns_strategy.html#KGE.ns_strategy.NegativeSampler">[docs]</a><span class="k">class</span> <span class="nc">NegativeSampler</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; A base module for negative sampler.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="NegativeSampler.__init__"><a class="viewcode-back" href="../../src/KGE.ns_strategy.html#KGE.ns_strategy.NegativeSampler.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialized negative sampler</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of NegativeSampler should implement __init__() to init class&quot;</span><span class="p">)</span></div>
 
-    <span class="k">return</span> <span class="n">sample_entities</span></div>
+<div class="viewcode-block" id="NegativeSampler.__call__"><a class="viewcode-back" href="../../api/KGE.ns_strategy.NegativeSampler.html#KGE.ns_strategy.NegativeSampler.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confuct negative sampling</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of NegativeSampler should implement __call__() to conduct negative sampling&quot;</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="typed_strategy"><a class="viewcode-back" href="../../api/KGE.ns_strategy.typed_strategy.html#KGE.ns_strategy.typed_strategy">[docs]</a><span class="k">def</span> <span class="nf">typed_strategy</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">sample_pool</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">pool</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="UniformStrategy"><a class="viewcode-back" href="../../src/KGE.ns_strategy.html#KGE.ns_strategy.UniformStrategy">[docs]</a><span class="k">class</span> <span class="nc">UniformStrategy</span><span class="p">(</span><span class="n">NegativeSampler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; An implementation of uniform negative sampling</span>
 
-    <span class="k">def</span> <span class="nf">ns_with_same_type</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">meta_data</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">):</span>
-        <span class="n">sample_pool</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s2">&quot;type2inds&quot;</span><span class="p">][</span><span class="n">meta_data</span><span class="p">[</span><span class="s2">&quot;ind2type&quot;</span><span class="p">][</span><span class="n">x</span><span class="p">]]</span>
-        <span class="n">sample_pool</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">sample_pool</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sample_pool</span> <span class="o">==</span> <span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">sample_entities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">sample_pool</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">negative_ratio</span><span class="p">)</span>
+<span class="sd">    Uniform sampling is the most simple negative sampling strategy, usually is</span>
+<span class="sd">    the default setting of knowledge graph embedding models. It sample entities</span>
+<span class="sd">    from all entites with uniform distribution, and replaces either head or tail</span>
+<span class="sd">    entity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="n">sample_entities</span>
+<div class="viewcode-block" id="UniformStrategy.__init__"><a class="viewcode-back" href="../../src/KGE.ns_strategy.html#KGE.ns_strategy.UniformStrategy.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_pool</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize UniformStrategy negative sampler.</span>
 
-    <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;side&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
-        <span class="n">ref_type</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;side&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
-        <span class="n">ref_type</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sample_pool : tf.Tensor</span>
+<span class="sd">            entities pool that used to sample.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_pool</span> <span class="o">=</span> <span class="n">sample_pool</span></div>
 
-    <span class="k">if</span> <span class="n">pool</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">sample_entities</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span>
-            <span class="n">ns_with_same_type</span><span class="p">,</span>
-            <span class="nb">zip</span><span class="p">(</span><span class="n">ref_type</span><span class="p">,</span> <span class="n">repeat</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;meta_data&quot;</span><span class="p">]),</span> <span class="n">repeat</span><span class="p">(</span><span class="n">negative_ratio</span><span class="p">))</span>
+<div class="viewcode-block" id="UniformStrategy.__call__"><a class="viewcode-back" href="../../api/KGE.ns_strategy.UniformStrategy.html#KGE.ns_strategy.UniformStrategy.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">side</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; perform negative sampling</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : tf.Tensor</span>
+<span class="sd">            positive triplets to be corrupt.</span>
+<span class="sd">        negative_ratio : int</span>
+<span class="sd">            number of negative sample.</span>
+<span class="sd">        side : str</span>
+<span class="sd">            corrup from which side, can be :code:`&#39;h&#39;` or :code:`&#39;t&#39;`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            sampling entities</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_pool</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_pool</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">sample_index</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="n">minval</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_pool</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_pool</span><span class="o">.</span><span class="n">dtype</span>
         <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">sample_entities</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">ns_with_same_type</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;meta_data&quot;</span><span class="p">],</span> <span class="n">negative_ratio</span><span class="p">),</span>
-            <span class="n">ref_type</span>
-        <span class="p">))</span>
+        <span class="n">sample_entities</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_pool</span><span class="p">,</span> <span class="n">sample_index</span><span class="p">)</span>
 
-    <span class="n">sample_entities</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">sample_entities</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sample_entities</span></div></div>
 
-    <span class="k">return</span> <span class="n">sample_entities</span></div>
+<div class="viewcode-block" id="TypedStrategy"><a class="viewcode-back" href="../../src/KGE.ns_strategy.html#KGE.ns_strategy.TypedStrategy">[docs]</a><span class="k">class</span> <span class="nc">TypedStrategy</span><span class="p">(</span><span class="n">NegativeSampler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; An implementation of typed negative sampling strategy.</span>
+
+<span class="sd">    Typed negative sampling consider the entities&#39; type, for example, for the</span>
+<span class="sd">    positive triplet :math:`(MonaLisa, is\_in, Louvre)`, we may generate illogical</span>
+<span class="sd">    negative triplet such as :math:`(MonaLis, is\_in, DaVinci)`. So Typed negative</span>
+<span class="sd">    sampling strategy consider the type of entity to be corrupt, if we want</span>
+<span class="sd">    to replace *Louvre*, we only sample the entities which have same type</span>
+<span class="sd">    with *Louvre*.</span>
+
+<span class="sd">    .. caution::</span>
+<span class="sd">        When using :py:mod:`TypedStrategy &lt;KGE.ns_strategy.TypedStrategy&gt;`, :code:`metadata` should contains</span>
+<span class="sd">        key :code:`&#39;ind2type&#39;` to indicate the entities&#39; type when calling</span>
+<span class="sd">        :py:func:`train() &lt;KGE.models.base_model.BaseModel.KGEModel.train&gt;`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TypedStrategy.__init__"><a class="viewcode-back" href="../../src/KGE.ns_strategy.html#KGE.ns_strategy.TypedStrategy.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pool</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize TypedStrategy negative sampler.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pool : :ref:`multiprocessing.pool.Pool &lt;https://docs.python.org/3/library/multiprocessing.html#multiprocessing.pool.Pool&gt;`</span>
+<span class="sd">            multiprocessing pool for parallel.</span>
+<span class="sd">        metadata : dict</span>
+<span class="sd">            metadata that store the entities&#39; type information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="n">pool</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span></div>
+
+<div class="viewcode-block" id="TypedStrategy.__call__"><a class="viewcode-back" href="../../api/KGE.ns_strategy.TypedStrategy.html#KGE.ns_strategy.TypedStrategy.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">side</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; perform negative sampling</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : tf.Tensor</span>
+<span class="sd">            positive triplets to be corrupt.</span>
+<span class="sd">        negative_ratio : int</span>
+<span class="sd">            number of negative sample.</span>
+<span class="sd">        side : str</span>
+<span class="sd">            corrup from which side, can be :code:`&#39;h&#39;` or :code:`&#39;t&#39;`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tf.Tensor</span>
+<span class="sd">            sampling entities</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">repeat</span>
+
+        <span class="k">if</span> <span class="n">side</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
+            <span class="n">ref_type</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">side</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
+            <span class="n">ref_type</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sample_entities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span>
+                <span class="n">ns_with_same_type</span><span class="p">,</span>
+                <span class="nb">zip</span><span class="p">(</span><span class="n">ref_type</span><span class="p">,</span> <span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">),</span> <span class="n">repeat</span><span class="p">(</span><span class="n">negative_ratio</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sample_entities</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">ns_with_same_type</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">),</span>
+                <span class="n">ref_type</span>
+            <span class="p">))</span>
+
+        <span class="n">sample_entities</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">sample_entities</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sample_entities</span></div></div>
 </pre></div>
 
            </div>

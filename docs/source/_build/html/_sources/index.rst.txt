@@ -6,6 +6,7 @@ Knowledge Graph Embedding
    :caption: Get Started
 
    What's Knowledge Graph Embedding? <kge_intro.rst>
+   How To Use <how_to.rst>
 
 .. toctree::
    :maxdepth: 1

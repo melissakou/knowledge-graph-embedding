@@ -40,6 +40,7 @@
               <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to.html">How To Use</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Models</span></p>
 <ul>
@@ -98,7 +99,7 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">LpDistancePow</span></code></p></td>
-<td><p></p></td>
+<td><p>An implementation of negative squared Lp-distance.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PairwiseHingeLoss</span></code></p></td>
 <td><p>An implementation of Pairwise Hinge Loss / Margin Ranking Loss.</p></td>
@@ -108,6 +109,9 @@
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TranslatingModel</span></code></p></td>
 <td><p>A base module for Semantic Based Embedding Model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">UniformStrategy</span></code></p></td>
+<td><p>An implementation of uniform negative sampling</p></td>
 </tr>
 </tbody>
 </table>
@@ -162,7 +166,7 @@ or change any score function you like by specifying <code class="code docutils l
 <li><p><span class="math notranslate nohighlight">\(\left\| {\textbf{e}_h}_{\perp} \right\|_2 \leq 1\)</span> and  <span class="math notranslate nohighlight">\(\left\| {\textbf{e}_t}_{\perp} \right\|_2 \leq 1\)</span></p></li>
 </ol>
 <p>Since the <a class="reference external" href="https://aclanthology.org/P15-1067.pdf">original TransD paper</a> dose not specify how
-they conduct these constraints, here we use <a class="reference internal" href="../api/KGE.constraint.clip_constraint.html#KGE.constraint.clip_constraint" title="KGE.constraint.clip_constraint"><code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.constraint.clip_constraint()</span></code></a> which restrict the tensor’s
+they conduct these constraints, here we use <a class="reference internal" href="KGE.constraint.html#KGE.constraint.clip_constraint" title="KGE.constraint.clip_constraint"><code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.constraint.clip_constraint()</span></code></a> which restrict the tensor’s
 norm does not exceeds some value, if exceeds, clip the tensor norm to given threshold value.</p>
 <p class="rubric">Methods</p>
 <table class="longtable docutils align-default">
@@ -190,7 +194,7 @@ norm does not exceeds some value, if exceeds, clip the tensor norm to given thre
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="KGE.models.translating_based.TransD.TransD.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">embedding_params</span></em>, <em class="sig-param"><span class="pre">negative_ratio</span></em>, <em class="sig-param"><span class="pre">corrupt_side</span></em>, <em class="sig-param"><span class="pre">score_fn=&lt;KGE.score.LpDistancePow</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">loss_fn=&lt;KGE.loss.PairwiseHingeLoss</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">ns_strategy=&lt;function</span> <span class="pre">uniform_strategy&gt;</span></em>, <em class="sig-param"><span class="pre">constraint=True</span></em>, <em class="sig-param"><span class="pre">n_workers=1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/models/translating_based/TransD.html#TransD.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.models.translating_based.TransD.TransD.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">embedding_params</span></em>, <em class="sig-param"><span class="pre">negative_ratio</span></em>, <em class="sig-param"><span class="pre">corrupt_side</span></em>, <em class="sig-param"><span class="pre">score_fn=&lt;KGE.score.LpDistancePow</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">loss_fn=&lt;KGE.loss.PairwiseHingeLoss</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">ns_strategy=&lt;class</span> <span class="pre">'KGE.ns_strategy.UniformStrategy'&gt;</span></em>, <em class="sig-param"><span class="pre">constraint=True</span></em>, <em class="sig-param"><span class="pre">n_workers=1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/models/translating_based/TransD.html#TransD.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.models.translating_based.TransD.TransD.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Initialized TransR</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -203,7 +207,7 @@ norm does not exceeds some value, if exceeds, clip the tensor norm to given thre
 <li><p><strong>corrupt_side</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – corrupt from which side while trainging, can be <code class="code docutils literal notranslate"><span class="pre">'h'</span></code>, <code class="code docutils literal notranslate"><span class="pre">'t'</span></code>, or <code class="code docutils literal notranslate"><span class="pre">'h+t'</span></code></p></li>
 <li><p><strong>score_fn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">function</span></code>, <em>optional</em>) – scoring function, by default <a class="reference internal" href="KGE.score.html#KGE.score.LpDistancePow" title="KGE.score.LpDistancePow"><code class="xref py py-mod docutils literal notranslate"><span class="pre">KGE.score.LpDistancePow</span></code></a></p></li>
 <li><p><strong>loss_fn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">class</span></code>, <em>optional</em>) – loss function class <a class="reference internal" href="KGE.loss.html#KGE.loss.Loss" title="KGE.loss.Loss"><code class="xref py py-mod docutils literal notranslate"><span class="pre">KGE.loss.Loss</span></code></a>, by default <a class="reference internal" href="KGE.loss.html#KGE.loss.PairwiseHingeLoss" title="KGE.loss.PairwiseHingeLoss"><code class="xref py py-mod docutils literal notranslate"><span class="pre">KGE.loss.PairwiseHingeLoss</span></code></a></p></li>
-<li><p><strong>ns_strategy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">function</span></code>, <em>optional</em>) – negative sampling strategy, by default <a class="reference internal" href="../api/KGE.ns_strategy.uniform_strategy.html#KGE.ns_strategy.uniform_strategy" title="KGE.ns_strategy.uniform_strategy"><code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.ns_strategy.uniform_strategy()</span></code></a></p></li>
+<li><p><strong>ns_strategy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">function</span></code>, <em>optional</em>) – negative sampling strategy, by default <code class="xref py py-func docutils literal notranslate"><span class="pre">KGE.ns_strategy.uniform_strategy()</span></code></p></li>
 <li><p><strong>constraint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – conduct constraint or not, by default True</p></li>
 <li><p><strong>n_workers</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – number of workers for negative sampling, by default 1</p></li>
 </ul>

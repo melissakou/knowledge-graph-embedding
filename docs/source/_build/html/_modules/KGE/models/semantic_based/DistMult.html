@@ -35,10 +35,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.translating_based.html">Translating Based Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.translating_based.html">Translating Based Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/KGE.models.semantic_based.html">Semantic Based Models</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Loss</span></p>
 <ul>
@@ -89,7 +93,7 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">from</span> <span class="nn">..base_model.SemanticModel</span> <span class="kn">import</span> <span class="n">SemanticModel</span>
 <span class="kn">from</span> <span class="nn">...loss</span> <span class="kn">import</span> <span class="n">PairwiseHingeLoss</span>
-<span class="kn">from</span> <span class="nn">...ns_strategy</span> <span class="kn">import</span> <span class="n">uniform_strategy</span>
+<span class="kn">from</span> <span class="nn">...ns_strategy</span> <span class="kn">import</span> <span class="n">UniformStrategy</span>
 <span class="kn">from</span> <span class="nn">...constraint</span> <span class="kn">import</span> <span class="n">normalized_embeddings</span><span class="p">,</span> <span class="n">Lp_regularization</span>
 
 <div class="viewcode-block" id="DistMult"><a class="viewcode-back" href="../../../../src/KGE.models.semantic_based.DistMult.html#KGE.models.semantic_based.DistMult.DistMult">[docs]</a><span class="k">class</span> <span class="nc">DistMult</span><span class="p">(</span><span class="n">SemanticModel</span><span class="p">):</span>
@@ -120,7 +124,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="DistMult.__init__"><a class="viewcode-back" href="../../../../src/KGE.models.semantic_based.DistMult.html#KGE.models.semantic_based.DistMult.DistMult.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_params</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="p">,</span> 
-                 <span class="n">loss_fn</span><span class="o">=</span><span class="n">PairwiseHingeLoss</span><span class="p">(</span><span class="n">margin</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">ns_strategy</span><span class="o">=</span><span class="n">uniform_strategy</span><span class="p">,</span>
+                 <span class="n">loss_fn</span><span class="o">=</span><span class="n">PairwiseHingeLoss</span><span class="p">(</span><span class="n">margin</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">ns_strategy</span><span class="o">=</span><span class="n">UniformStrategy</span><span class="p">,</span>
                  <span class="n">constraint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">constraint_weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialized DistMult</span>
 

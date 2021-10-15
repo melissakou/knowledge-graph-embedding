@@ -35,10 +35,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.translating_based.html">Translating Based Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.semantic_based.html">Semantic Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.translating_based.html">Translating Based Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/KGE.models.semantic_based.html">Semantic Based Models</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Loss</span></p>
 <ul>
@@ -85,23 +89,115 @@
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<div class="viewcode-block" id="normalized_embeddings"><a class="viewcode-back" href="../../api/KGE.constraint.normalized_embeddings.html#KGE.constraint.normalized_embeddings">[docs]</a><span class="k">def</span> <span class="nf">normalized_embeddings</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+<div class="viewcode-block" id="normalized_embeddings"><a class="viewcode-back" href="../../src/KGE.constraint.html#KGE.constraint.normalized_embeddings">[docs]</a><span class="k">def</span> <span class="nf">normalized_embeddings</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Normalized embeddings</span>
+
+<span class="sd">    Normalized :code:`X` into :code:`p`-norm equals :code:`value`. </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : tf.Tensor</span>
+<span class="sd">        Tensor to be normalized</span>
+<span class="sd">    p : int</span>
+<span class="sd">        p-norm</span>
+<span class="sd">    value : float</span>
+<span class="sd">        restrict value</span>
+<span class="sd">    axis : int or tuple</span>
+<span class="sd">        along what axis</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tf.Tensor</span>
+<span class="sd">        normalized tensor with same shape as :code:`X`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">norm</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">p</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="mi">1</span><span class="o">/</span><span class="n">p</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">X</span> <span class="o">/</span> <span class="n">norm</span> <span class="o">*</span> <span class="n">value</span></div>
 
 
-<div class="viewcode-block" id="soft_constraint"><a class="viewcode-back" href="../../api/KGE.constraint.soft_constraint.html#KGE.constraint.soft_constraint">[docs]</a><span class="k">def</span> <span class="nf">soft_constraint</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+<div class="viewcode-block" id="soft_constraint"><a class="viewcode-back" href="../../src/KGE.constraint.html#KGE.constraint.soft_constraint">[docs]</a><span class="k">def</span> <span class="nf">soft_constraint</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Soft constraint</span>
+
+<span class="sd">    Soft constraint that described in `TransH &lt;https://ojs.aaai.org/index.php/AAAI/article/view/8870&gt;`_:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        regularization ~ term =</span>
+<span class="sd">            \sum \left[ \left\| \\textbf{X} \\right\|_p^2 - value \\right]_+</span>
+
+<span class="sd">    where :math:`[x]_+ = max(0,x)`</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : tf.Tensor</span>
+<span class="sd">        Tensor to be constraint</span>
+<span class="sd">    p : int</span>
+<span class="sd">        p-norm</span>
+<span class="sd">    value : float</span>
+<span class="sd">        restrict value</span>
+<span class="sd">    axis : int or tuple</span>
+<span class="sd">        along what axis</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tf.Tensor</span>
+<span class="sd">        regularization term</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">norm</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">p</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="mi">1</span><span class="o">/</span><span class="n">p</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">clip_by_value</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">norm</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="clip_constraint"><a class="viewcode-back" href="../../api/KGE.constraint.clip_constraint.html#KGE.constraint.clip_constraint">[docs]</a><span class="k">def</span> <span class="nf">clip_constraint</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+<div class="viewcode-block" id="clip_constraint"><a class="viewcode-back" href="../../src/KGE.constraint.html#KGE.constraint.clip_constraint">[docs]</a><span class="k">def</span> <span class="nf">clip_constraint</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Clip embeddings</span>
+
+<span class="sd">    If :code:`X`&#39;s :code:`p`-norm exceeds :code:`value`, clip the value that let</span>
+<span class="sd">    :code:`p`-norm of :code:`X` equals :code:`value.`</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : tf.Tensor</span>
+<span class="sd">        Tensor to be constraint</span>
+<span class="sd">    p : int</span>
+<span class="sd">        p-norm</span>
+<span class="sd">    value : float</span>
+<span class="sd">        restrict value</span>
+<span class="sd">    axis : int or tuple</span>
+<span class="sd">        along what axis</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tf.Tensor</span>
+<span class="sd">        constraint tensor with same shape as :code:`X`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">norm</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">p</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="mi">1</span><span class="o">/</span><span class="n">p</span><span class="p">)</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">norm</span><span class="o">&lt;</span><span class="n">value</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">mask</span> <span class="o">*</span> <span class="n">X</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mask</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">X</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">clip_by_value</span><span class="p">(</span><span class="n">norm</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span> <span class="o">*</span> <span class="n">value</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Lp_regularization"><a class="viewcode-back" href="../../api/KGE.constraint.Lp_regularization.html#KGE.constraint.Lp_regularization">[docs]</a><span class="k">def</span> <span class="nf">Lp_regularization</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+<div class="viewcode-block" id="Lp_regularization"><a class="viewcode-back" href="../../src/KGE.constraint.html#KGE.constraint.Lp_regularization">[docs]</a><span class="k">def</span> <span class="nf">Lp_regularization</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Standard Lp-regularization</span>
+
+<span class="sd">    The standard Lp-regularization:</span>
+<span class="sd">    </span>
+<span class="sd">    ..math ::</span>
+<span class="sd">        regularization ~ term = </span>
+<span class="sd">            \sum \left\| X \\right\|_p^p</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : tf.Tensor</span>
+<span class="sd">        Tensor to be regularized</span>
+<span class="sd">    p : int</span>
+<span class="sd">        p-norm</span>
+<span class="sd">    axis : int or tuple</span>
+<span class="sd">        along what axis</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tf.Tensor</span>
+<span class="sd">        constraint term</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">p</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span></div>
 </pre></div>
 

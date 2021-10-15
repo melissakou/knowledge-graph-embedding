@@ -16,10 +16,11 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="typed_strategy" href="../api/KGE.ns_strategy.typed_strategy.html" />
+    <link rel="next" title="NegativeSampler" href="../api/KGE.ns_strategy.NegativeSampler.html" />
     <link rel="prev" title="soft_constraint" href="../api/KGE.constraint.soft_constraint.html" /> 
 </head>
 
@@ -38,10 +39,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Models</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="KGE.models.translating_based.html">Translating Based Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="KGE.models.semantic_based.html">Semantic Based Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kge_intro.html">What's Knowledge Graph Embedding?</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Models</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="KGE.models.translating_based.html">Translating Based Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="KGE.models.semantic_based.html">Semantic Based Models</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Loss</span></p>
 <ul>
@@ -58,11 +63,13 @@
 <p class="caption" role="heading"><span class="caption-text">Negative Sampling</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Negative Sampling Strategy</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/KGE.ns_strategy.typed_strategy.html">typed_strategy</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/KGE.ns_strategy.uniform_strategy.html">uniform_strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/KGE.ns_strategy.NegativeSampler.html">NegativeSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/KGE.ns_strategy.TypedStrategy.html">TypedStrategy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/KGE.ns_strategy.UniformStrategy.html">UniformStrategy</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 </ul>
 </li>
 </ul>
@@ -93,23 +100,138 @@
              
   <section id="kge-ns-strategy">
 <h1>KGE.ns_strategy<a class="headerlink" href="#kge-ns-strategy" title="Permalink to this headline"></a></h1>
-<section id="functions">
-<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline"></a></h2>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline"></a></h2>
 <table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="../api/KGE.ns_strategy.typed_strategy.html#KGE.ns_strategy.typed_strategy" title="KGE.ns_strategy.typed_strategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typed_strategy</span></code></a>(X, sample_pool, ...)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#KGE.ns_strategy.NegativeSampler" title="KGE.ns_strategy.NegativeSampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NegativeSampler</span></code></a></p></td>
+<td><p>A base module for negative sampler.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../api/KGE.ns_strategy.uniform_strategy.html#KGE.ns_strategy.uniform_strategy" title="KGE.ns_strategy.uniform_strategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uniform_strategy</span></code></a>(X, sample_pool, ...)</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#KGE.ns_strategy.TypedStrategy" title="KGE.ns_strategy.TypedStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TypedStrategy</span></code></a></p></td>
+<td><p>An implementation of typed negative sampling strategy.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#KGE.ns_strategy.UniformStrategy" title="KGE.ns_strategy.UniformStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UniformStrategy</span></code></a></p></td>
+<td><p>An implementation of uniform negative sampling</p></td>
 </tr>
 </tbody>
 </table>
-<span class="target" id="module-KGE.ns_strategy"></span></section>
+</section>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-f6bf3d90c888b85e13baac0142f543fd7fc749e5.png" alt="Inheritance diagram of KGE.ns_strategy.NegativeSampler, KGE.ns_strategy.TypedStrategy, KGE.ns_strategy.UniformStrategy" usemap="#inheritance8b5cb4c306" class="inheritance graphviz" /></div>
+<map id="inheritance8b5cb4c306" name="inheritance8b5cb4c306">
+<area shape="rect" id="node1" href="#KGE.ns_strategy.NegativeSampler" target="_top" title="A base module for negative sampler." alt="" coords="5,31,140,56"/>
+<area shape="rect" id="node2" href="#KGE.ns_strategy.TypedStrategy" target="_top" title="An implementation of typed negative sampling strategy." alt="" coords="196,5,311,31"/>
+<area shape="rect" id="node3" href="#KGE.ns_strategy.UniformStrategy" target="_top" title="An implementation of uniform negative sampling" alt="" coords="188,55,319,80"/>
+</map><span class="target" id="module-KGE.ns_strategy"></span><dl class="py class">
+<dt class="sig sig-object py" id="KGE.ns_strategy.NegativeSampler">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.ns_strategy.</span></span><span class="sig-name descname"><span class="pre">NegativeSampler</span></span><a class="reference internal" href="../_modules/KGE/ns_strategy.html#NegativeSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.ns_strategy.NegativeSampler" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A base module for negative sampler.</p>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/KGE.ns_strategy.NegativeSampler.html#KGE.ns_strategy.NegativeSampler.__call__" title="KGE.ns_strategy.NegativeSampler.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>()</p></td>
+<td><p>Confuct negative sampling</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.ns_strategy.NegativeSampler.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/ns_strategy.html#NegativeSampler.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.ns_strategy.NegativeSampler.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialized negative sampler</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="KGE.ns_strategy.TypedStrategy">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.ns_strategy.</span></span><span class="sig-name descname"><span class="pre">TypedStrategy</span></span><a class="reference internal" href="../_modules/KGE/ns_strategy.html#TypedStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.ns_strategy.TypedStrategy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#KGE.ns_strategy.NegativeSampler" title="KGE.ns_strategy.NegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGE.ns_strategy.NegativeSampler</span></code></a></p>
+<p>An implementation of typed negative sampling strategy.</p>
+<p>Typed negative sampling consider the entities’ type, for example, for the
+positive triplet <span class="math notranslate nohighlight">\((MonaLisa, is\_in, Louvre)\)</span>, we may generate illogical
+negative triplet such as <span class="math notranslate nohighlight">\((MonaLis, is\_in, DaVinci)\)</span>. So Typed negative
+sampling strategy consider the type of entity to be corrupt, if we want
+to replace <em>Louvre</em>, we only sample the entities which have same type
+with <em>Louvre</em>.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>When using <a class="reference internal" href="#KGE.ns_strategy.TypedStrategy" title="KGE.ns_strategy.TypedStrategy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">TypedStrategy</span></code></a>, <code class="code docutils literal notranslate"><span class="pre">metadata</span></code> should contains
+key <code class="code docutils literal notranslate"><span class="pre">'ind2type'</span></code> to indicate the entities’ type when calling
+<a class="reference internal" href="KGE.models.base_model.BaseModel.html#KGE.models.base_model.BaseModel.KGEModel.train" title="KGE.models.base_model.BaseModel.KGEModel.train"><code class="xref py py-func docutils literal notranslate"><span class="pre">train()</span></code></a>.</p>
+</div>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/KGE.ns_strategy.TypedStrategy.html#KGE.ns_strategy.TypedStrategy.__call__" title="KGE.ns_strategy.TypedStrategy.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(X, negative_ratio, side)</p></td>
+<td><p>perform negative sampling</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.ns_strategy.TypedStrategy.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/ns_strategy.html#TypedStrategy.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.ns_strategy.TypedStrategy.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize TypedStrategy negative sampler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pool</strong> (<span class="xref std std-ref">multiprocessing.pool.Pool</span>) – multiprocessing pool for parallel.</p></li>
+<li><p><strong>metadata</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – metadata that store the entities’ type information.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="KGE.ns_strategy.UniformStrategy">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">KGE.ns_strategy.</span></span><span class="sig-name descname"><span class="pre">UniformStrategy</span></span><a class="reference internal" href="../_modules/KGE/ns_strategy.html#UniformStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.ns_strategy.UniformStrategy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#KGE.ns_strategy.NegativeSampler" title="KGE.ns_strategy.NegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGE.ns_strategy.NegativeSampler</span></code></a></p>
+<p>An implementation of uniform negative sampling</p>
+<p>Uniform sampling is the most simple negative sampling strategy, usually is
+the default setting of knowledge graph embedding models. It sample entities
+from all entites with uniform distribution, and replaces either head or tail
+entity.</p>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/KGE.ns_strategy.UniformStrategy.html#KGE.ns_strategy.UniformStrategy.__call__" title="KGE.ns_strategy.UniformStrategy.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(X, negative_ratio, side)</p></td>
+<td><p>perform negative sampling</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="KGE.ns_strategy.UniformStrategy.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_pool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/KGE/ns_strategy.html#UniformStrategy.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#KGE.ns_strategy.UniformStrategy.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize UniformStrategy negative sampler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sample_pool</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code>) – entities pool that used to sample.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 </section>
 
 
@@ -117,7 +239,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../api/KGE.constraint.soft_constraint.html" class="btn btn-neutral float-left" title="soft_constraint" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../api/KGE.ns_strategy.typed_strategy.html" class="btn btn-neutral float-right" title="typed_strategy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../api/KGE.ns_strategy.NegativeSampler.html" class="btn btn-neutral float-right" title="NegativeSampler" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

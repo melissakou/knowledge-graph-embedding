@@ -120,7 +120,7 @@
 <div class="viewcode-block" id="Loss.__init__"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.Loss.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize loss</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of Loss should implement _init_() to init loss parameters&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of Loss should implement __init__() to init loss parameters&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Loss.__call__"><a class="viewcode-back" href="../../api/KGE.loss.Loss.html#KGE.loss.Loss.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">neg_score</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Calculate loss.</span>
@@ -132,7 +132,7 @@
 <span class="sd">        neg_score : tf.Tensor</span>
 <span class="sd">            score of negative triplets, with shape :code:`(n,)`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of Loss should implement _call_() to calculate loss&quot;</span><span class="p">)</span></div></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of Loss should implement __call__() to calculate loss&quot;</span><span class="p">)</span></div></div>
 
 <div class="viewcode-block" id="PairwiseHingeLoss"><a class="viewcode-back" href="../../src/KGE.loss.html#KGE.loss.PairwiseHingeLoss">[docs]</a><span class="k">class</span> <span class="nc">PairwiseHingeLoss</span><span class="p">(</span><span class="n">Loss</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;An implementation of Pairwise Hinge Loss / Margin Ranking Loss.</span>

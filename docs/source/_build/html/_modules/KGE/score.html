@@ -86,37 +86,30 @@
            <div itemprop="articleBody">
              
   <h1>Source code for KGE.score</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; Different score functions that you can choose when training Translating-based Knowledge Graph Embedding Model.</span>
+<span></span><span class="sd">&quot;&quot;&quot; Different score functions that you can choose when training translating-based models.</span>
 
-<span class="sd">In translating-based knowledge graph embedding models, the head entity is translated by relation to the tail entity:</span>
+<span class="sd">Score functions measure the distance bewtween :math:`translation` and :math:`predicate`</span>
+<span class="sd">in translating-based models, for example,</span>
+<span class="sd">`TransE &lt;http://papers.nips.cc/paper/5071-translating-embeddings-for-modeling-multi-relational-data&gt;`_</span>
+<span class="sd">uses :py:mod:`L1 or L2-distance &lt;LpDistance&gt;`,</span>
+<span class="sd">`TransH &lt;https://ojs.aaai.org/index.php/AAAI/article/view/8870&gt;`_,</span>
+<span class="sd">`TransR &lt;https://www.aaai.org/ocs/index.php/AAAI/AAAI15/paper/viewFile/9571/9523/&gt;`_,</span>
+<span class="sd">`TransD &lt;https://aclanthology.org/P15-1067.pdf&gt;`_ use :py:mod:`squared L2-distance &lt;LpDistancePow&gt;`.</span>
 
-<span class="sd">.. math::</span>
-<span class="sd">    translate_r(h) \\approx t</span>
-
-<span class="sd">For example</span>
-
-<span class="sd">Different Translating-based Knowledge Graph Embedding Models use different loss functions, the default</span>
-<span class="sd">setting for each KGE model is according to the original paper described,  for example,</span>
-<span class="sd">:py:mod:`TransE &lt;KGE.models.translating_based.TransE&gt;` using </span>
-<span class="sd">:py:func:`Pairwise Hinge Loss &lt;pairwise_hinge_loss&gt;`,</span>
-<span class="sd">:py:mod:`RotatE &lt;KGE.models.translating_based.RotatE&gt;` using</span>
-<span class="sd">:py:func:`Self Adversarial Negative Sampling Loss &lt;self_adversarial_negative_sampling_loss&gt;`. </span>
-
-<span class="sd">You can change the loss function to try any possibility in a very easy way:</span>
+<span class="sd">You can change the score function to try any possibility in a very easy way:</span>
 
 <span class="sd">.. code-block:: python</span>
 
 <span class="sd">    from KGE.models.translating_based.TransE import TransE</span>
-<span class="sd">    from KGE.loss import SelfAdversarialNegativeSamplingLoss</span>
+<span class="sd">    from KGE.score import LpDistancePow</span>
 
 <span class="sd">    model = TransE(</span>
 <span class="sd">        embedding_params={&quot;embedding_size&quot;: 10},</span>
 <span class="sd">        negative_ratio=10,</span>
 <span class="sd">        corrupt_side=&quot;h+t&quot;,</span>
-<span class="sd">        loss_fn=SelfAdversarialNegativeSamplingLoss(margin=3, temperature=1) # specifying loss function you want</span>
+<span class="sd">        score_fn=LpDistancePow(p=2) # specifying score function you want</span>
 <span class="sd">    )</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
@@ -128,7 +121,7 @@
 <div class="viewcode-block" id="Score.__init__"><a class="viewcode-back" href="../../src/KGE.score.html#KGE.score.Score.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize score.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of Score should implement _init_() to init score parameters&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of Score should implement __init__() to init score parameters&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Score.__call__"><a class="viewcode-back" href="../../api/KGE.score.Score.html#KGE.score.Score.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Calculate score.</span>
@@ -138,10 +131,15 @@
 <span class="sd">        x : tf.Tensor</span>
 <span class="sd">        y : tf.Tensor</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of Score should implement _call_() to calculate score&quot;</span><span class="p">)</span></div></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;subclass of Score should implement __call__() to calculate score&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="LpDistance"><a class="viewcode-back" href="../../src/KGE.score.html#KGE.score.LpDistance">[docs]</a><span class="k">class</span> <span class="nc">LpDistance</span><span class="p">(</span><span class="n">Score</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An implementation of negative Lp-distance.</span>
+
+<span class="sd">    Score between :math:`\\textbf{x}` and :math:`\\textbf{y}` is defined as</span>
+<span class="sd">    :math:`- \left\| \\textbf{x} - \\textbf{y} \\right\|_p`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="LpDistance.__init__"><a class="viewcode-back" href="../../src/KGE.score.html#KGE.score.LpDistance.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span></div>
 
@@ -152,6 +150,11 @@
             <span class="k">return</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">clip_by_value</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span></div></div>
 
 <div class="viewcode-block" id="LpDistancePow"><a class="viewcode-back" href="../../src/KGE.score.html#KGE.score.LpDistancePow">[docs]</a><span class="k">class</span> <span class="nc">LpDistancePow</span><span class="p">(</span><span class="n">Score</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An implementation of negative squared Lp-distance.</span>
+
+<span class="sd">    Score between :math:`\\textbf{x}` and :math:`\\textbf{y}` is defined as</span>
+<span class="sd">    :math:`- \left\| \\textbf{x} - \\textbf{y} \\right\|_p^2`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="LpDistancePow.__init__"><a class="viewcode-back" href="../../src/KGE.score.html#KGE.score.LpDistancePow.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span></div>
 
@@ -159,6 +162,11 @@
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">LpDistance</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">)(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span></div></div>
         
 <div class="viewcode-block" id="Dot"><a class="viewcode-back" href="../../src/KGE.score.html#KGE.score.Dot">[docs]</a><span class="k">class</span> <span class="nc">Dot</span><span class="p">(</span><span class="n">Score</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An implementation of dot product.</span>
+
+<span class="sd">    Score between :math:`\\textbf{x}` and :math:`\\textbf{y}` is defined as</span>
+<span class="sd">    :math:`\\textbf{x} \cdot \\textbf{y}`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Dot.__init__"><a class="viewcode-back" href="../../src/KGE.score.html#KGE.score.Dot.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span></div>
 

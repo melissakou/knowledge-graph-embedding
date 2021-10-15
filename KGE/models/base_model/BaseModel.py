@@ -584,7 +584,14 @@ class KGEModel:
             evaluation result
         """
 
-        ranks = [self.get_rank(x, positive_X, corrupt_side) for x in tqdm(eval_X, total=len(eval_X))]
+        n_eval = calculate_data_size(eval_X)
+        eval_iter = set_tf_iterator(data=eval_X, batch_size=1, shuffle=False)
+
+        ranks = []
+
+        for _ in tqdm(n_eval):
+            eval_x = next(eval_iter)
+            ranks.append(self.get_rank(eval_x, positive_X, corrupt_side))
 
         eval_result = {
             "mean_rank": mean_rank(ranks),

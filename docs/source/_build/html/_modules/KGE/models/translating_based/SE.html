@@ -95,7 +95,7 @@
 <span class="kn">from</span> <span class="nn">..base_model.TranslatingModel</span> <span class="kn">import</span> <span class="n">TranslatingModel</span>
 <span class="kn">from</span> <span class="nn">...score</span> <span class="kn">import</span> <span class="n">LpDistance</span>
 <span class="kn">from</span> <span class="nn">...loss</span> <span class="kn">import</span> <span class="n">PairwiseHingeLoss</span>
-<span class="kn">from</span> <span class="nn">...ns_strategy</span> <span class="kn">import</span> <span class="n">uniform_strategy</span>
+<span class="kn">from</span> <span class="nn">...ns_strategy</span> <span class="kn">import</span> <span class="n">UniformStrategy</span>
 <span class="kn">from</span> <span class="nn">...constraint</span> <span class="kn">import</span> <span class="n">normalized_embeddings</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
@@ -132,7 +132,7 @@
 
 <div class="viewcode-block" id="SE.__init__"><a class="viewcode-back" href="../../../../src/KGE.models.translating_based.SE.html#KGE.models.translating_based.SE.SE.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_params</span><span class="p">,</span> <span class="n">negative_ratio</span><span class="p">,</span> <span class="n">corrupt_side</span><span class="p">,</span> 
                  <span class="n">score_fn</span><span class="o">=</span><span class="n">LpDistance</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">loss_fn</span><span class="o">=</span><span class="n">PairwiseHingeLoss</span><span class="p">(</span><span class="n">margin</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-                 <span class="n">ns_strategy</span><span class="o">=</span><span class="n">uniform_strategy</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                 <span class="n">ns_strategy</span><span class="o">=</span><span class="n">UniformStrategy</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialized SE</span>
 
 <span class="sd">        Parameters</span>

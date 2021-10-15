@@ -20,7 +20,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="KGE.models.translating_based" href="src/KGE.models.translating_based.html" />
+    <link rel="next" title="How To Use" href="how_to.html" />
     <link rel="prev" title="Knowledge Graph Embedding" href="index.html" /> 
 </head>
 
@@ -43,8 +43,10 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">What's Knowledge Graph Embedding?</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#translating-based-model">Translating-based Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#semantic-based-model">Semantic-based Model</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="how_to.html">How To Use</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Models</span></p>
 <ul>
@@ -94,19 +96,56 @@
              
   <section id="what-s-knowledge-graph-embedding">
 <h1>What’s Knowledge Graph Embedding?<a class="headerlink" href="#what-s-knowledge-graph-embedding" title="Permalink to this headline"></a></h1>
+<p>Knowledge Graph (KG) is a directed, multi-relational, heterogeneous graph. It is composed of two components:
+<strong>entity</strong> and <strong>relation</strong>. Figure 1 depicts an exemplary KG.</p>
+<p>In the graph, each node is an entity, and each edge is the relation.</p>
+<p>From the vivid example of KG in Fig.1, We can understand the obscure definition of KG clearly:</p>
+<ul class="simple">
+<li><p><strong>directed</strong>: It is a directed graph obviously.</p></li>
+<li><p><strong>multi-relational</strong>: There are many different relations on the graph such as <em>painted</em>, <em>is in</em>,
+<em>is interested in</em>, etc.</p></li>
+<li><p><strong>heterogeneous</strong>: There are also have different types of entities, <em>MONA LISA</em> is an artwork,
+<em>DA VINCI</em> is a person, <em>PARIS</em> is a place, and so forth. An entity can be a concrete object like
+<em>MONA LISA</em> and <em>LOUVRE</em>, it can also be an abstract concept like <em>Person</em> and <em>Place</em>.</p></li>
+</ul>
+<figure class="align-default" id="id1">
+<img alt="_images/kg.png" src="_images/kg.png" />
+<figcaption>
+<p><span class="caption-text">Figure 1: An exemplary Knowledge Graph</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>In general, we formulate a knowledge graph
+<span class="math notranslate nohighlight">\(\mathcal{K} \subseteq \mathbb{K}=\mathcal{E} \times \mathcal{R} \times \mathcal{E}\)</span>,
+where <span class="math notranslate nohighlight">\(\mathcal{E}\)</span> and <span class="math notranslate nohighlight">\(\mathcal{R}\)</span> are set of entities and relations.
+<span class="math notranslate nohighlight">\(\mathcal{K}\)</span> comprise many trplets <span class="math notranslate nohighlight">\((h,r,t) \in \mathcal{K}\)</span> in which <span class="math notranslate nohighlight">\(h,t \in \mathcal{E}\)</span>
+represent a triplets’ head and tail respectively, and <span class="math notranslate nohighlight">\(r \in \mathcal{R}\)</span> represents its relationship.</p>
+<p>For instance, the triplet <span class="math notranslate nohighlight">\((\it{DA~VINCI},~\it{painted},~\it{MONA~LISA})\)</span> in Fig.1,
+<span class="math notranslate nohighlight">\(\it{DA~VINCI}\)</span> is the head and <span class="math notranslate nohighlight">\(\it{MONA~LISA}\)</span> is the tail entity, there has a relation
+<span class="math notranslate nohighlight">\(\it{painted}\)</span> from head to tail.</p>
+<p>Knowledge Graph Embedding Modle learn the latent representation of entities <span class="math notranslate nohighlight">\(e \in \mathcal{E}\)</span> and
+relations <span class="math notranslate nohighlight">\(r \in \mathcal{R}\)</span> in a Knowledge Graph <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> that these laten representations
+preseve the structural infomation in KG.</p>
+<p>Here we taxnomize the Knowledge Graph Embedding Models into two:</p>
+<ul class="simple">
+<li><p>Translating-based Model</p></li>
+<li><p>Semantic-based Model</p></li>
+</ul>
 <section id="translating-based-model">
 <h2>Translating-based Model<a class="headerlink" href="#translating-based-model" title="Permalink to this headline"></a></h2>
 <p>In translating-based knowledge graph embedding models, the head entity is translated by relation to the tail entity:</p>
 <div class="math notranslate nohighlight">
 \[trans_r(h) \approx predicate(t)\]</div>
 <p>Here we repesent the lhs <span class="math notranslate nohighlight">\(trans_r(h)\)</span> as <span class="math notranslate nohighlight">\(translation\)</span>,
-the rhs <span class="math notranslate nohighlight">\(predicate(t)\)</span> as <span class="math notranslate nohighlight">\(predicate\)</span>.
-Every translating-based model can be formulated in this frame, for example:</p>
+the rhs <span class="math notranslate nohighlight">\(predicate(t)\)</span> as <span class="math notranslate nohighlight">\(predicate\)</span>.</p>
+<p>Translating-based models use <a class="reference internal" href="src/KGE.score.html#KGE.score.Score" title="KGE.score.Score"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scoring</span> <span class="pre">function</span></code></a> to measure the plausibility of a triplet,
+the scoring function can be distance-based such as <a class="reference internal" href="src/KGE.score.html#KGE.score.LpDistance" title="KGE.score.LpDistance"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Lp-distance</span></code></a> or similarity-based
+such as <a class="reference internal" href="src/KGE.score.html#KGE.score.Dot" title="KGE.score.Dot"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dot</span> <span class="pre">prouct</span></code></a> that measure the distance bewtween <span class="math notranslate nohighlight">\(translation\)</span> and <span class="math notranslate nohighlight">\(predicate\)</span>.</p>
+<p>Every translating-based model can be formulated in this frame, for example:</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 5%" />
-<col style="width: 47%" />
-<col style="width: 48%" />
+<col style="width: 24%" />
+<col style="width: 38%" />
+<col style="width: 38%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Model</p></th>
@@ -115,12 +154,12 @@ Every translating-based model can be formulated in this frame, for example:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>TransE</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="src/KGE.models.translating_based.TransE.html#module-KGE.models.translating_based.TransE" title="KGE.models.translating_based.TransE"><code class="xref py py-mod docutils literal notranslate"><span class="pre">TransE</span></code></a></p></td>
 <td><p><span class="math notranslate nohighlight">\(\textbf{e}_h + \textbf{r}_r\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(\textbf{e}_t\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><div class="line-block">
-<div class="line">TransH</div>
+<div class="line"><a class="reference internal" href="src/KGE.models.translating_based.TransH.html#module-KGE.models.translating_based.TransH" title="KGE.models.translating_based.TransH"><code class="xref py py-mod docutils literal notranslate"><span class="pre">TransH</span></code></a></div>
 <div class="line"><br /></div>
 </div>
 </td>
@@ -136,7 +175,7 @@ Every translating-based model can be formulated in this frame, for example:</p>
 </td>
 </tr>
 <tr class="row-even"><td><div class="line-block">
-<div class="line">TransR</div>
+<div class="line"><a class="reference internal" href="src/KGE.models.translating_based.TransR.html#module-KGE.models.translating_based.TransR" title="KGE.models.translating_based.TransR"><code class="xref py py-mod docutils literal notranslate"><span class="pre">TransR</span></code></a></div>
 <div class="line"><br /></div>
 </div>
 </td>
@@ -146,10 +185,35 @@ Every translating-based model can be formulated in this frame, for example:</p>
 </div>
 </td>
 <td><div class="line-block">
-<div class="line"><span class="math notranslate nohighlight">\({\textbf{}_t}_{\perp}\)</span></div>
-<div class="line"><span class="math notranslate nohighlight">\({\textbf{e}_t}_{\perp} = \textbf{e}_t - \textbf{w}_r^T \textbf{e}_t \textbf{w}_r\)</span></div>
+<div class="line"><span class="math notranslate nohighlight">\({\textbf{e}_t}_{\perp}\)</span></div>
+<div class="line"><span class="math notranslate nohighlight">\({\textbf{e}_t}_{\perp} = \textbf{e}_t \textbf{M}_r\)</span></div>
 </div>
 </td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="semantic-based-model">
+<h2>Semantic-based Model<a class="headerlink" href="#semantic-based-model" title="Permalink to this headline"></a></h2>
+<p>Semantic-based Model measures plausibility of triplets by matching latent semantics of entities and relations
+in their laten vector representations. Each model difines how it measures the plausibility of triplets
+<span class="math notranslate nohighlight">\(f(h,r,t)\)</span>, for example:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 49%" />
+<col style="width: 51%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Model</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(f(h,r,t)\)</span></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="src/KGE.models.semantic_based.RESCAL.html#module-KGE.models.semantic_based.RESCAL" title="KGE.models.semantic_based.RESCAL"><code class="xref py py-mod docutils literal notranslate"><span class="pre">RESCAL</span></code></a></p></td>
+<td><p><span class="math notranslate nohighlight">\(\textbf{e}_h^{T} \textbf{R}_{r} \textbf{e}_t\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="src/KGE.models.semantic_based.DistMult.html#module-KGE.models.semantic_based.DistMult" title="KGE.models.semantic_based.DistMult"><code class="xref py py-mod docutils literal notranslate"><span class="pre">DistMult</span></code></a></p></td>
+<td><p><span class="math notranslate nohighlight">\(\textbf{e}_h^{T} diag(\textbf{R}_{r}) \textbf{e}_t\)</span></p></td>
 </tr>
 </tbody>
 </table>
@@ -161,7 +225,7 @@ Every translating-based model can be formulated in this frame, for example:</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Knowledge Graph Embedding" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="src/KGE.models.translating_based.html" class="btn btn-neutral float-right" title="KGE.models.translating_based" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="how_to.html" class="btn btn-neutral float-right" title="How To Use" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
