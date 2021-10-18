@@ -21,6 +21,23 @@ class myIter:
 
 
 def index_kg(kg_data):
+    """ Index the Knowledge Graph data.
+
+    Parameters
+    ----------
+    kg_data : np.array
+        KG data to be indexed
+
+    Returns
+    -------
+    dict
+        metadata of KG <br>
+        :code:`'ent2ind'`: dictionary that map entity to index
+        :code:`'ind2ent'`: list that map index to entity
+        :code:`'rel2ind'`: dictionary that map relation to index
+        :code:`'ind2rel'`: list that map index to relation
+    """
+
     if isinstance(kg_data, np.ndarray):
         entities = list(np.unique(np.append(kg_data[:, 0], kg_data[:, 2])))
         relations = list(np.unique(kg_data[:, 1]))
@@ -46,6 +63,22 @@ def index_kg(kg_data):
 
 
 def convert_kg_to_index(kg_data, ent2ind, rel2ind):
+    """ Convert the KG data into index
+
+    Parameters
+    ----------
+    kg_data : np.array
+        KG data to be converted
+    ent2ind : dict
+        dictionary that map entity to index
+    rel2ind : dict
+        dictionary that map relation to index
+
+    Returns
+    -------
+    np.array
+        indexed KG data
+    """
 
     if isinstance(kg_data, np.ndarray):
         kg_data[:, 0] = list(map(ent2ind.get, list(kg_data[:, 0])))
@@ -67,6 +100,26 @@ def convert_kg_to_index(kg_data, ent2ind, rel2ind):
 
 
 def train_test_split_no_unseen(X, test_size, seed):
+    """Split KG data into train and test
+
+    Split KG data into train and test, this function guarantees that the
+    entities in test data are also present in the train data.
+
+    Parameters
+    ----------
+    X : np.array
+        KG data to be splitted
+    test_size : int or float
+        desired test size, if :code:`int`, represents the absolute
+        test size, if :code:`float`, represents the relative proportion.
+    seed : int
+        random seed
+
+    Returns
+    -------
+    np.array, np.array
+        splitted train, test KG data
+    """
     
     if isinstance(test_size, float):
         test_size = int(len(X) * test_size)

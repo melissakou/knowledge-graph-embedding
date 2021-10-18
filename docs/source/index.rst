@@ -38,7 +38,7 @@ Knowledge Graph Embedding
    :caption: Negative Sampling
 
    Negative Sampling Strategy <src/KGE.ns_strategy>
-
+   
 
 Indices and tables
 ==================
