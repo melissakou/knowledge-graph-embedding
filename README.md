@@ -5,6 +5,7 @@ Document available here: https://knowledge-graph-embedding.readthedocs.io/en/lat
 
 ## Todos
 - [X] finish docs
+- [ ] unit test 
 - [ ] model saving
 - [ ] early stopping with ranking metric (for now using validation loss)
 - [ ] reproducible paper experiment
