@@ -71,7 +71,7 @@ class TransE(TranslatingModel):
         """
 
         super(TransE, self).__init__(embedding_params, negative_ratio, corrupt_side,
-                                     score_fn, loss_fn, ns_strategy, constraint, n_workers)
+                                     score_fn, loss_fn, ns_strategy, n_workers)
         self.constraint = constraint
 
     def _init_embeddings(self, seed):
@@ -92,11 +92,11 @@ class TransE(TranslatingModel):
             limit = 6.0 / np.sqrt(self.embedding_params["embedding_size"])
             uniform_initializer = tf.initializers.RandomUniform(minval=-limit, maxval=limit, seed=seed)
             ent_emb = tf.Variable(
-                uniform_initializer([len(self.meta_data["ind2ent"]), self.embedding_params["embedding_size"]]),
+                uniform_initializer([len(self.metadata["ind2ent"]), self.embedding_params["embedding_size"]]),
                 name="entities_embedding", dtype=np.float32
             )
             rel_emb = tf.Variable(
-                uniform_initializer([len(self.meta_data["ind2rel"]), self.embedding_params["embedding_size"]]),
+                uniform_initializer([len(self.metadata["ind2rel"]), self.embedding_params["embedding_size"]]),
                 name="relations_embedding", dtype=np.float32
             )
 
@@ -119,10 +119,10 @@ class TransE(TranslatingModel):
 
         assert model_weights.get("ent_emb") is not None, "entity embedding should be given in model_weights with key 'ent_emb'"
         assert model_weights.get("rel_emb") is not None, "relation embedding should be given in model_weights with key 'rel_emb'"
-        assert list(model_weights["ent_emb"].shape) == [len(self.meta_data["ind2ent"]), self.embedding_params["embedding_size"]], \
-            "shape of 'ent_emb' should be (len(meta_data['ind2ent']), embedding_params['embedding_size'])"
-        assert list(model_weights["rel_emb"].shape) == [len(self.meta_data["ind2rel"]), self.embedding_params["embedding_size"]], \
-            "shape of 'rel_emb' should be (len(meta_data['ind2rel']), embedding_params['embedding_size'])"
+        assert list(model_weights["ent_emb"].shape) == [len(self.metadata["ind2ent"]), self.embedding_params["embedding_size"]], \
+            "shape of 'ent_emb' should be (len(metadata['ind2ent']), embedding_params['embedding_size'])"
+        assert list(model_weights["rel_emb"].shape) == [len(self.metadata["ind2rel"]), self.embedding_params["embedding_size"]], \
+            "shape of 'rel_emb' should be (len(metadata['ind2rel']), embedding_params['embedding_size'])"
 
     def score_hrt(self, h, r, t):
         """ Score the triplets :math:`(h,r,t)`.
@@ -146,10 +146,7 @@ class TransE(TranslatingModel):
             triplets scores with shape :code:`(n,)`
         """
 
-        if h is None:
-            h = np.arange(len(self.meta_data["ind2ent"]))
-        if t is None:
-            t = np.arange(len(self.meta_data["ind2ent"]))
+        h,r,t = super(TransE, self).score_hrt(h,r,t)
         
         h_emb = tf.nn.embedding_lookup(self.model_weights["ent_emb"], h)
         r_emb = tf.nn.embedding_lookup(self.model_weights["rel_emb"], r)

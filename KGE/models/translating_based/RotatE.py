@@ -145,10 +145,7 @@ class RotatE(TranslatingModel):
             triplets scores with shape :code:`(n,)`
         """
 
-        if h is None:
-            h = np.arange(len(self.metadata["ind2ent"]))
-        if t is None:
-            t = np.arange(len(self.metadata["ind2ent"]))
+        h,r,t = super(RotatE, self).score_hrt(h,r,t)
 
         h_emb = tf.nn.embedding_lookup(self.model_weights["ent_emb"], h)
         r_emb = tf.nn.embedding_lookup(self.model_weights["rel_emb"], r)

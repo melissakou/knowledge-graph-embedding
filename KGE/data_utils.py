@@ -81,11 +81,11 @@ def convert_kg_to_index(kg_data, ent2ind, rel2ind):
     """
 
     if isinstance(kg_data, np.ndarray):
-        kg_data[:, 0] = list(map(ent2ind.get, list(kg_data[:, 0])))
-        kg_data[:, 1] = list(map(rel2ind.get, list(kg_data[:, 1])))
-        kg_data[:, 2] = list(map(ent2ind.get, list(kg_data[:, 2])))
+        h = list(map(ent2ind.get, list(kg_data[:, 0])))
+        r = list(map(rel2ind.get, list(kg_data[:, 1])))
+        t = list(map(ent2ind.get, list(kg_data[:, 2])))
 
-        return kg_data.astype(int)
+        return np.array([h,r,t]).T
 
     else:
         filenames = os.listdir(kg_data)
@@ -165,7 +165,6 @@ def calculate_data_size(X):
         filenames = os.listdir(X)
         filenames = [X + "/" + f for f in filenames]
         return sum([int(subprocess.getoutput("wc -l " + f).split()[0]) for f in filenames])
-        return len(X)
     else:
         return len(X)
 

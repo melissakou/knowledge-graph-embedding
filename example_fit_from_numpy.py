@@ -3,7 +3,7 @@ import random
 import numpy as np
 import tensorflow as tf
 from KGE.data_utils import index_kg, convert_kg_to_index
-from KGE.models.translating_based.RotatE import RotatE
+from KGE.models.translating_based.TransE import TransE
 from KGE.loss import SelfAdversarialNegativeSamplingLoss
 from KGE.ns_strategy import TypedStrategy
 
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     test = convert_kg_to_index(test, metadata["ent2ind"], metadata["rel2ind"])
 
 
-    model = RotatE(
+    model = TransE(
         embedding_params={"embedding_size": 10},
         negative_ratio=4,
         corrupt_side="h+t",

@@ -23,7 +23,11 @@ def normalized_embeddings(X, p, value, axis):
         normalized tensor with same shape as :code:`X`
     """
 
-    norm = tf.pow(tf.reduce_sum(tf.pow(tf.abs(X), p), axis=axis, keepdims=True), 1/p)
+    if p == np.inf:
+        norm = tf.reduce_max(tf.abs(X), axis=axis, keepdims=True)
+    else:
+        norm = tf.pow(tf.reduce_sum(tf.pow(tf.abs(X), p), axis=axis, keepdims=True), 1/p)
+
     return X / norm * value
 
 
@@ -55,7 +59,11 @@ def soft_constraint(X, p, value, axis):
         regularization term
     """
 
-    norm = tf.pow(tf.reduce_sum(tf.pow(tf.abs(X), p), axis=axis, keepdims=True), 1/p)
+    if p == np.inf:
+        norm = tf.reduce_max(tf.abs(X), axis=axis, keepdims=True)
+    else:
+        norm = tf.pow(tf.reduce_sum(tf.pow(tf.abs(X), p), axis=axis, keepdims=True), 1/p)
+        
     return tf.reduce_sum(tf.clip_by_value(tf.pow(norm, p) - value, 0, np.inf))
 
 
@@ -82,7 +90,11 @@ def clip_constraint(X, p, value, axis):
         constraint tensor with same shape as :code:`X`
     """
 
-    norm = tf.pow(tf.reduce_sum(tf.pow(tf.abs(X), p), axis=axis, keepdims=True), 1/p)
+    if p == np.inf:
+        norm = tf.reduce_max(tf.abs(X), axis=axis, keepdims=True)
+    else:
+        norm = tf.pow(tf.reduce_sum(tf.pow(tf.abs(X), p), axis=axis, keepdims=True), 1/p)
+        
     mask = tf.cast(norm<value, X.dtype)
     return mask * X + (1 - mask) * (X / tf.clip_by_value(norm, 1e-9, np.inf) * value)
 

@@ -10,9 +10,9 @@ import tensorflow as tf
 import multiprocessing as mp
 from tqdm import tqdm, trange
 from tensorboard.plugins import projector
-from ...ns_strategy import TypedStrategy, UniformStrategy
-from ...data_utils import calculate_data_size, set_tf_iterator
-from ...evaluation.metrics import mean_reciprocal_rank, mean_rank, hits_at_k, median_rank, geometric_mean_rank, harmonic_mean_rank, std_rank
+from KGE.ns_strategy import TypedStrategy, UniformStrategy
+from KGE.data_utils import calculate_data_size, set_tf_iterator
+from KGE.metrics import mean_reciprocal_rank, mean_rank, hits_at_k, median_rank, geometric_mean_rank, harmonic_mean_rank, std_rank
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -58,7 +58,7 @@ class KGEModel:
     def train(self, train_X, val_X, metadata, epochs, batch_size,
               early_stopping_rounds=None, model_weights_initial=None,
               restore_best_weight=True, optimizer="Adam", seed=None,
-              log_path=None, log_projector=False):
+              log_path="./logs", log_projector=False):
         """Train the Knowledge Graph Embedding Model.
 
         Parameters
@@ -100,7 +100,7 @@ class KGEModel:
         seed : int, optional
             random seed for shuffling data & embedding initialzation, by default None
         log_path : str, optional
-            path for tensorboard logging, by default None
+            path for tensorboard logging, by default "./logs"
         log_projector : bool, optional
             project the embbedings in the tensorboard projector tab, 
             setting this True will write the metadata and embedding tsv files
@@ -184,10 +184,10 @@ class KGEModel:
             self.__log_embeddings_projector(log_path=log_path)
 
         logging.info("[%s] Finished training!" % str(datetime.datetime.now()))
-        if hasattr(self.ns_strategy, "pool"):
-            if self.ns_strategy.pool is not None:
-                self.ns_strategy.pool.close()
-                self.ns_strategy.pool.join()
+        # if hasattr(self.ns_strategy, "pool"):
+        #     if self.ns_strategy.pool is not None:
+        #         self.ns_strategy.pool.close()
+        #         self.ns_strategy.pool.join()
         
     def __prepare_for_train(self, train_X, val_X):
         """Prepartion before training.
@@ -407,7 +407,7 @@ class KGEModel:
 
         return tf.stack([h, r, t], axis = 1)
     
-    def score_hrt(self):
+    def score_hrt(self, h, r, t):
         """Scoring the triplets.
 
         Should be implemented in subclass for their own scoring function.
@@ -416,8 +416,18 @@ class KGEModel:
         ------
         NotImplementedError
             subclass doesnt not implement score_hrt().
-        """      
-        raise NotImplementedError("subclass of KGEModel should implement score_hrt()")
+        """
+        assert ~(h is None and t is None), "h and t should not be None simultaneously"
+        if h is None:
+            assert len(r.shape) == 0
+            assert len(t.shape) == 0
+            h = np.arange(len(self.metadata["ind2ent"]))
+        if t is None:
+            assert len(h.shape) == 0
+            assert len(r.shape) == 0
+            t = np.arange(len(self.metadata["ind2ent"]))
+
+        return h, r, t      
     
     def _constraint_loss(self):
         """Perform penalty on loss or constraint on model weights.
@@ -589,7 +599,7 @@ class KGEModel:
 
         ranks = []
 
-        for _ in tqdm(n_eval):
+        for _ in tqdm(range(n_eval)):
             eval_x = next(eval_iter)
             ranks.append(self.get_rank(eval_x, positive_X, corrupt_side))
 
@@ -625,7 +635,7 @@ class KGEModel:
         int
            ranking result 
         """
-
+        x = tf.squeeze(x)
         if corrupt_side == "h":
             filter_side, corrupt_side = 2, 0
             scores = self.score_hrt(h=None, r=x[1], t=x[2])
@@ -636,7 +646,7 @@ class KGEModel:
         if positive_X is not None:
             r_mask = positive_X[:, 1] == x[1]
             e_mask = positive_X[:, filter_side] == x[filter_side]
-            positive_e = positive_X[r_mask & e_mask][:, corrupt_side]
+            positive_e = positive_X[r_mask & e_mask, corrupt_side]
             scores = tf.tensor_scatter_nd_update(scores, tf.expand_dims(positive_e, -1), [-np.inf] * len(positive_e))
 
         pos_score = self.score_hrt(x[0], x[1], x[2])

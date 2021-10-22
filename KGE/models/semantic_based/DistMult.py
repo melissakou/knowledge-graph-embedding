@@ -61,7 +61,7 @@ class DistMult(SemanticModel):
         """
         
         super(DistMult, self).__init__(embedding_params, negative_ratio, corrupt_side, 
-                                       loss_fn, ns_strategy, constraint, n_workers)
+                                       loss_fn, ns_strategy, n_workers)
         self.constraint = constraint
         self.constraint_weight = constraint_weight
 
@@ -83,14 +83,14 @@ class DistMult(SemanticModel):
             limit = np.sqrt(6.0 / self.embedding_params["embedding_size"])
             uniform_initializer = tf.initializers.RandomUniform(minval=-limit, maxval=limit, seed=seed)
             ent_emb = tf.Variable(
-                uniform_initializer([len(self.meta_data["ind2ent"]), self.embedding_params["embedding_size"]]),
+                uniform_initializer([len(self.metadata["ind2ent"]), self.embedding_params["embedding_size"]]),
                 name="entities_embedding", dtype=np.float32
             )
 
             limit = np.sqrt(6.0 / self.embedding_params["embedding_size"])
             uniform_initializer = tf.initializers.RandomUniform(minval=-limit, maxval=limit, seed=seed)
             rel_inter = tf.Variable(
-                uniform_initializer([len(self.meta_data["ind2rel"]), self.embedding_params["embedding_size"]]),
+                uniform_initializer([len(self.metadata["ind2rel"]), self.embedding_params["embedding_size"]]),
                 name="relations_interaction", dtype=np.float32
             )       
 
@@ -110,10 +110,10 @@ class DistMult(SemanticModel):
 
         assert model_weights.get("ent_emb") is not None, "entity embedding should be given in model_weights with key 'ent_emb'"
         assert model_weights.get("rel_inter") is not None, "relation interaction matrix should be given in model_weights with key 'rel_inter'"
-        assert list(model_weights["ent_emb"].shape) == [len(self.meta_data["ind2ent"]), self.embedding_params["embedding_size"]], \
-            "shape of 'ent_emb' should be (len(meta_data['ind2ent']), embedding_params['embedding_size'])"
-        assert list(model_weights["rel_inter"].shape) == [len(self.meta_data["ind2rel"]), self.embedding_params["embedding_size"]], \
-            "shape of 'rel_inter' should be (len(meta_data['ind2rel']), embedding_params['embedding_size'])"
+        assert list(model_weights["ent_emb"].shape) == [len(self.metadata["ind2ent"]), self.embedding_params["embedding_size"]], \
+            "shape of 'ent_emb' should be (len(metadata['ind2ent']), embedding_params['embedding_size'])"
+        assert list(model_weights["rel_inter"].shape) == [len(self.metadata["ind2rel"]), self.embedding_params["embedding_size"]], \
+            "shape of 'rel_inter' should be (len(metadata['ind2rel']), embedding_params['embedding_size'])"
     
     def score_hrt(self, h, r, t):
         """ Score the triplets :math:`(h,r,t)`.
@@ -137,10 +137,7 @@ class DistMult(SemanticModel):
             triplets scores with shape :code:`(n,)`
         """
 
-        if h is None:
-            h = np.arange(len(self.meta_data["ind2ent"]))
-        if t is None:
-            t = np.arange(len(self.meta_data["ind2ent"]))
+        h,r,t = super(DistMult, self).score_hrt(h,r,t)
 
         h_emb = tf.nn.embedding_lookup(self.model_weights["ent_emb"], h)
         t_emb = tf.nn.embedding_lookup(self.model_weights["ent_emb"], t)

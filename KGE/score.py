@@ -71,7 +71,7 @@ class LpDistancePow(Score):
         self.p = p
 
     def __call__(self, x, y):
-        return tf.pow(LpDistance(p=p)(x, y), 2)
+        return -tf.pow(LpDistance(p=self.p)(x, y), 2)
         
 class Dot(Score):
     """An implementation of dot product.

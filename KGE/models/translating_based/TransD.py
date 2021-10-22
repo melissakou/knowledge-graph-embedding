@@ -99,7 +99,7 @@ class TransD(TranslatingModel):
         """
 
         super(TransD, self).__init__(embedding_params, negative_ratio, corrupt_side,
-                                     score_fn, loss_fn, ns_strategy, constraint, n_workers)
+                                     score_fn, loss_fn, ns_strategy, n_workers)
         self.constraint = constraint
         
     def _init_embeddings(self, seed):
@@ -121,22 +121,22 @@ class TransD(TranslatingModel):
             limit = np.sqrt(6.0 / self.embedding_params["ent_embedding_size"])
             uniform_initializer = tf.initializers.RandomUniform(minval=-limit, maxval=limit, seed=seed)
             ent_emb = tf.Variable(
-                uniform_initializer([len(self.meta_data["ind2ent"]), self.embedding_params["ent_embedding_size"]]),
+                uniform_initializer([len(self.metadata["ind2ent"]), self.embedding_params["ent_embedding_size"]]),
                 name="entities_embedding", dtype=np.float32
             )
             ent_proj = tf.Variable(
-                uniform_initializer([len(self.meta_data["ind2ent"]), self.embedding_params["ent_embedding_size"]]),
+                uniform_initializer([len(self.metadata["ind2ent"]), self.embedding_params["ent_embedding_size"]]),
                 name="entities_projection", dtype=np.float32
             )
 
             limit = np.sqrt(6.0 / self.embedding_params["rel_embedding_size"])
             uniform_initializer = tf.initializers.RandomUniform(minval=-limit, maxval=limit, seed=seed)
             rel_emb = tf.Variable(
-                uniform_initializer([len(self.meta_data["ind2rel"]), self.embedding_params["rel_embedding_size"]]),
+                uniform_initializer([len(self.metadata["ind2rel"]), self.embedding_params["rel_embedding_size"]]),
                 name="relations_embedding", dtype=np.float32
             )
             rel_proj = tf.Variable(
-                uniform_initializer([len(self.meta_data["ind2rel"]), self.embedding_params["rel_embedding_size"]]),
+                uniform_initializer([len(self.metadata["ind2rel"]), self.embedding_params["rel_embedding_size"]]),
                 name="relations_projection", dtype=np.float32
             )    
 
@@ -158,14 +158,14 @@ class TransD(TranslatingModel):
         assert model_weights.get("rel_emb") is not None, "relation embedding should be given in model_weights with key 'rel_emb'"
         assert model_weights.get("ent_proj") is not None, "entity projection vector should be given in model_weights with key 'ent_proj'"
         assert model_weights.get("rel_proj") is not None, "relation projection vector should be given in model_weights with key 'rel_proj'"
-        assert list(model_weights["ent_emb"].shape) == [len(self.meta_data["ind2ent"]), self.embedding_params["ent_embedding_size"]], \
-            "shape of 'ent_emb' should be (len(meta_data['ind2ent']), embedding_params['ent_embedding_size'])"
-        assert list(model_weights["rel_emb"].shape) == [len(self.meta_data["ind2rel"]), self.embedding_params["rel_embedding_size"]], \
-            "shape of 'rel_emb' should be (len(meta_data['ind2rel']), embedding_params['rel_embedding_size'])"
-        assert list(model_weights["ent_proj"].shape) == [len(self.meta_data["ind2ent"]), self.embedding_params["ent_embedding_size"]], \
-            "shape of 'ent_proj' should be (len(meta_data['ind2ent']), embedding_params['ent_embedding_size'])"
-        assert list(model_weights["rel_proj"].shape) == [len(self.meta_data["ind2rel"]), self.embedding_params["rel_embedding_size"]], \
-            "shape of 'rel_proj' should be (len(meta_data['ind2rel']), embedding_params['rel_embedding_size'])"
+        assert list(model_weights["ent_emb"].shape) == [len(self.metadata["ind2ent"]), self.embedding_params["ent_embedding_size"]], \
+            "shape of 'ent_emb' should be (len(metadata['ind2ent']), embedding_params['ent_embedding_size'])"
+        assert list(model_weights["rel_emb"].shape) == [len(self.metadata["ind2rel"]), self.embedding_params["rel_embedding_size"]], \
+            "shape of 'rel_emb' should be (len(metadata['ind2rel']), embedding_params['rel_embedding_size'])"
+        assert list(model_weights["ent_proj"].shape) == [len(self.metadata["ind2ent"]), self.embedding_params["ent_embedding_size"]], \
+            "shape of 'ent_proj' should be (len(metadata['ind2ent']), embedding_params['ent_embedding_size'])"
+        assert list(model_weights["rel_proj"].shape) == [len(self.metadata["ind2rel"]), self.embedding_params["rel_embedding_size"]], \
+            "shape of 'rel_proj' should be (len(metadata['ind2rel']), embedding_params['rel_embedding_size'])"
 
     def score_hrt(self, h, r, t):
         """ Score the triplets :math:`(h,r,t)`.
@@ -189,10 +189,7 @@ class TransD(TranslatingModel):
             triplets scores with shape :code:`(n,)`
         """
 
-        if h is None:
-            h = np.arange(len(self.meta_data["ind2ent"]))
-        if t is None:
-            t = np.arange(len(self.meta_data["ind2ent"]))
+        h,r,t = super(TransD, self).score_hrt(h,r,t)
 
         h_emb = tf.expand_dims(tf.nn.embedding_lookup(self.model_weights["ent_emb"], h), axis=-1)
         r_emb = tf.nn.embedding_lookup(self.model_weights["rel_emb"], r)
@@ -201,6 +198,13 @@ class TransD(TranslatingModel):
         h_proj = tf.expand_dims(tf.nn.embedding_lookup(self.model_weights["ent_proj"], h), axis=-1)
         r_proj = tf.expand_dims(tf.nn.embedding_lookup(self.model_weights["rel_proj"], r), axis=-1)
         t_proj = tf.expand_dims(tf.nn.embedding_lookup(self.model_weights["ent_proj"], t), axis=-1)
+
+        if len(h_proj.shape) < 3:
+            h_proj = tf.expand_dims(h_proj, 0)
+        if len(r_proj.shape) < 3:
+            r_proj = tf.expand_dims(r_proj, 0)
+        if len(t_proj.shape) < 3:
+            t_proj = tf.expand_dims(t_proj, 0)
 
         diag_matrix = tf.eye(num_rows=self.embedding_params["rel_embedding_size"],
                              num_columns=self.embedding_params["ent_embedding_size"])
