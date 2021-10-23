@@ -7,7 +7,6 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   KGE.evaluation
    KGE.models
 
 .. autosummary::
@@ -16,6 +15,8 @@ Subpackages
    KGE.data_utils
    
    KGE.loss
+   
+   KGE.metrics
    
    KGE.ns_strategy
    
