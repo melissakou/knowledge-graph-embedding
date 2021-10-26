@@ -2,8 +2,7 @@ import random
 import numpy as np
 import tensorflow as tf
 from KGE.data_utils import index_kg, convert_kg_to_index
-from KGE.models.translating_based.RotatE import RotatE
-from KGE.loss import BinaryCrossEntropyLoss
+from KGE.models.translating_based.TransE import TransE
 
 if __name__ == "__main__":
     train = "./data/fb15k/train"
@@ -17,12 +16,11 @@ if __name__ == "__main__":
     train = train + "_indexed"
     valid = valid + "_indexed"
 
-    model = RotatE(
+    model = TransE(
         embedding_params={"embedding_size": 2},
         negative_ratio=1,
-        corrupt_side="h+t",
-        loss_fn=BinaryCrossEntropyLoss())
-    model.train(train_X=train, val_X=valid, metadata=metadata, epochs=1, batch_size=256,
+        corrupt_side="h+t")
+    model.train(train_X=train, val_X=valid, metadata=metadata, epochs=2, batch_size=256,
                 early_stopping_rounds=None, restore_best_weight=False,
                 optimizer=tf.optimizers.Adam(learning_rate=0.0001),
                 seed=12345, log_path="./tensorboard_logs", log_projector=True)
