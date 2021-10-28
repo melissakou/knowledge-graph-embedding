@@ -45,7 +45,6 @@ class TestDataUtils(unittest.TestCase):
         check_path_exist_and_create("./tmp/train")
         pd.DataFrame(train).to_csv("./tmp/train/train.csv", index=False, header=False)
         self.assertEqual(calculate_data_size("./tmp/train"), len(train))
-        rmtree("./tmp/train")
     
     def test_convert_kg_to_index(self):
         metadata = index_kg(train)
@@ -65,7 +64,7 @@ class TestDataUtils(unittest.TestCase):
 
         indexed_kg = pd.read_csv("./tmp/train_indexed/train.csv", header=None)
         self.assertEqual(train.shape, indexed_kg.shape)
-        self.assertTrue(all(indexed_kg.dtypes == np.int_))
+        [self.assertTrue(pd.api.types.is_integer_dtype(indexed_kg[i])) for i in range(indexed_kg.shape[1])]
 
 
     def test_set_tf_iterator(self):
