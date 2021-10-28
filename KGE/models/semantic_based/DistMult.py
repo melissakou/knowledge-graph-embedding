@@ -1,6 +1,6 @@
 """An implementation of DistMult
 """
-
+import scipy
 import numpy as np
 import tensorflow as tf
 from ..base_model.SemanticModel import SemanticModel

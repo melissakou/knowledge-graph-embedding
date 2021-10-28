@@ -1,4 +1,5 @@
 import os
+import scipy
 import unittest
 import collections
 import numpy as np

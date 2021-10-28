@@ -1,9 +1,6 @@
 import random
 import unittest
 
-from tensorflow.python.eager.monitoring import Metric
-from tensorflow.python.ops.gen_array_ops import rank
-
 from KGE.metrics import mean_reciprocal_rank, mean_rank, median_rank
 from KGE.metrics import geometric_mean_rank, harmonic_mean_rank, std_rank, hits_at_k
 

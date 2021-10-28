@@ -23,6 +23,7 @@ You can change the score function to try any possibility in a very easy way:
     )
 """
 
+import scipy
 import numpy as np
 import tensorflow as tf
 

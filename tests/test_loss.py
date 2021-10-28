@@ -1,3 +1,4 @@
+import scipy
 import unittest
 import tensorflow as tf
 from KGE.loss import PairwiseHingeLoss, PairwiseLogisticLoss

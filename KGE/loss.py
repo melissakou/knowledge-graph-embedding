@@ -22,6 +22,7 @@ You can change the loss function to try any possibility in a very easy way:
     )
 """
 
+import scipy
 import numpy as np
 import tensorflow as tf
 

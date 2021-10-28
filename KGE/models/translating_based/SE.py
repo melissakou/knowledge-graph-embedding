@@ -1,6 +1,6 @@
 """An implementation of SE (Structured Embedding)
 """
-
+import scipy
 import logging
 import numpy as np
 import tensorflow as tf

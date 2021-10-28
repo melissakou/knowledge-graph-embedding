@@ -1,3 +1,4 @@
+import scipy
 import unittest
 import numpy as np
 import tensorflow as tf
