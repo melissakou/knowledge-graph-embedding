@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import tensorflow  as tf
 
-from KGE.utils import check_path_exist_and_create, rmtree
+from KGE.utils import check_path_exist_and_create
 from KGE.data_utils import index_kg, convert_kg_to_index, set_tf_iterator
 from KGE.data_utils import train_test_split_no_unseen, calculate_data_size
 
@@ -66,7 +66,6 @@ class TestDataUtils(unittest.TestCase):
         indexed_kg = pd.read_csv("./tmp/train_indexed/train.csv", header=None)
         self.assertEqual(train.shape, indexed_kg.shape)
         self.assertTrue(all(indexed_kg.dtypes == np.int_))
-        rmtree("./tmp")
 
 
     def test_set_tf_iterator(self):
@@ -89,7 +88,6 @@ class TestDataUtils(unittest.TestCase):
         batch = next(data_iter)
         self.assertEqual(len(batch), batch_size)
         self.assertEqual(batch.dtype, tf.int32)
-        rmtree("./tmp")
 
     def test_train_test_split_no_unseen(self):
         global train
