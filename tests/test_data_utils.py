@@ -84,9 +84,9 @@ class TestDataUtils(unittest.TestCase):
         self.assertEqual(batch.dtype, train_indexed.dtype)
 
         # test csv
-        check_path_exist_and_create("./tmp/train")
-        pd.DataFrame(train_indexed).to_csv("./tmp/train/train.csv", index=False, header=False)
-        data_iter = set_tf_iterator(data="./tmp/train", batch_size=batch_size, shuffle=False)
+        check_path_exist_and_create("./tmp")
+        pd.DataFrame(train_indexed).to_csv("./tmp/train.csv", index=False, header=False)
+        data_iter = set_tf_iterator(data="./tmp", batch_size=batch_size, shuffle=False)
         batch = next(data_iter)
         self.assertEqual(len(batch), batch_size)
         self.assertEqual(batch.dtype, tf.int32)

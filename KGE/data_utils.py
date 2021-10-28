@@ -1,6 +1,5 @@
 import logging
 import os
-import subprocess
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -164,7 +163,11 @@ def calculate_data_size(X):
     if isinstance(X, str):
         filenames = os.listdir(X)
         filenames = [X + "/" + f for f in filenames]
-        return sum([int(subprocess.getoutput("wc -l " + f).split()[0]) for f in filenames])
+        total_size = 0
+        for f in filenames:
+            partition = pd.read_csv(f, header=None)
+            total_size += len(partition)
+        return total_size
     else:
         return len(X)
 
