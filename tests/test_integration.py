@@ -1,4 +1,3 @@
-import shutil
 import unittest
 import numpy as np
 import tensorflow as tf
@@ -8,6 +7,7 @@ from data import train, val, metadata
 from KGE import score
 from KGE import loss
 from KGE import ns_strategy
+from KGE.utils import rmtree
 from KGE.models.translating_based.RotatE import RotatE
 from KGE.models.translating_based.SE import SE
 from KGE.models.translating_based.TransD import TransD
@@ -212,7 +212,7 @@ class TestIntegration(unittest.TestCase):
                 model.evaluate(eval_X=val, corrupt_side="h")
 
     def tearDown(self):
-        shutil.rmtree("./tmp")
+        rmtree("./tmp")
 
 
 if __name__ == "__main__":

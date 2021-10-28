@@ -1,9 +1,9 @@
-import shutil
 import unittest
 import numpy as np
 import tensorflow as tf
 
 from data import train, val, metadata
+from KGE.utils import rmtree
 from KGE.data_utils import convert_kg_to_index
 from KGE.models.translating_based.RotatE import RotatE
 from KGE.models.translating_based.SE import SE
@@ -34,7 +34,7 @@ class TestBaseModel(unittest.TestCase):
     def test_train(self):
         try:
             self.model.train(train_X=train, val_X=val, metadata=metadata, epochs=1, batch_size=2)
-            shutil.rmtree(self.model.log_path)
+            rmtree(self.model.log_path)
         except Exception as e:
             self.fail("Unexpected exception %s" % e)
 
