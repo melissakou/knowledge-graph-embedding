@@ -23,7 +23,6 @@ You can change the score function to try any possibility in a very easy way:
     )
 """
 
-import scipy
 import numpy as np
 import tensorflow as tf
 
@@ -53,6 +52,7 @@ class LpDistance(Score):
     Score between :math:`\\textbf{x}` and :math:`\\textbf{y}` is defined as
     :math:`- \left\| \\textbf{x} - \\textbf{y} \\right\|_p`
     """
+
     def __init__(self, p):
         self.p = p
 
@@ -68,6 +68,7 @@ class LpDistancePow(Score):
     Score between :math:`\\textbf{x}` and :math:`\\textbf{y}` is defined as
     :math:`- \left\| \\textbf{x} - \\textbf{y} \\right\|_p^2`
     """
+
     def __init__(self, p):
         self.p = p
 
@@ -80,6 +81,7 @@ class Dot(Score):
     Score between :math:`\\textbf{x}` and :math:`\\textbf{y}` is defined as
     :math:`\\textbf{x} \cdot \\textbf{y}`
     """
+    
     def __init__(self):
         pass
 

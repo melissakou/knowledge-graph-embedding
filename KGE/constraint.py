@@ -1,4 +1,3 @@
-import scipy
 import numpy as np
 import tensorflow as tf
 
@@ -123,4 +122,5 @@ def Lp_regularization(X, p, axis):
     tf.Tensor
         constraint term
     """
+
     return tf.reduce_sum(tf.pow(tf.abs(X), p), axis=axis)

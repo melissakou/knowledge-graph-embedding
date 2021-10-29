@@ -5,7 +5,6 @@ base module for Knowledge Graph Embedding Model
 import os
 import datetime
 import logging
-import scipy
 import numpy as np
 import tensorflow as tf
 import multiprocessing as mp

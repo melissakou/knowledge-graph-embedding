@@ -1,4 +1,3 @@
-import scipy
 import unittest
 import numpy as np
 import tensorflow as tf
@@ -61,25 +60,24 @@ class TestBaseModel(unittest.TestCase):
         
         [test(eval_result_filter[m], eval_result[m]) for test, m in zip(assert_test, metrics)]
 
-class TestModelBase:
+class BaseTestModels:
 
-    class TestModel(unittest.TestCase):
-        def test_score_hrt(self):
-            # test score batch
-            scores = self.model.score_hrt(h=val[:,0], r=val[:,1], t = val[:,2])
-            self.assertEqual(len(scores), len(val))
-            self.assertTrue(tf.reduce_all(tf.math.is_finite(scores)))
+    def test_score_hrt(self):
+        # test score batch
+        scores = self.model.score_hrt(h=val[:,0], r=val[:,1], t = val[:,2])
+        self.assertEqual(len(scores), len(val))
+        self.assertTrue(tf.reduce_all(tf.math.is_finite(scores)))
 
-            # test score head
-            scores = self.model.score_hrt(h=None, r=val[0,1], t=val[0,2])
-            self.assertEqual(len(scores), len(metadata["ind2ent"]))
+        # test score head
+        scores = self.model.score_hrt(h=None, r=val[0,1], t=val[0,2])
+        self.assertEqual(len(scores), len(metadata["ind2ent"]))
 
-            # test score tail
-            scores = self.model.score_hrt(h=val[0,0], r=val[0,1], t=None)
-            self.assertEqual(len(scores), len(metadata["ind2ent"]))
+        # test score tail
+        scores = self.model.score_hrt(h=val[0,0], r=val[0,1], t=None)
+        self.assertEqual(len(scores), len(metadata["ind2ent"]))
 
 
-class TestRotatE(TestModelBase.TestModel):
+class TestRotatE(BaseTestModels, unittest.TestCase):
 
     def setUp(self):
         self.embedding_params = {"embedding_size": 16}
@@ -100,7 +98,7 @@ class TestRotatE(TestModelBase.TestModel):
         
         
 
-class TestSE(TestModelBase.TestModel):
+class TestSE(BaseTestModels, unittest.TestCase):
 
     def setUp(self):
         self.embedding_params = {"embedding_size": 16}
@@ -123,7 +121,7 @@ class TestSE(TestModelBase.TestModel):
         self.assertTrue("rel_proj_h" in self.model.model_weights)
         self.assertTrue("rel_proj_t" in self.model.model_weights)
 
-class TestTransD(TestModelBase.TestModel):
+class TestTransD(BaseTestModels, unittest.TestCase):
 
     def setUp(self):
         self.embedding_params = {"ent_embedding_size": 16, "rel_embedding_size": 16}
@@ -147,7 +145,7 @@ class TestTransD(TestModelBase.TestModel):
         self.assertTrue("ent_proj" in self.model.model_weights)
         self.assertTrue("rel_proj" in self.model.model_weights)
 
-class TestTransE(TestModelBase.TestModel):
+class TestTransE(BaseTestModels, unittest.TestCase):
 
     def setUp(self):
         self.embedding_params = {"embedding_size": 16}
@@ -170,7 +168,7 @@ class TestTransE(TestModelBase.TestModel):
         self.assertTrue("rel_emb" in self.model.model_weights)
 
 
-class TestTransH(TestModelBase.TestModel):
+class TestTransH(BaseTestModels, unittest.TestCase):
 
     def setUp(self):
         self.embedding_params = {"embedding_size": 16}
@@ -194,7 +192,7 @@ class TestTransH(TestModelBase.TestModel):
         self.assertTrue("rel_hyper" in self.model.model_weights)
 
 
-class TestTransR(TestModelBase.TestModel):
+class TestTransR(BaseTestModels, unittest.TestCase):
 
     def setUp(self):
         self.embedding_params = {"ent_embedding_size": 16, "rel_embedding_size": 16}
@@ -218,7 +216,7 @@ class TestTransR(TestModelBase.TestModel):
         self.assertTrue("rel_proj" in self.model.model_weights)
 
 
-class TestUM(TestModelBase.TestModel):
+class TestUM(BaseTestModels, unittest.TestCase):
 
     def setUp(self):
         self.embedding_params = {"embedding_size": 16}
@@ -239,7 +237,7 @@ class TestUM(TestModelBase.TestModel):
         self.model._init_embeddings(seed=None)
         self.assertTrue("ent_emb" in self.model.model_weights)
 
-class TestDistMult(TestModelBase.TestModel):
+class TestDistMult(BaseTestModels, unittest.TestCase):
 
     def setUp(self):
         self.embedding_params = {"embedding_size": 16}
@@ -262,7 +260,7 @@ class TestDistMult(TestModelBase.TestModel):
         self.assertTrue("rel_inter" in self.model.model_weights)
 
 
-class TestRESCAL(TestModelBase.TestModel):
+class TestRESCAL(BaseTestModels, unittest.TestCase):
 
     def setUp(self):
         self.embedding_params = {"embedding_size": 16}

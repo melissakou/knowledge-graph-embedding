@@ -1,7 +1,6 @@
 """An implementation of RESCAL
 """
 
-import scipy
 import numpy as np
 import tensorflow as tf
 from ..base_model.SemanticModel import SemanticModel

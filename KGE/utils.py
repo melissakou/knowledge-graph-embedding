@@ -1,6 +1,5 @@
 import os
 import stat
-import scipy
 import numpy as np
 import tensorflow as tf
 
